@@ -1,0 +1,9 @@
+.navigation-container a {
+    text-decoration: none;
+    color: white;
+    overflow: hidden;
+}
+
+.user-nav-icon {
+    color: rgba(255,255,255,.55);
+}

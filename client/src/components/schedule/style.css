@@ -1,0 +1,58 @@
+.day-container {
+    border-radius: 0.75em;
+    height:375px;
+}
+
+
+.time-tick-container {
+    position: absolute;
+    width: 100%;
+}
+
+.time-tick {
+    text-align: center;
+    height:1em;
+    opacity: 50%;
+    position: absolute;
+    border-top: 2px solid white;
+    width: 75%;
+}
+
+.events-container {
+    position: relative;
+}
+
+.event-badge {
+    word-wrap: break-word;
+    align-items: center;
+    position: absolute;
+    padding: .4em .3em;
+    font-size: 0.8em;
+    font-weight: 700;
+    color: #fff;
+    border-radius: .5rem;
+    overflow: auto;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.event-badge:hover {
+    color:black;
+    background-color: white;
+    z-index: 100;
+}
+
+.event-badge-classroom {
+    left:0%;
+    background-color:blueviolet
+}
+
+.event-badge-powertool {
+    left:25%;
+    background-color:darkgreen
+}
+
+.event-badge-machineshop {
+    left:50%;
+    background-color:darkorange;
+}
