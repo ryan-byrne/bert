@@ -1,13 +1,18 @@
 import React from 'react';
-import { createRoot } from 'react-dom/client';
+import ReactDOM from 'react-dom';
 import App from './App';
 import {BrowserRouter} from "react-router-dom";
-import './styles/index.css';
 
-createRoot(
+import './index.css';
+
+ReactDOM.render(
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>,
   document.getElementById('root')
-).render(
-  <BrowserRouter>
-    <App/>
-  </BrowserRouter>
-)
+);
+
+// Hot Module Replacement
+if(module.hot){
+  module.hot.accept();
+}

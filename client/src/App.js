@@ -1,17 +1,18 @@
 // React Dependencies
+import React from 'react';
 import {Routes, Route, useNavigate} from 'react-router-dom';
 import { useEffect, useState } from 'react';
-// Apollo
-import { ApolloSandbox } from '@apollo/sandbox/react';
 // Import Bootstrap Styles
 import 'bootstrap/dist/css/bootstrap.min.css';
+// Routes
+import Index from './routes/Index';
+import Schedule from './routes/schedule/Schedule';
+import Logout from './routes/logout/Logout';
+import TrainingPage from './routes/training/TrainingPage';
+import {NotFound} from './components/Utilities.js';
 // Internal Components
 import {Message} from './components/Utilities';
-import Schedule from './components/schedule/Schedule';
 import Navigation from './components/Navigation';
-import Landing from './components/Landing';
-import {Logout, Login} from './components/Login';
-import {NotFound} from './components/Utilities.js';
 
 export default () => {
 
@@ -33,25 +34,28 @@ export default () => {
       .catch( err => setMessage({text:err.message, error:true}))
   },[setUser])
 
+  /*
+  <Route path="training" element={<Training {...{user}}/>}/>
+  <Route path="training/:trainingId" element={<Training {...{user}}/>}/>
+  <Route path="tools" element={<Tools {...{user}}/>}/>
+  <Route path="tools/:toolId" element={<Tools {...{user}}/>}/>
+  */
+  
   return (
     <div className='app-container text-light'>
       <div className="h-100">
         <Navigation user={user}/>
         <Message text={message.text} loading={message.loading} error={message.error}/>
-        <Routes>
-            <Route index element={<Landing/>}/>
-            <Route path="schedule" element={<Schedule {...{user}}/>}/>
-            <Route path="graphql" element={
-              <ApolloSandbox
-                className="apollo-container"
-                initialEndpoint='/graphql'
-                includeCookies={true}
-              />
-            }/>
-            <Route path="login" element={<Login {...{user, navigate}}/>}/>
+        { !user?null:
+          <Routes>
+            <Route index element={<Index/>}/>
+            <Route path="schedule" element={<Schedule {...{user, navigate}} create={false}/>}/>
+            <Route path="schedule/create" element={<Schedule {...{user, navigate}} create={true}/>}/>
+            <Route path="training/*" element={<TrainingPage {...{navigate}}/>}/>
             <Route path="logout" element={<Logout {...{user, setUser, navigate}}/>}/>
             <Route path="*" element={<NotFound/>}/>
-        </Routes>
+          </Routes>
+        }
       </div>
     </div>
   );

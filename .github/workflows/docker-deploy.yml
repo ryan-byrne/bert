@@ -32,6 +32,11 @@ jobs:
           token_format: 'access_token'
           workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
           service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+          
+      - id: webpack
+        name: Webpack Client
+        run:
+          npm run build
 
       - name: 'Include Cloud SDK'
         uses: 'google-github-actions/setup-gcloud@v0'

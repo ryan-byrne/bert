@@ -1,32 +1,43 @@
-const path = require('path');
+const {resolve} = require('path');
+const {HotModuleReplacementPlugin, LoaderOptionsPlugin, NoEmitOnErrorsPlugin} = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
+const isProduction = process.env.NODE_ENV === 'production'
+
 module.exports = {
-    entry: {
-        index:path.resolve(__dirname, 'client','src', 'index.js'),
-        index:path.resolve(__dirname, 'client','src', 'index.js')
-    },
+    mode: isProduction ? 'production' : 'development',
+    devtool: isProduction ? null : 'eval-cheap-module-source-map' ,
+    entry:[
+        'react-hot-loader/patch',
+        'webpack-hot-middleware/client',
+        resolve(__dirname, 'client','src', 'index.js')
+    ],
     output: {
         filename: '[name].bundle.js',
-        path: path.resolve(__dirname, 'client', 'build'),
-        publicPath: path.resolve(__dirname, 'client', 'build')
+        path: resolve(__dirname, 'client', 'build'),
+        publicPath: resolve(__dirname, 'client', 'build')
+    },
+    stats: {
+        errorDetails: true,
+        children: true
     },
     plugins:[
         new HtmlWebpackPlugin({
-            template:path.resolve(__dirname, 'client', 'public', 'index.html'),
-            favicon:path.resolve(__dirname, 'client', 'public', 'bertIcon.png'),
-            manifest:path.resolve(__dirname, 'client', 'public', 'manifest.json'),
-            robots:path.resolve(__dirname, 'client', 'public', 'robots.txt')
-        })
+            template:resolve(__dirname, 'client', 'public', 'index.html'),
+            favicon:resolve(__dirname, 'client', 'public', 'bertIcon.png'),
+            manifest:resolve(__dirname, 'client', 'public', 'manifest.json'),
+            robots:resolve(__dirname, 'client', 'public', 'robots.txt')
+        }),
+        new HotModuleReplacementPlugin()
     ],
     module: {
         rules: [
             {
                 test: /\.(png|jpe?g|gif)$/i,
                 use: [
-                  {
+                    {
                     loader: 'file-loader',
-                  },
+                    },
                 ],
             },
             {
@@ -35,7 +46,6 @@ module.exports = {
             },
             {
             test: /\.(jsx|js)$/,
-            include: path.resolve(__dirname, 'client', 'src'),
             exclude: /node_modules/,
             use: [{
                 loader: 'babel-loader',
@@ -47,4 +57,4 @@ module.exports = {
             }
         ]
     }
-}
+    }

@@ -3,33 +3,19 @@ import { Link } from 'react-router-dom'
 
 import brandImg from '../img/logos/whiteBrand.png'
 
-import '../styles/navigation.css'
+import './styles/navigation.css'
 
 const Glossary = {
-    "create":{
-        title:"Create",
-        contents:{
-            "Available Tools":"/tools",
-            "":null,
-            "Request a 3D Print":"/printing/request",
-            "View My Prints":"/printing"
-        }
+
+    "Schedule":{
+        "View":"/schedule",
+        "":null,
+        "Create Event":"/schedule/create"
     },
-    "learn":{
-        title:"Learn",
-        contents:{
-            "Tool Trainings":"/trainings",
-            "Arduino":"https://arduino.thebetalab.org"
-        }
-    },
-    "visit":{
-        title:"Visit",
-        contents:{
-            "View Schedule":"/schedule",
-            "":null,
-            "Book the Lab":"/schedule/book"
-        }
+    "Learn":{
+        "Trainings":"/training"
     }
+
 }
 
 const Navigation = ({user}) => {
@@ -45,17 +31,15 @@ const Navigation = ({user}) => {
             <Navbar.Toggle/>
             <Navbar.Collapse>
                 <Nav>
-                    {Object.entries(Glossary).map(([key, data], idx)=>
-                        data.contents?
-                        <NavDropdown title={data.title} key={idx} menuVariant='dark'>
-                            {Object.entries(data.contents).map(([title, link], jdx)=>
+                    {Object.entries(Glossary).map(([key, content], idx)=>
+                        <NavDropdown title={key} key={idx} menuVariant='dark'>
+                            {Object.entries(content).map(([title, link], jdx)=>
                                 title.length === 0 ? <NavDropdown.Divider key={jdx}/> :
                                 <NavDropdown.Item key={jdx}>
                                     <Link to={link}>{title}</Link>
                                 </NavDropdown.Item>
                             )}
-                        </NavDropdown>:
-                        <Link to={data.link}>{data.title}</Link>
+                        </NavDropdown>
                     )}
                 </Nav>
             </Navbar.Collapse>
