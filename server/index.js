@@ -38,8 +38,7 @@ app.use(session({
     mongoUrl:`mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASS}@${process.env.MONGO_URL}/${process.env.MONGO_DB}`
   }),
   cookie:{
-    secure: true,
-    sameSite:'none',
+    secure: process.env.NODE_ENV === 'development' ? false : true,
     httpOnly: true
   }
 }));
@@ -48,17 +47,17 @@ app.use(authMiddleware);
 // Auth Route
 app.use('/auth', auth);
 
-// Client Route
-app.get("*", (_, res)=> res.sendFile( resolve(__dirname, '..', 'client', 'build', 'index.html') ) );
-
 // Apollo Server
 apolloServer.start()
   .then(resp => {
     console.log('Started Apollo Server...');
     apolloServer.applyMiddleware({
       app, 
-      cors:corsOptions
+      cors:corsOptions,
+      path:'/graphql'
     })
+    // Client Route
+    app.get("*", (_, res)=> res.sendFile( resolve(__dirname, '..', 'client', 'build', 'index.html') ) );
   })
 
 // Express Server

@@ -12,8 +12,9 @@ const Glossary = {
         "":null,
         "Create Event":"/schedule/create"
     },
-    "Learn":{
-        "Trainings":"/training"
+
+    "Training":{
+        "View":"/training"
     }
 
 }

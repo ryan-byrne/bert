@@ -1,6 +1,7 @@
 import { useState } from "react";
 import {Route, Routes} from 'react-router-dom';
 
+import Index from "./routes/Index";
 import Introduction from "./routes/Introduction";
 import PowerDrills from "./routes/PowerDrills";
 import DrillPress from "./routes/DrillPress";
@@ -32,7 +33,7 @@ export default () => {
     */
     return(
         <Routes>
-            <Route index element={<div>Training</div>}/>
+            <Route index element={<Index/>}/>
             <Route path="introduction" element={<Introduction update={update}/>}/>
             <Route path="power-drills" element={<PowerDrills update={update}/>}/>
             <Route path="drill-press" element={<DrillPress update={update}/>}/>

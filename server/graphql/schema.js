@@ -20,8 +20,7 @@ type Query {
     toolAvailability(start:String, end:String, search:String):[ToolReservation]
     block(division:String,day:String,week:String):[Block]
     checkForConflicts(times:[Time], locations:[EventLocation]):[Conflict]
-    getTraining(id:String):Training
-    getTrainingProgress(id:String):String
+    getTraining(id:String):Training    
 }
 
 type Mutation {

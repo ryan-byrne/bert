@@ -6,6 +6,7 @@
     * Updates with google calendar
     * CHeck Tool inventory
     * Implement URL Parameters
+    * Fix Month View
 
 * Trainings
     * Main Page

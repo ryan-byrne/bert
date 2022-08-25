@@ -7,7 +7,7 @@ export default ({children, name, topicKey}) => {
     const [progress, setProgress] = useState([]);
 
     return (
-        <Accordion.Item classNage="bg-dark" eventKey={topicKey} id={name.replace(' ', '-').toLowerCase()}>
+        <Accordion.Item eventKey={topicKey} id={name.replace(' ', '-').toLowerCase()}>
             <Accordion.Header>
                 <Row className="w-100">
                     <Col xs={8}>

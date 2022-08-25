@@ -355,10 +355,6 @@ module.exports = {
 
         getTraining: async (_, {id}) => await training.findOne({id}),
 
-        getTrainingProgress: async (_, {id}, ctx) => {
-          return JSON.stringify(ctx.session)
-        }
-
     },
 
     Mutation:{

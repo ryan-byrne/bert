@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Alert, Button, FormGroup, ListGroup, Row } from "react-bootstrap";
 
-import { Mutation, Query } from "../../../../../components/GraphQL";
+import { Query } from "../../../../../components/GraphQL";
 
 export default ({payload, options}) => {
 
@@ -95,7 +95,7 @@ export default ({payload, options}) => {
 
     const handleSubmit = () => {
         setStatus({text:"Submitting..."})
-        Mutation(`
+        Query(`
             mutation CreateEvents($locations: [String!], $summary: String!, $description: String, $recurrence: [String], $tools: [ToolInput], $attendees: [Attendee], $times:[Time]) {
                 createEvents(
                 locations: $locations, 

@@ -15,10 +15,7 @@ const authMiddleware = async (req, res, next) => {
     // Ignore Callback
     if ( '/auth/callback'=== req._parsedUrl.pathname ) next()
     // Ignore GraphQL TODO: FIX
-    else if ( req.headers.origin === 'https://studio.apollographql.com' ) {
-        console.log(req.session);
-        next()
-    }
+    else if ( req.headers.origin === 'https://studio.apollographql.com' ) next()
     // No Session User, Redirect
     else if (!req.session.user) {
         const authorizationUrl = oauth2Client.generateAuthUrl({
@@ -41,7 +38,7 @@ auth.get('/logout', (req, res, err) => {
     try {
         oauth2Client.revokeCredentials();
         req.session.destroy((e)=>err(e));
-        res.redirect(`${process.env.CLIENT_URL}/login`);
+        res.redirect(`/`);
     } catch (e) {
         err(e)
     }

@@ -1,7 +1,5 @@
 import { useEffect, useState,useReducer } from "react";
 import { Form, Offcanvas } from "react-bootstrap";
-import { Link } from "react-router-dom";
-import { Query } from "../../../../components/GraphQL";
 import SetBlocks from "./components/SetBlocks";
 import SetRecurring from "./components/SetRecurring";
 import SetTimes from "./components/SetTimes";

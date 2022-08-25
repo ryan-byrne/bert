@@ -42,18 +42,10 @@ export default ({user, create, navigate}) => {
     const [events, setEvents] = useState([null, null, null, null, null]);
 
     const controls = {
-        d:<Day {...{user, locations, from, setFrom, events}}/>,
-        w:<Week {...{user, locations, from, setFrom, events}}/>,
-        m:<Month {...{user, locations, from, setFrom, events}}/>
+        d:<Day {...{from, setFrom}}/>,
+        w:<Week {...{from, setFrom}}/>,
+        m:<Month {...{from, setFrom}}/>
     }
-
-    useEffect(()=>{
-        const d = new Date();
-        if (interval === 'm') d.setDate(1);
-        else return
-        setFrom(d);
-        return () => setFrom(new Date())
-    },[interval, setFrom])
 
     useEffect(()=>{
         setEvents(new Array(interval === 'm'?31:interval==='w'?5:1).fill(0).map(e=>null));
