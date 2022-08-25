@@ -5,9 +5,7 @@ module.exports = model('Question', new Schema({
         required:true,
         type:String
     },
-    question:{
-        required:true,
-        type:String
-    },
+    text:String,
+    training:{ref:'Training', type:'ObjectId', required:true},
     choices:[String]
 }))

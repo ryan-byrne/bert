@@ -7,6 +7,7 @@ const training = require('../db/models/training');
 const block = require('../db/models/block');
 const question = require('../db/models/question');
 const tool = require('../db/models/tool');
+const guess = require('../db/models/guess');
 
 const calendars = {
   "classroom":{
@@ -36,7 +37,7 @@ module.exports = {
     }),
 
     Query:{
-        // Get specific user
+        // USER
         user: async (_, {id}) => {
           if (id) return await user.findOne({id})
           else {
@@ -355,6 +356,15 @@ module.exports = {
 
         getTraining: async (_, {id}) => await training.findOne({id}),
 
+        getQuestion: async (_,{id},{user}) => {
+          const resp = await guess.findOne({
+            user:user.id,
+            question:id,
+            correct:true
+          });
+          const q = await question.findOne({_id:id})
+          return {completed:resp?true:false, answer:resp?q.answer:""}
+        }
     },
 
     Mutation:{
@@ -422,6 +432,19 @@ module.exports = {
           return eventIds
 
         },
+
+        submitGuess: async (_, {questionId, text}, {user}) => {
+          const q = await question.findOne({_id:questionId});
+          const correct = text.toLowerCase() === q.answer;
+          const g = await guess.create({
+            submitted:new Date(),
+            text,
+            correct,
+            question:q._id,
+            user:user.id
+          })
+          return correct
+        }
     
     },
 

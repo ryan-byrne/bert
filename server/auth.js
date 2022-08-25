@@ -30,7 +30,7 @@ const authMiddleware = async (req, res, next) => {
           ],
             include_granted_scopes: true
         });
-        return res.redirect(authorizationUrl)
+        return res.json({authorizationUrl})
     } else next()
 }
 
@@ -60,7 +60,7 @@ auth.get("/callback", async (req, res, err) => {
         oauth2Client.setCredentials(tokens);
         const userInfo = await google.oauth2({version:"v2"}).userinfo.get();
         req.session.user = {...userInfo.data, tokens};
-        return res.redirect('/')
+        return res.redirect(process.env.CLIENT_URL)
     } catch (e) {
         console.error(e);
         return res.status(500).json(e);

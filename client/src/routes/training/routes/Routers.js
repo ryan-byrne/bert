@@ -81,12 +81,13 @@ export default ({update}) =>
 
         <Question id="62acbe325ee1db2c6876eeb7" {...{update}}>
             What is the name of the <b>bit</b> that creates the shape shown below?
-            <Row>
-                <Col>
-                    <Image src={dovetailJoint} fluid/>
-                </Col>
-            </Row>
         </Question>
+
+        <Row>
+            <Col>
+                <Image src={dovetailJoint} fluid/>
+            </Col>
+        </Row>
 
     </Topic>
 

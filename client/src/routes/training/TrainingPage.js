@@ -18,7 +18,7 @@ import './style.css'
 export default () => {
 
     const [_forceUpdate, _setForceUpdate] = useState(false)
-    const update = () => _setForceUpdate(!_forceUpdate);
+    const update = () => {_setForceUpdate(!_forceUpdate)}
 
     /*
 

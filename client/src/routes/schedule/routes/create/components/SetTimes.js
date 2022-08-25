@@ -1,4 +1,5 @@
-import { FormGroup, FormText, FormCheck, Collapse, FormControl, Row, Col, Button, FloatingLabel, ButtonGroup } from "react-bootstrap";
+import { FormGroup, FormText, FormCheck, Collapse, FormControl, Row, Col, Button, ButtonGroup } from "react-bootstrap";
+import FloatingLabel from 'react-bootstrap/FloatingLabel';
 
 export default ({options, setOptions}) => {
     const handleChange = (e) => {

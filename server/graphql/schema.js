@@ -20,10 +20,12 @@ type Query {
     toolAvailability(start:String, end:String, search:String):[ToolReservation]
     block(division:String,day:String,week:String):[Block]
     checkForConflicts(times:[Time], locations:[EventLocation]):[Conflict]
-    getTraining(id:String):Training    
+    getTraining(id:String):Training
+    getQuestion(id:String): QuestionStatus
 }
 
 type Mutation {
+
     createEvents(
         locations:[String!],
         times:[Time],
@@ -32,7 +34,10 @@ type Mutation {
         recurrence:[String],
         tools:[ToolInput],
         attendees:[Attendee]
-    ): [String]
+    ): [String],
+
+    submitGuess(text:String, questionId:String):Boolean
+
 }
 
 # SCHEDULING
@@ -93,11 +98,18 @@ type Training {
 
 type Question {
     answer:String!
+    text:String
     choices:[String]
-    training:Training
+    training:Training!
+}
+
+type QuestionStatus {
+    answer:String
+    completed:Boolean
 }
 
 type Guess {
+    submitted:Date
     user:User!
     question:Question!
     text:String!

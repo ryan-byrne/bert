@@ -4,11 +4,7 @@ import { Query } from "../../../components/GraphQL";
 
 export default ({id, children}) => {
 
-    const [_forceUpdate, _setForceUpdate] = useState(false)
-    const update = () => _setForceUpdate(!_forceUpdate);
-    
     const [training, setTraining] = useState();
-    const [progress, setProgress] = useState();
 
     useEffect(()=> {
         Query(`
@@ -26,7 +22,8 @@ export default ({id, children}) => {
         .then( resp => resp.json()
         .then( data => setTraining(data.data.getTraining) ))
         return () => setTraining()
-    },[id]);
+        
+    },[]);
 
     return (
         !training ? <Alert className="m-5"><Spinner animation="grow" size="sm"/> Loading <strong>{id}</strong></Alert> :

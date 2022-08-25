@@ -6,7 +6,6 @@ const cors = require('cors');
 const {connect} = require('mongoose');
 const {json} = require('body-parser');
 const {resolve} = require('path');
-require('dotenv').config()
 
 // Local Deps
 const {auth, authMiddleware} = require('./auth');
@@ -15,12 +14,8 @@ const apolloServer = require('./graphql/index');
 // Express App
 const app = express();
 
-// Webpack Development
-if ( process.env.NODE_ENV !== 'production' ){
-  const compiler = require('webpack')( require('../webpack.config') );
-  app.use(require('webpack-dev-middleware')(compiler));
-  app.use(require('webpack-hot-middleware')(compiler))
-}
+// Is Production
+const isProduction = process.env.NODE_ENV === 'production'
 
 // Middleware
 const corsOptions = {
@@ -38,7 +33,8 @@ app.use(session({
     mongoUrl:`mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASS}@${process.env.MONGO_URL}/${process.env.MONGO_DB}`
   }),
   cookie:{
-    secure: process.env.NODE_ENV === 'development' ? false : true,
+    secure: isProduction ? true : false,
+    sameSite:false,
     httpOnly: true
   }
 }));
@@ -56,9 +52,10 @@ apolloServer.start()
       cors:corsOptions,
       path:'/graphql'
     })
-    // Client Route
-    app.get("*", (_, res)=> res.sendFile( resolve(__dirname, '..', 'client', 'build', 'index.html') ) );
   })
+
+// Client Route
+if ( isProduction ) app.get("*", (_, res) => res.sendFile( resolve(__dirname, '..', 'client', 'build', 'index.html') ) )
 
 // Express Server
 const port = process.env.PORT || 5000;

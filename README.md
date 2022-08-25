@@ -10,8 +10,7 @@
 
 * Trainings
     * Main Page
-    * Transfer and Update Question
-    * Set Up Guesses
+    * Block when people have not completed prereq
     * Write query for traing progress through guesses and questions
     * Add Choices to Question
     * Transfer last year's people

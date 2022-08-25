@@ -1,4 +1,4 @@
-import {Navbar, Nav, Container, Image, NavDropdown, Alert} from 'react-bootstrap'
+import {Navbar, Nav, Container, Image, NavDropdown} from 'react-bootstrap'
 import { Link } from 'react-router-dom'
 
 import brandImg from '../img/logos/whiteBrand.png'
@@ -18,7 +18,6 @@ const Glossary = {
     }
 
 }
-
 const Navigation = ({user}) => {
 
     return (!user?null:
