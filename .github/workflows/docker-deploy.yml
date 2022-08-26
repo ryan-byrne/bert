@@ -56,10 +56,12 @@ jobs:
         with:
           node-version: 16.x
       
-      - name: Build Frontend
+      - name: Build and Test Frontend
         run: |-
           cd client
-          react-scripts build
+          npm ci
+          npm run build
+          npm test
 
       - name: 'Include Cloud SDK'
         uses: 'google-github-actions/setup-gcloud@v0'
