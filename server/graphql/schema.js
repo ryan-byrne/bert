@@ -11,28 +11,44 @@ schema {
 
 type Query {
     user(id:String):User
+    
     schedule(
         interval:ScheduleInterval, 
         start:String, 
         user:String, 
         locations:[EventLocation]
     ):[Schedule],
+    
     toolAvailability(start:String, end:String, search:String):[ToolReservation]
+    
     block(division:String,day:String,week:String):[Block]
+    
     checkForConflicts(times:[Time], locations:[EventLocation]):[Conflict]
+    
     getTraining(id:String):Training
+    
     getQuestion(id:String): QuestionStatus
+
+    getQuestionProgress(ids:[String]):[Boolean]
+
+    getTrainingStatus:[TrainingStatus]
+
+}
+
+type TrainingStatus {
+    completed: Boolean
+    training: Training
 }
 
 type Mutation {
 
     createEvents(
-        locations:[String!],
-        times:[Time],
-        summary:String!,
-        description:String,
-        recurrence:[String],
-        tools:[ToolInput],
+        locations:[String!]
+        times:[Time]
+        summary:String!
+        description:String
+        recurrence:[String]
+        tools:[ToolInput]
         attendees:[Attendee]
     ): [String],
 

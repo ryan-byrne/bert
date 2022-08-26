@@ -1,3 +1,4 @@
+/* eslint-disable import/no-anonymous-default-export */
 import { useState } from "react";
 import {Route, Routes} from 'react-router-dom';
 

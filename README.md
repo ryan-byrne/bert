@@ -9,13 +9,13 @@
     * Fix Month View
 
 * Trainings
-    * Main Page
+    * Better format Index
     * Block when people have not completed prereq
-    * Write query for traing progress through guesses and questions
+    * Add Hints
     * Add Choices to Question
     * Transfer last year's people
 
 * Deployment
     * Build Client
-    * Containerize Server
+    * Containerize Server (w/ Client)
     * Deploy to cloud run

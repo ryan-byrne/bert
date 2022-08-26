@@ -364,7 +364,115 @@ module.exports = {
           });
           const q = await question.findOne({_id:id})
           return {completed:resp?true:false, answer:resp?q.answer:""}
-        }
+        },
+
+        getQuestionProgress: async (_,{ids},{user}) => {
+          const resp = await question.aggregate([
+          {
+            '$match': {
+              '_id': {
+                '$in': ids.map(i=>Types.ObjectId(i))
+              }
+            }
+          }, {
+            '$lookup': {
+              'from': 'guesses', 
+              'localField': '_id', 
+              'foreignField': 'question', 
+              'as': 'guesses'
+            }
+          }, {
+            '$project': {
+              '_id': 1, 
+              'guesses': {
+                '$map': {
+                  'input': '$guesses', 
+                  'as': 'guess', 
+                  'in': {
+                    '$cond': {
+                      'if': {
+                        '$and': [
+                          {
+                            '$eq': [
+                              user.id, '$$guess.user'
+                            ]
+                          }, '$$guess.correct'
+                        ]
+                      }, 
+                      'then': true, 
+                      'else': false
+                    }
+                  }
+                }
+              }
+            }
+          }, {
+            '$project': {
+              '_id': 1, 
+              'complete': {
+                '$anyElementTrue': '$guesses'
+              }
+            }
+          }
+        ])
+        return resp.map(r=>r.complete)
+        },
+
+        getTrainingStatus: async (_,{},{user}) => await question.aggregate([
+          {
+            '$lookup': {
+              'from': 'guesses', 
+              'localField': '_id', 
+              'foreignField': 'question', 
+              'as': 'guesses'
+            }
+          }, {
+            '$addFields': {
+              'guesses': {
+                '$map': {
+                  'input': '$guesses', 
+                  'as': 'guess', 
+                  'in': {
+                    '$cond': {
+                      'if': {
+                        '$and': [
+                          '$$guess.correct', {
+                            '$eq': [
+                              '$$guess.user', user.id
+                            ]
+                          }
+                        ]
+                      }, 
+                      'then': true, 
+                      'else': false
+                    }
+                  }
+                }
+              }
+            }
+          }, {
+            '$addFields': {
+              'completed': {
+                '$anyElementTrue': '$guesses'
+              }
+            }
+          }, {
+            '$group': {
+              '_id': '$training', 
+              'questions': {
+                '$push': '$completed'
+              }
+            }
+          }, {
+            '$project': {
+              '_id': 0, 
+              'training': '$_id', 
+              'completed': {
+                '$allElementsTrue': '$questions'
+              }
+            }
+          }
+        ])
     },
 
     Mutation:{
@@ -446,6 +554,10 @@ module.exports = {
           return correct
         }
     
+    },
+
+    TrainingStatus:{
+      training: async (t) => await training.findOne({_id:t.training})
     },
 
     Training:{

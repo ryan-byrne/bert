@@ -2,14 +2,13 @@ import { useState, useEffect } from "react";
 import { Row, Alert, Col, Form, Button } from 'react-bootstrap'
 import { Query } from "../../../components/GraphQL";
 
-export default ({id, children, update}) => {
+export default function Question({id, children, update}) {
 
-    const [answer, setAnswer] = useState("");
+    const [question, setQuestion] = useState();
     const [status, setStatus] = useState('loading');
     const [guess, setGuess] = useState("");
 
     useEffect(()=>{
-        // On first load, get status
         setStatus('waiting')
         Query(`
             query GetQuestion($id: String) {
@@ -22,9 +21,9 @@ export default ({id, children, update}) => {
             .then( resp => resp.json()
             .then( data => {
                 setStatus( data.data.getQuestion.completed ? 'completed' : 'waiting')
-                setAnswer(data.data.getQuestion.answer)
+                setQuestion(data.data.getQuestion)
             }))
-    },[])
+    },[id])
 
     useEffect(()=>{
         if ( status === 'incorrect' ) setTimeout(()=>setStatus('waiting'), 2000)
@@ -60,15 +59,15 @@ export default ({id, children, update}) => {
                     </Col>
                 </Row>
                 <Row className="text-center mt-3">
-                    <Col xs={8}>
+                    <Col xs={7}>
                         <Form.Control 
                             className="text-center" 
-                            value={status==='completed'?answer:guess} 
+                            value={status==='completed'?question.answer:guess} 
                             disabled={status!=='waiting'} 
                             onChange={(e)=>setGuess(e.target.value)} 
                             placeholder="Enter your answer here"/>
                     </Col>
-                    <Col xs={4}>
+                    <Col xs={5}>
                         <Button 
                             disabled={status!=='waiting'} 
                             onClick={submitGuess} 

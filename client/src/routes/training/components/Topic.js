@@ -1,17 +1,29 @@
-import { useState, useEffect } from "react";
-import { Row, Alert, Col, Form, Button, Accordion, Modal, ListGroup, Spinner, Container, Badge } from 'react-bootstrap'
+import { useEffect, useState } from "react";
+import { Row, Col, Accordion, Spinner } from 'react-bootstrap'
+import { Query } from "../../../components/GraphQL";
 
 
-export default ({children, name, topicKey}) => {
+export default function Topics({children, name, topicKey}) {
 
     const [progress, setProgress] = useState([]);
+
+    useEffect(()=>{
+        const questionIds = children.filter( child => child.props.id ).map(c => c.props.id)
+        Query(`
+            query GetTopicProgress($ids: [String]){
+                getQuestionProgress(ids: $ids)
+            }
+        `,{ids:questionIds})
+            .then( resp => resp.json()
+            .then( data => setProgress(data.data.getQuestionProgress)) )
+    },[children])
 
     return (
         <Accordion.Item eventKey={topicKey} id={name.replace(' ', '-').toLowerCase()}>
             <Accordion.Header>
                 <Row className="w-100">
                     <Col xs={8}>
-                        {topicKey+1}. {name}
+                        <strong>{name}</strong>
                     </Col>
                     <Col xs={4}>
                         {
