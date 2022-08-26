@@ -1,27 +1,12 @@
 import { useState, useEffect } from "react";
 import { Button, Col, Container, Row, ToggleButton, ToggleButtonGroup} from "react-bootstrap";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {Query} from '../../components/GraphQL'
 import DayCard from './components/DayCard';
 import {Day, Week, Month} from "./components/Controls";
 import Create from "./routes/create/Create";
 
 import './style.css';
-
-const calendars = {
-    "classroom":{
-      "calendar":"c_2l72cqq855fvcu8l0f35donqnc@group.calendar.google.com",
-      "capacity":25
-    },
-    "machineshop":{
-      "calendar":"c_cdm0jncrjj972nf6g6o6r2jhf4@group.calendar.google.com",
-      "capacity":4
-    },
-    "powertool":{
-      "calendar":"c_cdsr663bruijjo05637v89fh4k@group.calendar.google.com",
-      "capacity":4
-    }
-  }
 
 Date.prototype.toFormDateString = function(){
     return this.getFullYear() + "-" + (this.getMonth() + 1).toString().padStart(2, "0") + "-" + this.getDate().toString().padStart(2, "0")
@@ -34,12 +19,13 @@ Date.prototype.getWeek = function(){
     return Math.ceil(milliseconds / 1000 / 60 / 60 / 24 / 7)
 }
 
-export default ({user, create, navigate}) => {
+export default function Schedule({create}){
 
     const [interval, setInterval] = useState('w');
     const [locations, setLocations] = useState(['classroom','machineshop','powertool'])
     const [from, setFrom] = useState(new Date());
     const [events, setEvents] = useState([null, null, null, null, null]);
+    const navigate = useNavigate();
 
     const controls = {
         d:<Day {...{from, setFrom}}/>,
@@ -148,7 +134,7 @@ export default ({user, create, navigate}) => {
                 }
             </Row>
 
-            <Create show={create} onHide={()=>navigate('schedule')}/>
+            <Create show={create} onHide={()=>navigate('/schedule')}/>
 
         </Container>
         

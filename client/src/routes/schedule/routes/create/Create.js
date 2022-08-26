@@ -1,4 +1,4 @@
-import { useEffect, useState,useReducer } from "react";
+import { useEffect, useState } from "react";
 import { Form, Offcanvas } from "react-bootstrap";
 import SetBlocks from "./components/SetBlocks";
 import SetRecurring from "./components/SetRecurring";
@@ -10,7 +10,7 @@ import Submit from "./components/Submit";
 Date.prototype.toFormDateString = () =>
     this.getFullYear() + "-" + (this.getMonth() + 1).toString().padStart(2, "0") + "-" + this.getDate().toString().padStart(2, "0")
 
-export default ({show, onHide}) => {
+export default function Create({show, onHide}){
 
     const [payload, setPayload] = useState({
         summary:"Test Event",
@@ -21,6 +21,9 @@ export default ({show, onHide}) => {
         tools:[],
         attendees:[]
     });
+
+    
+
     const [options, setOptions] = useState({
         blockTime:true,
         division:"middle",
@@ -80,9 +83,10 @@ export default ({show, onHide}) => {
 
     },[setPayload, options]);
 
+
     return(
         <Offcanvas show={show} onHide={onHide}>
-            <Offcanvas.Header>
+            <Offcanvas.Header closeButton>
                 <Offcanvas.Title>
                     Create an Event
                 </Offcanvas.Title>

@@ -1,4 +1,3 @@
-/* eslint-disable import/no-anonymous-default-export */
 import { useState } from "react";
 import {Route, Routes} from 'react-router-dom';
 
@@ -16,7 +15,7 @@ import FDMPrinting from "./routes/FDMPrinting";
 //import Sanding from "./routes/Sanding";
 import './style.css'
 
-export default () => {
+export default function TrainingRoutes(){
 
     const [_forceUpdate, _setForceUpdate] = useState(false)
     const update = () => {_setForceUpdate(!_forceUpdate)}

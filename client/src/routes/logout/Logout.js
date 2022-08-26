@@ -1,7 +1,7 @@
 import {Button, Card} from 'react-bootstrap'
 import{useNavigate} from 'react-router-dom'
 
-export default ({}) => {
+export default function Logout(){
 
     const navigate = useNavigate();
 

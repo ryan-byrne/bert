@@ -7,7 +7,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import Index from './routes/Index';
 import Navigation from './components/Navigation';
 import Schedule from './routes/schedule/Schedule';
-import TrainingPage from './routes/training/TrainingPage';
+import TrainingRoutes from './routes/training/TrainingRoutes';
 import Logout from './routes/logout/Logout';
 import Test from './routes/test/Test';
 //import {NotFound} from './components/Utilities.js';
@@ -43,7 +43,8 @@ function App() {
           <Routes>
             <Route index element={<Index/>}/>
             <Route path="schedule" element={<Schedule/>}/>
-            <Route path="training/*" element={<TrainingPage/>}/>
+            <Route path="schedule/create" element={<Schedule create={true}/>}/>
+            <Route path="training/*" element={<TrainingRoutes/>}/>
             <Route path="logout" element={<Logout/>}/>
             <Route path="test" element={<Test/>}/>
           </Routes>

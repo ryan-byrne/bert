@@ -55,7 +55,7 @@ apolloServer.start()
   })
 
 // Client Route
-if ( isProduction ) app.get("*", (_, res) => res.sendFile( resolve(__dirname, '..', 'client', 'build', 'index.html') ) )
+if ( isProduction ) app.get("*", (_, res) => res.sendFile( resolve(__dirname, 'client', 'build', 'index.html') ) )
 
 // Express Server
 const port = process.env.PORT || 5000;

@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
-import { Alert, Button, FormGroup, ListGroup, Row } from "react-bootstrap";
+import { Alert, Button, FormGroup, ListGroup, OverlayTrigger, Popover, Row, Col, Table } from "react-bootstrap";
 
 import { Query } from "../../../../../components/GraphQL";
 
-export default ({payload, options}) => {
+export default function Submit({payload, options}){
 
     const [status, setStatus] = useState({});
     const [queryTimes, setQueryTimes] = useState([]);
@@ -31,7 +31,7 @@ export default ({payload, options}) => {
 
         let tempTimes = []
 
-        payload.times.map( time => {
+        payload.times.forEach( time => {
             const start = new Date(time.start);
             const end = new Date(time.end);
             if (options.recurring) {
@@ -52,8 +52,6 @@ export default ({payload, options}) => {
             } else tempTimes.push({start:start.toISOString(), end:end.toISOString()})
         });
 
-        console.log(tempTimes);
-
         setQueryTimes(tempTimes);
 
     },[
@@ -67,6 +65,8 @@ export default ({payload, options}) => {
 
     // Check for Conflicts
     useEffect(()=>{
+
+        setConflicts();
 
         Query(`
         query($locations: [EventLocation], $times: [Time]) {
@@ -153,13 +153,41 @@ export default ({payload, options}) => {
             </FormGroup>
             <hr/>
             <Row className="m-1">
-                <Button 
-                    disabled={
-                        !(conflicts && conflicts.length === 0) ||
-                        !(invalid && invalid.filter(i=>i.variant==='danger').length === 0)
+                <OverlayTrigger
+                    trigger='hover'
+                    overlay={
+                        <Popover>
+                            <Popover.Header>
+                                Event Details
+                            </Popover.Header>
+                            <Popover.Body>
+                                <Table>
+                                    <tbody>
+                                        <tr><th>Summary</th><td colSpan={2}>{payload.summary}</td></tr>
+                                        <tr><th>Date</th><th>Start</th><th>End</th></tr>
+                                        {queryTimes.map( (time, idx) => 
+                                            idx > 4 ? null :
+                                            <tr>
+                                                <td>{new Date(time.start).toLocaleDateString()}</td>
+                                                <td>{new Date(time.start).toLocaleTimeString()}</td>
+                                                <td>{new Date(time.end).toLocaleTimeString()}</td>
+                                            </tr>
+                                        )}
+                                        {queryTimes.length > 5 ? <tr><td colSpan={3}>and {queryTimes.length - 5} More</td></tr> : null}
+                                    </tbody>
+                                </Table>
+                            </Popover.Body>
+                        </Popover>
                     }
-                    onClick={handleSubmit}
-                >Create {queryTimes.length} Events</Button>
+                >
+                    <Button 
+                        disabled={
+                            !(conflicts && conflicts.length === 0) ||
+                            !(invalid && invalid.filter(i=>i.variant==='danger').length === 0)
+                        }
+                        onClick={handleSubmit}
+                    >Create {queryTimes.length} Events</Button>
+                </OverlayTrigger>
             </Row>
             {
                 status.text ?

@@ -35,9 +35,10 @@ const Navigation = ({user}) => {
                         <NavDropdown title={key} key={idx} menuVariant='dark'>
                             {Object.entries(content).map(([title, link], jdx)=>
                                 title.length === 0 ? <NavDropdown.Divider key={jdx}/> :
-                                <NavDropdown.Item key={jdx}>
-                                    <Link to={link}>{title}</Link>
-                                </NavDropdown.Item>
+                                    <NavDropdown.Item as={Link} key={jdx} to={link}>
+                                        {title}
+                                    </NavDropdown.Item>
+                                
                             )}
                         </NavDropdown>
                     )}
