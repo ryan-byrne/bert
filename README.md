@@ -1,16 +1,25 @@
 # TODO
 
+## Client
+
 * Schedule
-    * Include Others
-    * US Block Select
+    
+    * Show Today
+    * Create
+        * Check Tool inventory
+        * Include Others
+    * Improve US Block selection
     * Updates with google calendar
-    * CHeck Tool inventory
     * Implement URL Parameters
     * Fix Month View
 
+* Tools
+    * Tool Dashboard
+    * Authorized User List
+
 * Trainings
-    * Better format Index
     * Block when people have not completed prereq
+
     * Add Hints
     * Add Choices to Question
     * Transfer last year's people
@@ -19,3 +28,19 @@
     * Build Client
     * Containerize Server (w/ Client)
     * Deploy to cloud run
+
+## Server
+
+* Authorized User Resolver
+
+## DB
+
+* Tools
+    * Fix location
+    * 
+
+* Issues
+    * Make this
+
+
+## Deployment
