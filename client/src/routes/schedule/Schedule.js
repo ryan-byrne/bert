@@ -24,7 +24,7 @@ export default function Schedule({create}){
     const [interval, setInterval] = useState('w');
     const [locations, setLocations] = useState(['classroom','machineshop','powertool'])
     const [from, setFrom] = useState(new Date());
-    const [events, setEvents] = useState([null, null, null, null, null]);
+    const [events, setEvents] = useState();
     const navigate = useNavigate();
 
     const controls = {
@@ -33,8 +33,9 @@ export default function Schedule({create}){
         m:<Month {...{from, setFrom}}/>
     }
 
+    // Query for Schedule
     useEffect(()=>{
-        setEvents(new Array(interval === 'm'?31:interval==='w'?5:1).fill(0).map(e=>null));
+        setEvents();
         Query(`
         query ViewSchedule($interval:ScheduleInterval!, $start:String!,$locations:[EventLocation!]) {
             schedule(interval:$interval, start:$start,locations: $locations){
@@ -81,8 +82,8 @@ export default function Schedule({create}){
                 console.error(err);
                 throw err
             } )
-        return () => setEvents([null, null, null, null, null])
-    },[from, locations, interval, setEvents]);
+        return () => setEvents()
+    },[from, locations, interval, setEvents, create]);
 
     return (
         <Container>
@@ -130,11 +131,11 @@ export default function Schedule({create}){
                 {
                     events?
                     events.map( (day, idx) => <DayCard key={idx} day={day}/>) :
-                    new Array(interval === 'm'?31:interval==='w'?5:1).fill().map( (day, idx) => <DayCard key={idx}/> )
+                    null
                 }
             </Row>
 
-            <Create show={create} onHide={()=>navigate('/schedule')}/>
+            <Create show={create} navigate={navigate}/>
 
         </Container>
         

@@ -3,11 +3,13 @@ import { Alert, Button, FormGroup, ListGroup, OverlayTrigger, Popover, Row, Col,
 
 import { Query } from "../../../../../components/GraphQL";
 
-export default function Submit({payload, options}){
+export default function Submit({payload, options, navigate}){
 
     const [status, setStatus] = useState({});
     const [queryTimes, setQueryTimes] = useState([]);
-    const [conflicts, setConflicts] = useState(null);
+    // TODO
+    const [toolConflicts, setToolConflicts] = useState([]);
+    const [locationConflicts, setLocationConflicts] = useState(null);
     const [invalid, setInvalid] = useState(null);
 
     // Validate Payload
@@ -51,7 +53,6 @@ export default function Submit({payload, options}){
                 }
             } else tempTimes.push({start:start.toISOString(), end:end.toISOString()})
         });
-
         setQueryTimes(tempTimes);
 
     },[
@@ -61,13 +62,11 @@ export default function Submit({payload, options}){
         options.recurringUntil,
         options.recurringWeekly,
         options.recurringDays
-    ])
+    ]);
 
     // Check for Conflicts
     useEffect(()=>{
-
-        setConflicts();
-
+        setLocationConflicts();
         Query(`
         query($locations: [EventLocation], $times: [Time]) {
             checkForConflicts(locations: $locations, times: $times){
@@ -84,14 +83,14 @@ export default function Submit({payload, options}){
             locations:payload.locations
         })
             .then( resp => resp.json()
-                .then( body => setConflicts(body.data.checkForConflicts)
+                .then( body => setLocationConflicts(body.data.checkForConflicts)
             ))
     },[
         queryTimes,
         payload.locations, 
-        setConflicts,
+        setLocationConflicts,
 
-    ])
+    ]);
 
     const handleSubmit = () => {
         setStatus({text:"Submitting..."})
@@ -111,11 +110,13 @@ export default function Submit({payload, options}){
             .then( resp => resp.json()
                 .then( data => {
                     if (data.errors) setStatus({text:data.errors[0].message, variant:'danger'})
-                    else setStatus({text:'Success!', variant:'success'})
-                    window.location.reload();
+                    else {
+                        setStatus({text:'Success!', variant:'success'});
+                        navigate('/schedule')
+                    }
                 } )
             )
-            .catch( err => setStatus({text:'Error', variant:'danger'}) )
+            .catch( err => setStatus({text:err.message, variant:'danger'}) )
     };
 
     return (
@@ -137,13 +138,13 @@ export default function Submit({payload, options}){
             </FormGroup>
             <FormGroup className="m-3">
                 {
-                    !conflicts ?
-                    <Alert>Checking for Conflicts...</Alert>:
+                    !locationConflicts ?
+                    <Alert>Checking for Location Conflicts...</Alert>:
                     <ListGroup style={{maxHeight:'200px', overflowY:'scroll'}}>
                         {
-                            conflicts.map( conflict =>
+                            locationConflicts.map( conflict =>
                                 <ListGroup.Item variant="danger">
-                                    Conflict found with <a href={conflict.event.htmlLink}>{conflict.event.summary} </a>
+                                    Location Conflict found with <a href={conflict.event.htmlLink}>{conflict.event.summary} </a>
                                     on <strong>{new Date(conflict.start).toLocaleDateString()}</strong>
                                 </ListGroup.Item>
                             )
@@ -154,7 +155,7 @@ export default function Submit({payload, options}){
             <hr/>
             <Row className="m-1">
                 <OverlayTrigger
-                    trigger='hover'
+                    trigger={['focus','hover']}
                     overlay={
                         <Popover>
                             <Popover.Header>
@@ -167,7 +168,7 @@ export default function Submit({payload, options}){
                                         <tr><th>Date</th><th>Start</th><th>End</th></tr>
                                         {queryTimes.map( (time, idx) => 
                                             idx > 4 ? null :
-                                            <tr>
+                                            <tr key={idx}>
                                                 <td>{new Date(time.start).toLocaleDateString()}</td>
                                                 <td>{new Date(time.start).toLocaleTimeString()}</td>
                                                 <td>{new Date(time.end).toLocaleTimeString()}</td>
@@ -182,7 +183,10 @@ export default function Submit({payload, options}){
                 >
                     <Button 
                         disabled={
-                            !(conflicts && conflicts.length === 0) ||
+                            status.text ||
+                            queryTimes.length === 0 ||
+                            !(toolConflicts && toolConflicts.length === 0) ||
+                            !(locationConflicts && locationConflicts.length === 0) ||
                             !(invalid && invalid.filter(i=>i.variant==='danger').length === 0)
                         }
                         onClick={handleSubmit}

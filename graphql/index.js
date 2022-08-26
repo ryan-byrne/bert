@@ -1,7 +1,7 @@
 const { ApolloServer } = require("apollo-server-express");
 
 const graphqlUser = {
-  _id:process.env.GRAPHQL_USER,
+  id:process.env.GRAPHQL_USER,
   tokens:{
     refresh_token:process.env.REFRESH_TOKEN
   }

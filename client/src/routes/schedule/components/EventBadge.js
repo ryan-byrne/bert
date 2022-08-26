@@ -1,6 +1,6 @@
 import { OverlayTrigger, Tooltip } from "react-bootstrap";
 
-export default ({event}) => {
+export default function EventBadge({event}){
 
     const startTime = new Date(event.start.dateTime);
     const endTime = new Date(event.end.dateTime);

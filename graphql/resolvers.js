@@ -9,7 +9,9 @@ const question = require('../db/models/question');
 const tool = require('../db/models/tool');
 const guess = require('../db/models/guess');
 
-const calendars = {
+const isProduction = process.env.NODE_ENV === 'production' 
+
+const calendars = isProduction ? {
   "classroom":{
     "calendar":"c_2l72cqq855fvcu8l0f35donqnc@group.calendar.google.com",
     "capacity":25
@@ -22,11 +24,24 @@ const calendars = {
     "calendar":"c_cdsr663bruijjo05637v89fh4k@group.calendar.google.com",
     "capacity":4
   }
+} : {
+  "classroom":{
+    "calendar":"c_p3oca9691kbuppg3gv684h62rc@group.calendar.google.com",
+    "capacity":25
+  },
+  "machineshop":{
+    "calendar":"c_quvn2omcc7pttk6tip2n9a2fto@group.calendar.google.com",
+    "capacity":4
+  },
+  "powertool":{
+    "calendar":"c_uclhkdm8namoq41rlij866jl2g@group.calendar.google.com",
+    "capacity":4
+  }
 }
 
 module.exports = {
 
-    Date:new GraphQLScalarType({
+    Date: new GraphQLScalarType({
       name: 'Date',
       parseValue(value) {
         return new Date(value);
@@ -37,261 +52,134 @@ module.exports = {
     }),
 
     Query:{
-        // USER
-        user: async (_, {id}) => {
-          if (id) return await user.findOne({id})
-          else {
-            const resp = await google.oauth2({version:'v2'}).userinfo.get()
-            return await user.findOne({email:resp.data.email})
-          }
-        },
 
-        block: async (_, {division, day, week}) => await block.find({division, day, week}),
+        getBlocks: async (_, {division, day, week}) => await block.find({division, day, week}),
 
-        toolAvailability: async (_,{start, end, search}) => await tool.aggregate([
-            {
-              '$addFields': {
-                'fullName': {
-                  '$concat': [
-                    '$brand', ' ', '$name'
-                  ]
+        checkForConflicts: async (_,{times, locations}) => await event.aggregate([
+          {
+            '$unwind': {
+              'path': '$recurringEvents', 
+              'preserveNullAndEmptyArrays': true
+            }
+          }, {
+            '$match': {
+              'location': {
+                '$in': locations
+              }, 
+              'status': 'confirmed'
+            }
+          }, {
+            '$addFields': {
+              'start': {
+                '$cond': {
+                  'if': '$recurringEvents', 
+                  'then': '$recurringEvents.start.dateTime', 
+                  'else': '$start.dateTime'
                 }
-              }
-            }, {
-              '$match': {
-                'fullName': {
-                  '$regex': search, 
-                  '$options': 'i'
-                }
-              }
-            }, {
-              '$lookup': {
-                'from': 'events', 
-                'localField': '_id', 
-                'foreignField': 'tools.tool', 
-                'as': 'event'
-              }
-            }, {
-              '$unwind': {
-                'path': '$event', 
-                'preserveNullAndEmptyArrays': true
-              }
-            }, {
-              '$unwind': {
-                'path': '$event.recurringEvents', 
-                'preserveNullAndEmptyArrays': true
-              }
-            }, {
-              '$unwind': {
-                'path': '$event.tools', 
-                'preserveNullAndEmptyArrays': true
-              }
-            }, {
-              '$project': {
-                'fullName': 1, 
-                'quantity': 1, 
-                'using': {
-                  '$cond': {
-                    'if': '$event', 
-                    'then': '$event.tools.quantity', 
-                    'else': 0
-                  }
-                }, 
-                'start': {
-                  '$cond': {
-                    'if': '$event.recurringEvents', 
-                    'then': '$event.recurringEvents.start.dateTime', 
-                    'else': '$event.start.dateTime'
-                  }
-                }, 
-                'end': {
-                  '$cond': {
-                    'if': '$event.recurringEvents', 
-                    'then': '$event.recurringEvents.end.dateTime', 
-                    'else': '$event.end.dateTime'
-                  }
-                }
-              }
-            }, {
-              '$group': {
-                '_id': '$_id', 
-                'fullName': {
-                  '$first': '$fullName'
-                }, 
-                'total': {
-                  '$first': '$quantity'
-                },
-                'inUse':{
-                    '$push':{
-                      '$cond':{
-                        'if':{
-                          '$or':[
-                              {'$and':[
-                                {'$lt':[new Date(start), '$start']},
-                                {'$gt':[new Date(end), '$start']}
-                              ]},
-                              {'$and':[
-                                {'$gt':[new Date(start), '$start']},
-                                {'$lt':[new Date(end), '$end']}
-                              ]},
-                              {'$and':[
-                                {'$lt':[new Date(start), '$end']},
-                                {'$gt':[new Date(end), '$end']}
-                              ]},
-                              {'$and':[
-                                {'$lt':[new Date(start), '$start']},
-                                {'$gt':[new Date(end), '$end']}
-                              ]}
-                          ]
-                        },
-                        'then':"$using",
-                        'else':0
-                      }
-                    }
-                  }
-                }
-              }
-              ,{
-                '$project': {
-                '_id': 0, 
-                'tool': '$_id', 
-                'quantity': {
-                  '$subtract': [
-                    '$total', {
-                      '$sum': '$inUse'
-                    }
-                  ]
+              }, 
+              'end': {
+                '$cond': {
+                  'if': '$recurringEvents', 
+                  'then': '$recurringEvents.end.dateTime', 
+                  'else': '$end.dateTime'
                 }
               }
             }
-        ]),
-
-        checkForConflicts: async (_,{times, locations}) => await event.aggregate([
-              {
-                '$unwind': {
-                  'path': '$recurringEvents'
-                }
-              }, {
-                '$match': {
-                  'location': {
-                    '$in': locations
-                  }, 
-                  'status': 'confirmed'
-                }
-              }, {
-                '$addFields': {
-                  'start': {
+          }, {
+            '$addFields': {
+              'conflicts': {
+                '$map': {
+                  'input': times, 
+                  'as': 'time', 
+                  'in': {
                     '$cond': {
-                      'if': '$recurringEvents', 
-                      'then': '$recurringEvents.start.dateTime', 
-                      'else': '$start.dateTime'
-                    }
-                  }, 
-                  'end': {
-                    '$cond': {
-                      'if': '$recurringEvents', 
-                      'then': '$recurringEvents.end.dateTime', 
-                      'else': '$end.dateTime'
-                    }
-                  }
-                }
-              }, {
-                '$addFields': {
-                  'conflict': {
-                    '$map': {
-                      'input': times, 
-                      'as': 'time', 
-                      'in': {
-                        '$cond': {
-                          'if': {
-                            '$or': [
+                      'if': {
+                        '$or': [
+                          {
+                            '$and': [
                               {
-                                '$and': [
-                                  {
-                                    '$lt': [
-                                      '$$time.start', '$start'
-                                    ]
-                                  }, {
-                                    '$gt': [
-                                      '$$time.end', '$start'
-                                    ]
-                                  }
+                                '$lt': [
+                                  '$$time.start', '$start'
                                 ]
                               }, {
-                                '$and': [
-                                  {
-                                    '$gt': [
-                                      '$$time.start', '$start'
-                                    ]
-                                  }, {
-                                    '$lt': [
-                                      '$$time.end', '$end'
-                                    ]
-                                  }
-                                ]
-                              }, {
-                                '$and': [
-                                  {
-                                    '$lt': [
-                                      '$$time.start', '$end'
-                                    ]
-                                  }, {
-                                    '$gt': [
-                                      '$$time.end', '$end'
-                                    ]
-                                  }
-                                ]
-                              }, {
-                                '$and': [
-                                  {
-                                    '$lt': [
-                                      '$$time.start', '$start'
-                                    ]
-                                  }, {
-                                    '$gt': [
-                                      '$$time.end', '$end'
-                                    ]
-                                  }
+                                '$gt': [
+                                  '$$time.end', '$start'
                                 ]
                               }
                             ]
-                          }, 
-                          'then': '$$time', 
-                          'else': null
-                        }
-                      }
+                          }, {
+                            '$and': [
+                              {
+                                '$gt': [
+                                  '$$time.start', '$start'
+                                ]
+                              }, {
+                                '$lt': [
+                                  '$$time.end', '$end'
+                                ]
+                              }
+                            ]
+                          }, {
+                            '$and': [
+                              {
+                                '$lt': [
+                                  '$$time.start', '$end'
+                                ]
+                              }, {
+                                '$gt': [
+                                  '$$time.end', '$end'
+                                ]
+                              }
+                            ]
+                          }, {
+                            '$and': [
+                              {
+                                '$lt': [
+                                  '$$time.start', '$start'
+                                ]
+                              }, {
+                                '$gt': [
+                                  '$$time.end', '$end'
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }, 
+                      'then': '$$time', 
+                      'else': null
                     }
                   }
                 }
-              }, {
-                '$unwind': {
-                  'path': '$conflict'
-                }
-              }, {
-                '$match': {
-                  'conflict': {
-                    '$ne': null
-                  }
-                }
-              },{
-                '$project': {
-                  '_id': 0, 
-                  'start': '$conflict.start', 
-                  'end': '$conflict.end', 
-                  'event': '$_id'
-                }
               }
+            }
+          }, {
+            '$unwind': {
+              'path': '$conflicts'
+            }
+          }, {
+            '$match': {
+              'conflicts': {
+                '$ne': null
+              }
+            }
+          }, {
+            '$project': {
+              '_id': 0, 
+              'start': '$conflicts.start', 
+              'end': '$conflicts.end', 
+              'event': '$_id'
+            }
+          }
         ]),
 
-        schedule: async (_, args) => {
-
-          const {start, interval, locations} = args;
+        getSchedule: async (_, {start, interval, locations}) => {
 
           const timeMin = new Date(start);
           const timeMax = new Date(start);
 
           if ( interval === 'm' ) timeMax.setMonth( timeMax.getMonth() + 1 )
-          else if ( interval === 'w' ) timeMax.setDate( timeMax.getDate() + 4 )
+          else if ( interval === 'w' ) timeMax.setDate( timeMax.getDate() + 5 )
           else timeMax.setDate( timeMax.getDate() + 1 );
           
           const aggregation = [
@@ -354,125 +242,11 @@ module.exports = {
           return await event.aggregate(aggregation)
         },
 
-        getTraining: async (_, {id}) => await training.findOne({id}),
+        getTrainings: async (_, {trainings}) => await training.find( trainings ? {id:trainings} : null ),
 
-        getQuestion: async (_,{id},{user}) => {
-          const resp = await guess.findOne({
-            user:user.id,
-            question:id,
-            correct:true
-          });
-          const q = await question.findOne({_id:id})
-          return {completed:resp?true:false, answer:resp?q.answer:""}
-        },
+        getQuestions: async (_,{questions}) => await question.find( questions ? {_id:questions} : null ),
 
-        getQuestionProgress: async (_,{ids},{user}) => {
-          const resp = await question.aggregate([
-          {
-            '$match': {
-              '_id': {
-                '$in': ids.map(i=>Types.ObjectId(i))
-              }
-            }
-          }, {
-            '$lookup': {
-              'from': 'guesses', 
-              'localField': '_id', 
-              'foreignField': 'question', 
-              'as': 'guesses'
-            }
-          }, {
-            '$project': {
-              '_id': 1, 
-              'guesses': {
-                '$map': {
-                  'input': '$guesses', 
-                  'as': 'guess', 
-                  'in': {
-                    '$cond': {
-                      'if': {
-                        '$and': [
-                          {
-                            '$eq': [
-                              user.id, '$$guess.user'
-                            ]
-                          }, '$$guess.correct'
-                        ]
-                      }, 
-                      'then': true, 
-                      'else': false
-                    }
-                  }
-                }
-              }
-            }
-          }, {
-            '$project': {
-              '_id': 1, 
-              'complete': {
-                '$anyElementTrue': '$guesses'
-              }
-            }
-          }
-        ])
-        return resp.map(r=>r.complete)
-        },
-
-        getTrainingStatus: async (_,{},{user}) => await question.aggregate([
-          {
-            '$lookup': {
-              'from': 'guesses', 
-              'localField': '_id', 
-              'foreignField': 'question', 
-              'as': 'guesses'
-            }
-          }, {
-            '$addFields': {
-              'guesses': {
-                '$map': {
-                  'input': '$guesses', 
-                  'as': 'guess', 
-                  'in': {
-                    '$cond': {
-                      'if': {
-                        '$and': [
-                          '$$guess.correct', {
-                            '$eq': [
-                              '$$guess.user', user.id
-                            ]
-                          }
-                        ]
-                      }, 
-                      'then': true, 
-                      'else': false
-                    }
-                  }
-                }
-              }
-            }
-          }, {
-            '$addFields': {
-              'completed': {
-                '$anyElementTrue': '$guesses'
-              }
-            }
-          }, {
-            '$group': {
-              '_id': '$training', 
-              'questions': {
-                '$push': '$completed'
-              }
-            }
-          }, {
-            '$project': {
-              '_id': 0, 
-              'training': '$_id', 
-              'completed': {
-                '$allElementsTrue': '$questions'
-              }
-            }
-          }
-        ])
+        getTools: async(_,{tools}) => await tool.find( tools ? {_id:tools} : null )
     },
 
     Mutation:{
@@ -485,9 +259,9 @@ module.exports = {
           recurrence,
           tools,
           attendees
-        }, context) => {
+        }, {user}) => {
 
-          oauth2Client.setCredentials(context.tokens)
+          oauth2Client.setCredentials(user.tokens)
 
           const createGoogleEvent = async (location, time) => 
             await google.calendar({version:"v3"}).events.insert({
@@ -556,12 +330,121 @@ module.exports = {
     
     },
 
-    TrainingStatus:{
-      training: async (t) => await training.findOne({_id:t.training})
+    Training:{
+        prerequisites: async (trainingDoc) => await training.find({_id:trainingDoc._doc.prerequisites}),
+        questions: async (trainingDoc) => await question.find({training:trainingDoc._id}),
+        completed: async (trainingDoc, {user}, ctx) => {
+          const resp = await training.aggregate([
+            {
+              '$match': {
+                'id': trainingDoc.id
+              }
+            }, {
+              '$lookup': {
+                'from': 'questions', 
+                'localField': '_id', 
+                'foreignField': 'training', 
+                'as': 'question'
+              }
+            }, {
+              '$unwind': {
+                'path': '$question'
+              }
+            }, {
+              '$lookup': {
+                'from': 'guesses', 
+                'localField': 'question._id', 
+                'foreignField': 'question', 
+                'as': 'guesses'
+              }
+            }, {
+              '$project': {
+                '_id': 1, 
+                'guesses': {
+                  '$map': {
+                    'input': '$guesses', 
+                    'as': 'guess', 
+                    'in': {
+                      '$cond': {
+                        'if': {
+                          '$and': [
+                            {
+                              '$eq': [
+                                user ? user : ctx.user.id, '$$guess.user'
+                              ]
+                            }, '$$guess.correct'
+                          ]
+                        }, 
+                        'then': true, 
+                        'else': false
+                      }
+                    }
+                  }
+                }
+              }
+            }, {
+              '$group': {
+                '_id': '$_id', 
+                'questions': {
+                  '$push': {
+                    '$anyElementTrue': '$guesses'
+                  }
+                }
+              }
+            }, {
+              '$project': {
+                'completed': {
+                  '$anyElementTrue': '$questions'
+                }
+              }
+            }
+          ])
+          return resp[0] ? resp[0].completed : false
+        },
+        progress: async (trainingDoc) => {
+          console.log(trainingDoc._doc);
+        }
     },
 
-    Training:{
-        prerequisites: async (t) => await training.find({_id:t._doc.prerequisites})
+    Question:{
+        completed: async (questionDoc, {users}, ctx) => {
+          const resp = await question.aggregate([
+            {
+              '$match': {
+                '_id': questionDoc._id
+              }
+            }, {
+              '$lookup': {
+                'from': 'guesses', 
+                'localField': '_id', 
+                'foreignField': 'question', 
+                'as': 'guesses'
+              }
+            }, {
+              '$project': {
+                '_id': 0, 
+                'completed': {
+                  '$anyElementTrue': {
+                    '$map': {
+                      'input': '$guesses', 
+                      'as': 'guess', 
+                      'in': {
+                        '$and': [
+                          {
+                            '$in': [
+                              '$$guess.user', users ? users : [ctx.user.id]
+                            ]
+                          }, '$$guess.correct'
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ])
+          return resp[0] ? resp[0].completed : false
+        }
     },
 
     User:{
@@ -580,12 +463,7 @@ module.exports = {
     },
 
     Tool:{
-      training: async (t) => {
-        return await training.findOne({id:t.training})
-      }
+      training: async (t) => await training.findOne({id:t.training}),
+      authorizedUsers: async (t) => await tools.aggregate([])
     },
-
-    ToolReservation:{
-        tool: async (r) => await tool.findOne({_id:r.tool})
-    }
 }

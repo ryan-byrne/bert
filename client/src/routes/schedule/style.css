@@ -23,15 +23,16 @@
 }
 
 .event-badge {
-    word-wrap: break-word;
-    align-items: center;
+    word-wrap: none;
+    overflow: hidden;
     position: absolute;
     padding: .4em .3em;
     font-size: 0.8em;
     font-weight: 700;
+    width: 50%;
     color: #fff;
-    border-radius: .5rem;
-    overflow: auto;
+    border: 1px solid gray;
+    border-radius: 1em;
     cursor: pointer;
     text-decoration: none;
 }

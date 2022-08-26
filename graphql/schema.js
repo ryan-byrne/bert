@@ -10,34 +10,24 @@ schema {
 }
 
 type Query {
-    user(id:String):User
     
-    schedule(
+    getSchedule(
         interval:ScheduleInterval, 
         start:String, 
         user:String, 
         locations:[EventLocation]
     ):[Schedule],
-    
-    toolAvailability(start:String, end:String, search:String):[ToolReservation]
-    
-    block(division:String,day:String,week:String):[Block]
+        
+    getBlocks(division:String,day:String,week:String):[Block]
     
     checkForConflicts(times:[Time], locations:[EventLocation]):[Conflict]
-    
-    getTraining(id:String):Training
-    
-    getQuestion(id:String): QuestionStatus
 
-    getQuestionProgress(ids:[String]):[Boolean]
+    getQuestions(questions:[String]):[Question]
 
-    getTrainingStatus:[TrainingStatus]
+    getTrainings(trainings:[String]):[Training]
 
-}
+    getTools(tools:[String]):[Tool]
 
-type TrainingStatus {
-    completed: Boolean
-    training: Training
 }
 
 type Mutation {
@@ -61,6 +51,11 @@ type Mutation {
 type Schedule {
     day:Int
     events:[Event]
+}
+
+input ToolInput {
+    tool:String
+    quantity:Int
 }
 
 input Attendee {
@@ -107,21 +102,20 @@ enum ScheduleInterval {
 type Training {
     id:String!
     name:String!
+    questions:[Question]
+    completed(user:String):Boolean
+    progress(user:String):Int
     description:String!
     prerequisites:[Training]!
     demo:Boolean
 }
 
 type Question {
+    completed:Boolean
     answer:String!
     text:String
     choices:[String]
     training:Training!
-}
-
-type QuestionStatus {
-    answer:String
-    completed:Boolean
 }
 
 type Guess {
@@ -138,6 +132,8 @@ type Tool {
     brand:String!
     name:String!
     quantity:Int!
+    available:Int
+    authorizedUsers:[User]
     photo:String
     manual:String
     training:Training
@@ -255,16 +251,7 @@ type Event {
     """
     List of Tool Reservations
     """
-    tools:[ToolReservation]!
+    tools:[Tool]!
 }
 
-input ToolInput {
-    id:String!
-    quantity:Int!
-}
-
-type ToolReservation {
-    tool:Tool!
-    quantity:Int!
-}
 `

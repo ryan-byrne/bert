@@ -9,20 +9,24 @@ export default function Question({id, children, update}) {
     const [guess, setGuess] = useState("");
 
     useEffect(()=>{
-        setStatus('waiting')
+        setStatus('loading')
         Query(`
-            query GetQuestion($id: String) {
-                getQuestion(id: $id) {
-                answer
-                completed
-                }
+        query GetQuestions($questions: [String]) {
+            getQuestions(questions: $questions) {
+              completed
+              answer
             }
-        `,{id})
+          }
+        `,{questions:[id]})
             .then( resp => resp.json()
             .then( data => {
-                setStatus( data.data.getQuestion.completed ? 'completed' : 'waiting')
-                setQuestion(data.data.getQuestion)
+                if ( data.error || !data.data) console.error(data)
+                else {
+                    setQuestion(data.data.getQuestions[0])
+                    setStatus( data.data.getQuestions[0].completed ? 'completed' : 'waiting' )
+                }
             }))
+            .catch(err => console.error(err))
     },[id])
 
     useEffect(()=>{

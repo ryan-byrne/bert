@@ -5,45 +5,56 @@ import { Query } from "../../../components/GraphQL"
 
 export default function Index(){
 
-    const [trainings, setTrainings] = useState([]);
+    const [trainings, setTrainings] = useState();
 
     useEffect(()=>{
         Query(`
-        query TrainingStatus {
-            getTrainingStatus {
+        query AllTrainings {
+            getTrainings {
+              name
+              id
               completed
-              training {
+              description
+              questions {
+                completed
+              }
+              prerequisites {
                 name
-                description
                 id
+                completed
               }
             }
-          } 
+          }
         `)
-          .then(resp => resp.json()
-          .then( data => setTrainings(data.data.getTrainingStatus) ))
+          .then( resp => resp.json()
+          .then( data => {
+            if (data.error || !data.data) console.error(data)
+            else setTrainings(data.data.getTrainings)
+          }) )
+          .catch( err => console.error(err))
+    },[]) 
 
-    },[])
+    console.log(trainings);
 
-    return(
+    return( !trainings ? <div>Loading...</div> :
         <Container className="mt-3">
             <ListGroup>
                 {trainings.map( training => 
-                    training.training.id === 'introduction' ?
+                    training.id === 'introduction' ?
                     <div>
-                    <Link to={training.training.id}>
+                    <Link to={training.id}>
                         <ListGroup.Item>
-                            {training.training.name}
+                            {training.name}
                         </ListGroup.Item>
                     </Link>
                 </div>:null
                 )}
                 {trainings.map( training =>
-                    training.training.id === 'introduction' ? null :
+                    training.id === 'introduction' ? null :
                     <div>
-                        <Link to={training.training.id}>
+                        <Link to={training.id}>
                             <ListGroup.Item>
-                                {training.training.name}
+                                {training.name}
                             </ListGroup.Item>
                         </Link>
                     </div>

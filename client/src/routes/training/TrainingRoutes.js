@@ -42,7 +42,8 @@ export default function TrainingRoutes(){
             <Route path="jig-saws" element={<JigSaws update={update}/>}/>
             <Route path="power-sanders" element={<PowerSanders update={update}/>}/>
             <Route path="routers" element={<Routers update={update}/>}/>
-            <Route path="fdm-printing" element={<FDMPrinting update={update}/>}/>
+            <Route path="fdm-3d-printing" element={<FDMPrinting update={update}/>}/>
+            <Route path="*" element={<div>Sorry this Training is Unvailable</div>}/>
         </Routes>
     )
 }
