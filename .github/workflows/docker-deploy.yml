@@ -61,7 +61,6 @@ jobs:
           cd client
           npm ci
           npm run build
-          npm test
 
       - name: 'Include Cloud SDK'
         uses: 'google-github-actions/setup-gcloud@v0'
