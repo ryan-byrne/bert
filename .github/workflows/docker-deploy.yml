@@ -78,6 +78,7 @@ jobs:
 
       - name: 'Build & Push Container'
         run: |-
+          cd ..
           docker build --build-arg NODE_ENV=${{ env.BRANCH }} -t "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.SERVICE }}/${{ env.BRANCH }}:latest" ./
           docker push "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.SERVICE }}/${{ env.BRANCH }}:latest"
           
