@@ -18,8 +18,6 @@
     * Authorized User List
 
 * Trainings
-    * Block when people have not completed prereq
-
     * Add Hints
     * Add Choices to Question
     * Transfer last year's people
@@ -44,3 +42,5 @@
 
 
 ## Deployment
+
+* Google Authentication Issue

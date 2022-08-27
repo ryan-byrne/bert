@@ -410,7 +410,34 @@ module.exports = {
           ])
 
           return resp[0] ? resp[0].completed : false
-        }
+        },
+
+        tools: async (doc) => await tool.find({training:doc.id}),
+
+        required_by: async({_id}) => {
+
+          const resp = await training.aggregate([
+            {
+                '$unwind': {
+                    'path': '$prerequisites'
+                }
+            }, {
+                '$group': {
+                    '_id': '$prerequisites', 
+                    'required_by': {
+                        '$push': '$$ROOT'
+                    }
+                }
+            }, {
+                '$match': {
+                    '_id': _id
+                }
+            }
+        ]);
+
+        return resp[0] ? resp[0].required_by : []
+      }
+
     },
 
     Question:{

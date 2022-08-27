@@ -104,6 +104,9 @@ type Training {
     name:String!
     questions:[Question]
     completed(user:String):Boolean
+    demo_completed(user:String):Boolean
+    tools:[Tool]
+    required_by:[Training]
     description:String!
     prerequisites:[Training]!
     demo:Boolean
@@ -128,6 +131,7 @@ type Guess {
 # COLLECTIONS
 
 type Tool {
+    _id:String
     brand:String!
     name:String!
     quantity:Int!

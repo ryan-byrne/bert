@@ -38,7 +38,7 @@ export default function Schedule({create}){
         setEvents();
         Query(`
         query ViewSchedule($interval:ScheduleInterval!, $start:String!,$locations:[EventLocation!]) {
-            schedule(interval:$interval, start:$start,locations: $locations){
+            getSchedule(interval:$interval, start:$start,locations: $locations){
               day
               events {
                 start {
@@ -60,7 +60,7 @@ export default function Schedule({create}){
         })
             .then( resp => resp.json() )
             .then( data => {
-                const {schedule} = data.data;
+                const {getSchedule} = data.data;
                 const currentDate = new Date(from);
                 const endDate = new Date(from);
                 endDate.setDate( endDate.getDate() + (interval === 'm' ? 31 : interval === 'w' ? 5 : 1))
@@ -68,7 +68,7 @@ export default function Schedule({create}){
                 while ( currentDate < endDate ) {
                     if ( interval === 'm' && currentDate.getMonth() !== from.getMonth() ) break
                     else if ( ![0,6].includes(currentDate.getDay()) ){
-                        const e = schedule.filter(d=>d.day===currentDate.getDate())[0]
+                        const e = getSchedule.filter(d=>d.day===currentDate.getDate())[0]
                         tempEvents.push({
                             date:new Date(currentDate),
                             events:e?e.events:[]
