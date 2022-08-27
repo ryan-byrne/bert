@@ -331,13 +331,17 @@ module.exports = {
     },
 
     Training:{
-        prerequisites: async (trainingDoc) => await training.find({_id:trainingDoc._doc.prerequisites}),
-        questions: async (trainingDoc) => await question.find({training:trainingDoc._id}),
-        completed: async (trainingDoc, {user}, ctx) => {
+        
+        prerequisites: async ({_doc}) => await training.find({_id:_doc.prerequisites}),
+        
+        questions: async ({_id}) => await question.find({training:_id}),
+        
+        completed: async ({_doc}, {user}, ctx) => {
+
           const resp = await training.aggregate([
             {
               '$match': {
-                'id': trainingDoc.id
+                '_id':_doc._id
               }
             }, {
               '$lookup': {
@@ -383,31 +387,35 @@ module.exports = {
                 }
               }
             }, {
+              '$project': {
+                'completed': {
+                  '$anyElementTrue': '$guesses'
+                }
+              }
+            }, {
               '$group': {
                 '_id': '$_id', 
                 'questions': {
-                  '$push': {
-                    '$anyElementTrue': '$guesses'
-                  }
+                  '$push': '$completed'
                 }
               }
             }, {
               '$project': {
+                '_id': 0, 
                 'completed': {
-                  '$anyElementTrue': '$questions'
+                  '$allElementsTrue': '$questions'
                 }
               }
             }
           ])
+
           return resp[0] ? resp[0].completed : false
-        },
-        progress: async (trainingDoc) => {
-          console.log(trainingDoc._doc);
         }
     },
 
     Question:{
-        completed: async (questionDoc, {users}, ctx) => {
+
+        completed: async (questionDoc, {user}, ctx) => {
           const resp = await question.aggregate([
             {
               '$match': {
@@ -431,10 +439,8 @@ module.exports = {
                       'in': {
                         '$and': [
                           {
-                            '$in': [
-                              '$$guess.user', users ? users : [ctx.user.id]
-                            ]
-                          }, '$$guess.correct'
+                            '$eq':['$$guess.user', user ? user : ctx.user.id]
+                          },'$$guess.correct'
                         ]
                       }
                     }

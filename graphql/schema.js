@@ -104,7 +104,6 @@ type Training {
     name:String!
     questions:[Question]
     completed(user:String):Boolean
-    progress(user:String):Int
     description:String!
     prerequisites:[Training]!
     demo:Boolean

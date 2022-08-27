@@ -24,7 +24,7 @@ export default function Training({id, children}) {
               demo
             }
           }
-        `,{trainings:[id], users:["102846208888342692018"]})
+        `,{trainings:[id]})
             .then( resp => resp.json()
             .then( data => {
                 setTraining(data.data.getTrainings[0]);
