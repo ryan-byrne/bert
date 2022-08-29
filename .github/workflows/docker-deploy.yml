@@ -20,8 +20,8 @@ env:
 jobs:
   google-auth:
     permissions:
-    contents: 'read'
-    id-token: 'write'
+      contents: 'read'
+      id-token: 'write'
 
     runs-on: ubuntu-latest
     steps:
