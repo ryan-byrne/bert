@@ -33,6 +33,7 @@ jobs:
         name: Google Authentication
         uses: 'google-github-actions/auth@v0'
         with:
+          token_format: 'access_token'
           credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
           
       - uses: 'docker/login-action@v1'
