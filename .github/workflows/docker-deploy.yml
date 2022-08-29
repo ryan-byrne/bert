@@ -18,7 +18,9 @@ env:
   REGION: us-central1
 
 jobs:
-  deploy:
+  production-deploy:
+  
+    if: ${{ env.BRANCH }} == 'production'
 
     permissions:
       contents: 'read'
@@ -51,3 +53,9 @@ jobs:
 
       - name: Print ENV
         run: echo ${{ env.NODE_ENV }}
+
+  testing-deploy:
+    if: ${{ env.BRANCH }} == 'testing'
+    steps:
+      id: hello
+      run: echo "World"
