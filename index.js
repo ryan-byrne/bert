@@ -15,13 +15,14 @@ const apolloServer = require('./graphql/index');
 const app = express();
 
 // Is Production
-const isProduction = process.env.NODE_ENV === 'production'
+const isProduction = process.env.NODE_ENV === 'development'
 
 // Middleware
 const corsOptions = {
   credentials:true,
   origin:[process.env.SERVER_URL, "https://studio.apollographql.com"]
 }
+
 app.use(cors(corsOptions));
 app.use(json());
 app.use(session({
@@ -34,7 +35,6 @@ app.use(session({
   }),
   cookie:{
     secure: isProduction ? true : false,
-    sameSite:false,
     httpOnly: true
   }
 }));
@@ -42,6 +42,9 @@ app.use(authMiddleware);
 
 // Auth Route
 app.use('/auth', auth);
+
+// Client Route
+isProduction ? app.use(express.static(resolve(__dirname, 'client', 'build'))) : null;
 
 // Apollo Server
 apolloServer.start()
@@ -53,9 +56,6 @@ apolloServer.start()
       path:'/graphql'
     })
   })
-
-// Client Route
-if ( isProduction ) app.get("*", (_, res) => res.sendFile( resolve(__dirname, 'client', 'build', 'index.html') ) )
 
 // Express Server
 const port = process.env.PORT || 5000;

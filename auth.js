@@ -8,6 +8,8 @@ const oauth2Client = new google.auth.OAuth2(
     `${process.env.SERVER_URL}/auth/callback`
 );
 
+const isProduction = process.env.NODE_ENV === 'production'
+
 google.options({ auth: oauth2Client });
 
 const authMiddleware = async (req, res, next) => {
@@ -30,7 +32,7 @@ const authMiddleware = async (req, res, next) => {
           ],
             include_granted_scopes: true
         });
-        return res.json({authorizationUrl})
+        return isProduction ? res.redirect(authorizationUrl) : res.json({authorizationUrl})
     } else next()
 }
 
