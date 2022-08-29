@@ -44,7 +44,7 @@ jobs:
         run: echo "Setup Production Environment"
 
       - name: Deploy Testing
-        if: ${{ env.BRANCH == 'production' }}
+        if: ${{ env.BRANCH == 'testing' }}
         env:
           NODE_ENV: testing
         run: echo "Setup Testing Environment"
