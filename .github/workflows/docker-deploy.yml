@@ -37,7 +37,10 @@ jobs:
         if: ${{ env.BRANCH }} == 'testing'
         env:
           NODE_ENV: testing
-        run: Setup Testing Environment
+        run: echo "Setup Testing Environment"
+
+      - name: Print ENV
+        run: echo ${{ env.NODE_ENV }}
 
       - name: Checkout
         uses: actions/checkout@v3
