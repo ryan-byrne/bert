@@ -27,21 +27,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
-      - name: Setup Production Environment
-        if: ${{ env.BRANCH }} == 'production'
-        env:
-          NODE_ENV: production
-        run: echo "Setup Production Environment"
-
-      - name: Setup Testing Environment
-        if: ${{ env.BRANCH }} == 'testing'
-        env:
-          NODE_ENV: testing
-        run: echo "Setup Testing Environment"
-
-      - name: Print ENV
-        run: echo ${{ env.NODE_ENV }}
-
       - name: Checkout
         uses: actions/checkout@v3
 
@@ -51,3 +36,18 @@ jobs:
         with:
           workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
           service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+
+      - name: Deploy Production
+        if: ${{ env.BRANCH == 'production' }}
+        env:
+          NODE_ENV: production
+        run: echo "Setup Production Environment"
+
+      - name: Deploy Testing
+        if: ${{ env.BRANCH == 'production' }}
+        env:
+          NODE_ENV: testing
+        run: echo "Setup Testing Environment"
+
+      - name: Print ENV
+        run: echo ${{ env.NODE_ENV }}
