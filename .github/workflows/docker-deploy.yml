@@ -50,6 +50,13 @@ jobs:
             echo "MONGO_DB: ${{ secrets.PRODUCTION_MONGO_DB }}" >> ${{ env.BRANCH }}.env.yaml
             echo "SERVER_URL: https://bert.thebetalab.org" >> ${{ env.BRANCH }}.env.yaml
           fi
+          
+      - id: auth
+        name: Google Authentication
+        uses: 'google-github-actions/auth@v0'
+        with:
+          workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
+          service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
       
       - name: Setup Node.js
         uses: actions/setup-node@v2
@@ -64,13 +71,6 @@ jobs:
 
       - name: 'Include Cloud SDK'
         uses: 'google-github-actions/setup-gcloud@v0'
-
-      - id: auth
-        name: Google Authentication
-        uses: 'google-github-actions/auth@v0'
-        with:
-          workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
-          service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
 
       - name: 'Docker Auth'
         run:
