@@ -9,6 +9,65 @@ const question = require('../db/models/question');
 const tool = require('../db/models/tool');
 const guess = require('../db/models/guess');
 
+/*
+
+      - name: Setup Environment
+        run: |-
+          touch ${{ env.BRANCH }}.env.yaml
+          echo "GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}" >> ${{ env.BRANCH }}.env.yaml
+          echo "GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}" >> ${{ env.BRANCH }}.env.yaml
+          echo "MONGO_URL: ${{ secrets.MONGO_URL }}" >> ${{ env.BRANCH }}.env.yaml
+          echo "SESSION_SECRET: ${{ secrets.SESSION_SECRET }}" >> ${{ env.BRANCH }}.env.yaml
+          if [[ ${{ env.BRANCH }} == 'testing' ]]; then
+            echo "MONGO_USER: ${{ secrets.TESTING_MONGO_USER }}" >> ${{ env.BRANCH }}.env.yaml
+            echo "MONGO_PASS: ${{ secrets.TESTING_MONGO_PASS }}" >> ${{ env.BRANCH }}.env.yaml
+            echo "MONGO_DB: ${{ secrets.TESTING_MONGO_DB }}" >> ${{ env.BRANCH }}.env.yaml
+            echo "CLIENT_URL: https://testing-zcgw6ooqia-uc.a.run.app" >> ${{ env.BRANCH }}.env.yaml
+            echo "SERVER_URL: https://testing-zcgw6ooqia-uc.a.run.app" >> ${{ env.BRANCH }}.env.yaml
+          else
+            echo "CLIENT_URL: http://bert.thebetalab.org" >> ${{ env.BRANCH }}.env.yaml
+            echo "MONGO_USER: ${{ secrets.PRODUCTION_MONGO_USER }}" >> ${{ env.BRANCH }}.env.yaml
+            echo "MONGO_PASS: ${{ secrets.PRODUCTION_MONGO_PASS }}" >> ${{ env.BRANCH }}.env.yaml
+            echo "MONGO_DB: ${{ secrets.PRODUCTION_MONGO_DB }}" >> ${{ env.BRANCH }}.env.yaml
+            echo "SERVER_URL: https://bert.thebetalab.org" >> ${{ env.BRANCH }}.env.yaml
+          fi
+
+      - id: auth
+        name: Google Authentication
+        uses: 'google-github-actions/auth@v0'
+        with:
+          workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
+          service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+
+      - name: Docker Auth
+        id: docker-auth
+        uses: 'docker/login-action@v1'
+        with:
+          username: 'oauth2accesstoken'
+          password: '${{ steps.auth.outputs.access_token }}'
+          registry: '${{ env.GAR_LOCATION }}-docker.pkg.dev'
+
+      - name: 'Build & Push Container'
+        run: |-
+          docker build --build-arg NODE_ENV=${{ env.BRANCH }} -t "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.SERVICE }}/${{ env.BRANCH }}:latest" ./
+          docker push "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.SERVICE }}/${{ env.BRANCH }}:latest"
+
+      - id: 'deploy'
+        uses: 'google-github-actions/deploy-cloudrun@v0'
+        with:
+          service: 'bert'
+          image: ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE }}:latest
+          env_vars: |
+            GOOGLE_CLIENT_ID=${{secrets.GOOGLE_CLIENT_ID}}
+            GOOGLE_CLIENT_SECRET=${{secrets.GOOGLE_CLIENT_SECRET}}
+            MONGO_URL=${{secrets.MONGO_URL}}
+            SESSION_SECRET=${{secrets.SESSION_SECRET}}
+            SESSION_SECRET=${{ env.BRANCH == 'test' ?  }}
+
+
+
+*/
+
 const isProduction = process.env.NODE_ENV === 'production' 
 
 const calendars = isProduction ? {
