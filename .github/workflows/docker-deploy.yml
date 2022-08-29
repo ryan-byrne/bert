@@ -34,8 +34,16 @@ jobs:
         if: ${{ env.BRANCH === 'testing' }}
         env:
           NODE_ENV: testing
+        run:
+          echo "Setting up Testing Environment"
 
       - name: Setup Production Environment
         if: ${{ env.BRANCH === 'production' }}
         env:
           NODE_ENV: production
+        run:
+          echo "Setting up Production Environment"
+      
+      - name: "Checking"
+        run:
+          echo ${{ env.NODE_ENV }}
