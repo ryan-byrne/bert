@@ -27,19 +27,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
-      - name: Deploy Testing
-        if: ${{ env.BRANCH }} == 'testing'
-        env:
-          NODE_ENV: testing
-        run:
-          echo "Setting up Testing Environment"
-
-      - name: Deploy Production
+      - name: Setup Production Environment
         if: ${{ env.BRANCH }} == 'production'
         env:
           NODE_ENV: production
-        run:
-          echo "Setting up Production Environment"
+        run: echo "Setup Production Environment"
+
+      - name: Setup Testing Environment
+        if: ${{ env.BRANCH }} == 'testing'
+        env:
+          NODE_ENV: testing
+        run: Setup Testing Environment
 
       - name: Checkout
         uses: actions/checkout@v3
@@ -48,6 +46,5 @@ jobs:
         name: Google Authentication
         uses: 'google-github-actions/auth@v0'
         with:
-          token_format: 'access_token'
           workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
           service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
