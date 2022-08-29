@@ -28,14 +28,14 @@ jobs:
     steps:
 
       - name: Deploy Testing
-        if: 'testing' == ${{ env.BRANCH }}
+        if: ${{ env.BRANCH }} == 'testing'
         env:
           NODE_ENV: testing
         run:
           echo "Setting up Testing Environment"
 
       - name: Deploy Production
-        if: 'production' == ${{ env.BRANCH }}
+        if: ${{ env.BRANCH }} == 'production'
         env:
           NODE_ENV: production
         run:
