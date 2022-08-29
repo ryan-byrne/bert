@@ -4,66 +4,6 @@ import { useNavigate, useParams } from "react-router-dom";
 
 const Loading = ({children}) => <Alert><Spinner animation="grow" size="sm"/> Loading {children}...</Alert>
 
-const View = ({tool, hide, user}) => 
-    <Modal show={tool} onHide={hide}>
-        <Modal.Header closeButton>
-            <Modal.Title>{tool?`${tool.brand} ${tool.name}`:""}</Modal.Title>
-        </Modal.Header>
-        {
-            !tool?null:
-            <Modal.Body>
-                <Row className="text-center">
-                    <Col>
-                        <Image src={tool.photo} fluid/>
-                    </Col>
-                    
-                </Row>
-                <Table>
-                    <tbody>
-                        <tr>
-                            <td><b>Description</b></td>
-                            <td>{tool.description}</td>
-                        </tr>
-                        <tr><td><b>Manual</b></td><td><a href={tool.manual} target="_blank">View</a></td></tr>
-                        <tr><td><b>Training</b></td><td><a href={`/#/trainings/${tool.training}`}>
-                            <Badge bg={tool.authorizedUsers.map(u=>u.realm_id).includes(user.id)?"success":"danger"}>
-                                {tool.authorizedUsers.map(u=>u.realm_id).includes(user.id)?"":"Not"} Completed
-                            </Badge>
-                        </a></td></tr>
-                        <tr>
-                            <td><b>Authorized Users</b></td>
-                            <td>
-                                {
-                                    tool.authorizedUsers.length === 0 ? <Alert variant="warning">None</Alert>:
-                                    <ListGroup>
-                                        {tool.authorizedUsers.map( user => 
-                                            <ListGroup.Item>{user.first_name} {user.last_name} ({user.email})</ListGroup.Item>
-                                        )}
-                                    </ListGroup>
-                                }
-                                
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><b>Common Issues</b></td>
-                            <td>
-                                {tool.issues.map( issue =>
-                                    <Alert variant="warning">
-                                        <b>{issue.description.toUpperCase()}</b>
-                                        <br/>
-                                        <strong>Caused by:</strong> {issue.cause}
-                                    </Alert>
-                                )}
-                            </td>
-                        </tr>
-                    </tbody>
-                </Table>
-                <Row>
-                    
-                </Row>
-            </Modal.Body>
-        }
-    </Modal>
 
 /*
 Keywords:

@@ -1,16 +1,15 @@
 import { Form, FloatingLabel, Row, ToggleButton, ToggleButtonGroup } from "react-bootstrap"
 import {Link} from 'react-router-dom';
 
-export default ({options, payload, setOptions, setPayload}) => {
+export default function Describe({payload, setPayload}) {
 
     const handlePayloadChange = (e) => setPayload({...payload, [e.target.id]:e.target.value});
-    const handleOptionChange = (e) => setOptions({...options, [e.target.id]:e.target.value})
 
     return (
     <Form.Group>
         <Form.Group>
             <FloatingLabel label="Summarize your Event">
-                <Form.Control required value={payload.summary} id="summary" placeholder="Name Your Project" onChange={handlePayloadChange}/>
+                <Form.Control value={payload.summary} id="summary" placeholder="Name Your Project" onChange={handlePayloadChange}/>
             </FloatingLabel>
         </Form.Group>
 
@@ -27,26 +26,10 @@ export default ({options, payload, setOptions, setPayload}) => {
                 <ToggleButton value="machineshop" variant="outline-primary" id={`space-btn-3`}>Machine Shop</ToggleButton>
             </ToggleButtonGroup>
             <div>
-            <Link to="/locations" style={{textDecorationLine:"none"}}><Form.Text muted>Learn More</Form.Text></Link>
+            <Link to="/training/introduction" style={{textDecorationLine:"none"}}><Form.Text muted>Learn More</Form.Text></Link>
             </div>
         </Form.Group>
 
-        <Form.Group className="mt-3">
-            <FloatingLabel label="Date">
-                <Form.Control type="date" id={`date`} value={options.date} onChange={handleOptionChange}/>
-            </FloatingLabel>
-        </Form.Group>
-
-        <Form.Group as={Row} className="mt-3">
-            <ToggleButtonGroup type="radio" value={options.blockTime} onChange={(b)=>setOptions({...options, blockTime:b})} name="blockTime">
-                <ToggleButton value={false} id="type-btn-1" variant="outline-primary">
-                    Time(s)
-                </ToggleButton>
-                <ToggleButton value={true} id="type-btn-2" variant="outline-primary">
-                    Block(s)
-                </ToggleButton>
-            </ToggleButtonGroup>
-        </Form.Group>
     </Form.Group>
     )
     

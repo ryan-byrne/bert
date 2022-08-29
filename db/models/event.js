@@ -42,8 +42,14 @@ module.exports = model('Event', new Schema({
         displayName:String,
         self:Boolean
     },{_id:false}),
-    start: DateTime,
-    end: DateTime,
+    start: {
+        type:DateTime,
+        required:true
+    },
+    end: {
+        type:DateTime,
+        required:true
+    },
     iCalUID:String,
     reminders:new Schema({
         useDefault:Boolean

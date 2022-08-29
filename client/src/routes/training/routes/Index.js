@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { Container, ListGroup, Row, Col, Badge, Alert, Spinner } from "react-bootstrap";
 import { Link } from "react-router-dom"
 import { Query } from "../../../components/GraphQL"
+import Loading from "../../../components/Loading";
 
 export default function Index() {
 
@@ -63,7 +64,7 @@ export default function Index() {
               training.completed && training.demo && !training.demo_completed ? <Badge bg="warning">Demo Not Completed</Badge> :
               training.completed ? <Badge bg="success">Completed</Badge> :
               q.length === 0 ? <Badge bg="secondary">Coming Soon</Badge> :
-              q.filter(q=>q.completed).length > 0 ? <Badge bg="warning">In Progress</Badge>:
+              q.filter(q=>q.completed).length > 0 ? <Badge bg="warning">In Progress ({progress}%)</Badge>:
               pre.length > 0 ? <Badge bg="danger" className="text-wrap">Missing {pre[0].name}</Badge> :
               <Badge bg="primary">Start</Badge>
             }
@@ -73,7 +74,7 @@ export default function Index() {
     )
   }
 
-  return (!trainings ? <Alert className="mt-5 text-center"><Spinner animation="grow" size="sm"/> Loading Trainings</Alert> :
+  return (!trainings ? <Loading>Loading Trainings...</Loading> :
     <Container className="mt-3">
       <Row className="justify-content-center">
         <Col xs={12} md={8} lg={4}>

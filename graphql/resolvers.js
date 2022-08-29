@@ -12,32 +12,21 @@ const guess = require('../db/models/guess');
 const isProduction = process.env.NODE_ENV === 'production' 
 
 const calendars = isProduction ? {
-  "classroom":{
-    "calendar":"c_2l72cqq855fvcu8l0f35donqnc@group.calendar.google.com",
-    "capacity":25
-  },
-  "machineshop":{
-    "calendar":"c_cdm0jncrjj972nf6g6o6r2jhf4@group.calendar.google.com",
-    "capacity":4
-  },
-  "powertool":{
-    "calendar":"c_cdsr663bruijjo05637v89fh4k@group.calendar.google.com",
-    "capacity":4
-  }
+  "classroom":"c_2l72cqq855fvcu8l0f35donqnc@group.calendar.google.com",
+  "machineshop":"c_cdm0jncrjj972nf6g6o6r2jhf4@group.calendar.google.com",
+  "powertool":"c_cdsr663bruijjo05637v89fh4k@group.calendar.google.com",
 } : {
-  "classroom":{
-    "calendar":"c_p3oca9691kbuppg3gv684h62rc@group.calendar.google.com",
-    "capacity":25
-  },
-  "machineshop":{
-    "calendar":"c_quvn2omcc7pttk6tip2n9a2fto@group.calendar.google.com",
-    "capacity":4
-  },
-  "powertool":{
-    "calendar":"c_uclhkdm8namoq41rlij866jl2g@group.calendar.google.com",
-    "capacity":4
-  }
+  "classroom":"c_p3oca9691kbuppg3gv684h62rc@group.calendar.google.com",
+  "machineshop":"c_quvn2omcc7pttk6tip2n9a2fto@group.calendar.google.com",
+  "powertool":"c_uclhkdm8namoq41rlij866jl2g@group.calendar.google.com"
 }
+
+const getGoogleEvents = async (location, timeMin, timeMax) => await google.calendar({version:"v3"}).events.list({
+  calendarId:calendars[location],
+  timeMin,
+  timeMax,
+  singleEvents:true
+});
 
 module.exports = {
 
@@ -47,271 +36,134 @@ module.exports = {
         return new Date(value);
       },
       serialize(value) {
-        return value.toISOString();
-      },
+        return new Date(value).toISOString()
+      }
     }),
 
     Query:{
 
         getBlocks: async (_, {division, day, week}) => await block.find({division, day, week}),
 
-        checkForConflicts: async (_,{times, locations}) => await event.aggregate([
-          {
-            '$unwind': {
-              'path': '$recurringEvents', 
-              'preserveNullAndEmptyArrays': true
-            }
-          }, {
-            '$match': {
-              'location': {
-                '$in': locations
-              }, 
-              'status': 'confirmed'
-            }
-          }, {
-            '$addFields': {
-              'start': {
-                '$cond': {
-                  'if': '$recurringEvents', 
-                  'then': '$recurringEvents.start.dateTime', 
-                  'else': '$start.dateTime'
+        getConflicts: async (_,{times, locations, tools}, {user}) => {
+
+          oauth2Client.setCredentials({...user.tokens})
+
+          // RRULE:FREQ=WEEKLY;UNTIL=20221031;INTERVAL=1
+          let conflicts = [];
+          for (const time of times) {
+            for ( const location of locations ) {
+              const {recurrence, start, end} = time;
+              if ( recurrence ){
+                const [freq, until, interval] = recurrence[0].split(':')[1].split(';').map(i=>i.split('=')[1])
+                const untilDate = new Date(until.substring(0, 4),until.substring(4, 6), until.substring(6, 8) );
+                const startDate = new Date(start);
+                const endDate = new Date(end);
+                while ( startDate < untilDate ){
+                  const resp = await getGoogleEvents(location, startDate, endDate);
+                  conflicts.push( resp.data.items )
+                  startDate.setDate( startDate.getDate() + interval * 7 )
+                  endDate.setDate( endDate.getDate() + interval * 7 )
                 }
-              }, 
-              'end': {
-                '$cond': {
-                  'if': '$recurringEvents', 
-                  'then': '$recurringEvents.end.dateTime', 
-                  'else': '$end.dateTime'
-                }
+              } else {
+                const resp = await getGoogleEvents(location, start, end);
+                conflicts.push(resp.data.items)
               }
             }
-          }, {
-            '$addFields': {
-              'conflicts': {
-                '$map': {
-                  'input': times, 
-                  'as': 'time', 
-                  'in': {
-                    '$cond': {
-                      'if': {
-                        '$or': [
-                          {
-                            '$and': [
-                              {
-                                '$lt': [
-                                  '$$time.start', '$start'
-                                ]
-                              }, {
-                                '$gt': [
-                                  '$$time.end', '$start'
-                                ]
-                              }
-                            ]
-                          }, {
-                            '$and': [
-                              {
-                                '$gt': [
-                                  '$$time.start', '$start'
-                                ]
-                              }, {
-                                '$lt': [
-                                  '$$time.end', '$end'
-                                ]
-                              }
-                            ]
-                          }, {
-                            '$and': [
-                              {
-                                '$lt': [
-                                  '$$time.start', '$end'
-                                ]
-                              }, {
-                                '$gt': [
-                                  '$$time.end', '$end'
-                                ]
-                              }
-                            ]
-                          }, {
-                            '$and': [
-                              {
-                                '$lt': [
-                                  '$$time.start', '$start'
-                                ]
-                              }, {
-                                '$gt': [
-                                  '$$time.end', '$end'
-                                ]
-                              }
-                            ]
-                          }
-                        ]
-                      }, 
-                      'then': '$$time', 
-                      'else': null
-                    }
-                  }
-                }
-              }
-            }
-          }, {
-            '$unwind': {
-              'path': '$conflicts'
-            }
-          }, {
-            '$match': {
-              'conflicts': {
-                '$ne': null
-              }
-            }
-          }, {
-            '$project': {
-              '_id': 0, 
-              'start': '$conflicts.start', 
-              'end': '$conflicts.end', 
-              'event': '$_id'
-            }
+
+            return conflicts.flat().filter(c=>c.id);
           }
-        ]),
+        },
 
-        getSchedule: async (_, {start, interval, locations}) => {
+        getCalendar: async (_, {timeMin, timeMax, locations, attendees}, {user}) => {
 
-          const timeMin = new Date(start);
-          const timeMax = new Date(start);
 
-          if ( interval === 'm' ) timeMax.setMonth( timeMax.getMonth() + 1 )
-          else if ( interval === 'w' ) timeMax.setDate( timeMax.getDate() + 5 )
-          else timeMax.setDate( timeMax.getDate() + 1 );
-          
-          const aggregation = [
-            {
-              '$unwind': {
-                'path': '$recurringEvents', 
-                'preserveNullAndEmptyArrays': true
-              }
-            }, {
-              '$addFields': {
-                'start': {
-                  '$cond': {
-                    'if': '$recurringEvents', 
-                    'then': '$recurringEvents.start', 
-                    'else': '$start'
-                  }
-                }, 
-                'end': {
-                  '$cond': {
-                    'if': '$recurringEvents', 
-                    'then': '$recurringEvents.end', 
-                    'else': '$end'
-                  }
-                }
-              }
-            }, {
-              '$match': {
-                'location':{
-                  '$in':locations
-                },
-                'start.dateTime': {
-                  '$gt': timeMin
-                }, 
-                'end.dateTime': {
-                  '$lt': timeMax
-                }
-              }
-            }, {
-              '$group': {
-                '_id': {
-                  '$dayOfMonth': '$start.dateTime'
-                }, 
-                'events': {
-                  '$push': '$$ROOT'
-                }
-              }
-            }, {
-              '$project': {
-                'day': '$_id', 
-                '_id': 0, 
-                'events': '$events'
-              }
-            }, {
-              '$sort': {
-                'day': 1, 
-                'events.start.dateTime': 1
-              }
+          oauth2Client.setCredentials({...user.tokens});
+
+          const calendar = []
+          const allEvents = []
+          for(let location of locations) {
+
+            const resp = await google.calendar({version:"v3"}).events.list({
+              calendarId:calendars[location],
+              timeMin,
+              timeMax,
+              singleEvents:true
+            });
+
+            allEvents.push( resp.data.items.map(item=>({...item, location})) )
+          }
+
+          const start = new Date(timeMin);
+          const end = new Date(timeMax);
+          while ( start < end ) {
+            if ( [0,6].includes(start.getDate()) ){}
+            else {
+              const events = allEvents.flat().filter( 
+                event => new Date(event.start.dateTime).getDate() === start.getDate()
+              )
+              const date = new Date(start);
+              calendar.push({date, events})
             }
-          ]
-          return await event.aggregate(aggregation)
+            start.setDate( start.getDate() + 1 )
+          }
+
+          return calendar
+          
         },
 
         getTrainings: async (_, {trainings}) => await training.find( trainings ? {id:trainings} : null ),
 
         getQuestions: async (_,{questions}) => await question.find( questions ? {_id:questions} : null ),
 
-        getTools: async(_,{tools}) => await tool.find( tools ? {_id:tools} : null )
+        getTools: async(_,{id, keywords}) => await tool.find(id && keywords ? {_id:id, keywords} :
+            id ? {_id:id} :
+            keywords ? {keywords:{"$all":keywords}} : null)
     },
 
     Mutation:{
 
-        createEvents: async (_, {
-          locations,
-          times,
+        createEvent: async (_, {
           summary,
           description,
-          recurrence,
+          locations,
+          times,
           tools,
           attendees
         }, {user}) => {
-
-          oauth2Client.setCredentials(user.tokens)
-
-          const createGoogleEvent = async (location, time) => 
-            await google.calendar({version:"v3"}).events.insert({
-              calendarId:calendars[location].calendar,
-              requestBody:{
-                start:{
-                  dateTime:new Date(time.start),
-                  timeZone:"America/New_York"
-                },
-                end: {
-                  dateTime:new Date(time.end),
-                  timeZone:"America/New_York"
-                },
-                summary,
-                description,
-                recurrence,
-                attendees,
-                location
-              }
-            })
           
-          const getGoogleRecurring = async (location, eventId) => await google.calendar({version:"v3"}).events.instances({
-            calendarId:calendars[location].calendar,
-            eventId
-          })
+          oauth2Client.setCredentials(user.tokens);
 
-          const createMongoEvent = async (googleEvent, googleRecurring) => await event.create({
-            ...googleEvent,
-            recurringEvents: googleRecurring.data.items.map(e=>({
-              start:e.start,
-              end:e.end
-            })),
-            tools:tools.map( t => ({
-              quantity:t.quantity,
-              tool:new Types.ObjectId(t.id)
-            }))
-          })
-
-          let eventIds = []
-
+          const events = []
+          let toolData = {}
+          tools.map(tool=>{toolData[tool.id] = tool.quantity});
           for ( let location of locations ){
-            for ( let time of times ){
-              const googleResp = await createGoogleEvent(location, time);
-              const recurring = await getGoogleRecurring(location, googleResp.data.id)
-              const mongoResp = await createMongoEvent(googleResp.data, recurring);
-              eventIds.push( mongoResp.id )
+            for (let time of times){
+              const resp = await google.calendar({version:"v3"}).events.insert({
+                calendarId:calendars[location],
+                requestBody:{
+                  start:{
+                    dateTime:time.start,
+                    timeZone:"America/New_York"
+                  },
+                  end:{
+                    dateTime:time.end,
+                    timeZone:"America/New_York"
+                  },
+                  organizer:true,
+                  extendedProperties:{
+                    shared:toolData
+                  },
+                  status:"tentative",
+                  summary,
+                  description,
+                  recurrence:time.recurrence,
+                  attendees
+                }
+              });
+              events.push(resp.data)
             }
           }
-
-          return eventIds
+          return events.flat()
 
         },
 
@@ -483,10 +335,6 @@ module.exports = {
     User:{
         trainings_completed: async (u) => await training.find({_id:u.trainings_completed}),
         demos_completed: async (u) => await training.find({_id:u.demos_completed}),
-    },
-
-    Conflict:{
-      event: async (c) => await event.findOne({_id:c.event})
     },
 
     Event:{

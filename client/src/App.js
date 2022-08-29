@@ -7,49 +7,43 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import Index from './routes/Index';
 import Navigation from './components/Navigation';
 import Schedule from './routes/schedule/Schedule';
-import TrainingRoutes from './routes/training/TrainingRoutes';
+import TrainingRoutes from './routes/training/Routes';
+import ToolRoutes from './routes/tools/Routes';
 import Logout from './routes/logout/Logout';
 import Test from './routes/test/Test';
 //import {NotFound} from './components/Utilities.js';
 // Internal Components
-import {Message} from './components/Utilities';
+import Loading from './components/Loading';
 
 function App() {
 
   const [user, setUser] = useState();
-  const [message, setMessage] = useState({});
 
   useEffect(()=>{
-    setMessage({text:'Contacting Bert API Server...', loading:true})
     fetch(`/auth/user`, {credentials:'include'})
       .then( resp => resp.json()
       .then( data => {
         if (data.authorizationUrl){
           window.location.href = data.authorizationUrl
-        } else {
-          setUser(data)
-          setMessage({})
-        }
+        } else setUser(data)
       }))
-      .catch( err => setMessage({text:'Redirect...', loading:true}))
+      .catch( err => console.error(err))
   },[])
 
-  return (
-    <div className="app-container">
-      <Message text={message.text} loading={message.loading} error={message.error}/>
-      { !user ? null :
+  return ( !user ? <Loading>Contacting Bert Server...</Loading> :
+    <div className='app-container'>
         <BrowserRouter>
           <Navigation user={user}/>
           <Routes>
             <Route index element={<Index/>}/>
-            <Route path="schedule" element={<Schedule/>}/>
+            <Route path="schedule" element={<Schedule create={false}/>}/>
             <Route path="schedule/create" element={<Schedule create={true}/>}/>
             <Route path="training/*" element={<TrainingRoutes/>}/>
+            <Route path="tools/*" element={<ToolRoutes/>}/>
             <Route path="logout" element={<Logout/>}/>
             <Route path="test" element={<Test/>}/>
           </Routes>
         </BrowserRouter>
-      }
     </div>
   );
 }

@@ -23,6 +23,7 @@
 }
 
 .event-badge {
+    text-align: center;
     word-wrap: none;
     overflow: hidden;
     position: absolute;

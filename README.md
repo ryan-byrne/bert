@@ -3,21 +3,17 @@
 ## Client
 
 * Schedule
-    
+    * Add attendees
+    * Tool Reservations
     * Show Today
-    * Create
-        * Check Tool inventory
-        * Include Others
-    * Improve US Block selection
-    * Updates with google calendar
     * Implement URL Parameters
-    * Fix Month View
 
 * Tools
-    * Tool Dashboard
     * Authorized User List
+    * Tool Viewer
 
 * Trainings
+    * Icons for each training
     * Add Hints
     * Add Choices to Question
     * Transfer last year's people

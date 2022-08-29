@@ -1,4 +1,4 @@
-const {gql} = require('apollo-server');
+const { gql } = require('apollo-server');
 
 module.exports = gql`
 
@@ -10,51 +10,60 @@ schema {
 }
 
 type Query {
-    
-    getSchedule(
-        interval:ScheduleInterval, 
-        start:String, 
-        user:String, 
-        locations:[EventLocation]
-    ):[Schedule],
+
+    getCalendar(
+        timeMin:Date!
+        timeMax:Date!
+        attendees:[String]
+        locations:[EventLocation]!
+    ):[CalendarDay]
         
     getBlocks(division:String,day:String,week:String):[Block]
     
-    checkForConflicts(times:[Time], locations:[EventLocation]):[Conflict]
+    getConflicts(
+      times:[TimeInput]!, 
+      locations:[EventLocation]!, 
+      tools:[ToolInput]!
+    ):[Event]
 
     getQuestions(questions:[String]):[Question]
 
     getTrainings(trainings:[String]):[Training]
 
-    getTools(tools:[String]):[Tool]
+    getTools(id:[String], keywords:[String]):[Tool]
 
 }
 
 type Mutation {
 
-    createEvents(
-        locations:[String!]
-        times:[Time]
-        summary:String!
-        description:String
-        recurrence:[String]
-        tools:[ToolInput]
-        attendees:[Attendee]
-    ): [String],
+    createEvent(
+      summary:String!,
+      description:String
+      times:[TimeInput]!
+      locations:[EventLocation]!
+      tools:[ToolInput]!
+      attendees:[Attendee]
+    ): [Event],
 
     submitGuess(text:String, questionId:String):Boolean
 
 }
 
-# SCHEDULING
+# SCHEDULING INPUTS
 
-type Schedule {
-    day:Int
+type CalendarDay {
+    date:Date
     events:[Event]
 }
 
+input TimeInput {
+  start:Date!
+  end:Date!
+  recurrence:[String!]
+}
+
 input ToolInput {
-    tool:String
+    id:String
     quantity:Int
 }
 
@@ -78,23 +87,6 @@ type Block {
     division:String!
     day:String!
     week:String
-}
-
-input Time {
-    start:Date!
-    end:Date!
-}
-
-type Conflict {
-    event:Event
-    start:Date
-    end:Date
-}
-
-enum ScheduleInterval {
-    w
-    d
-    m
 }
 
 # TRAININGS 
@@ -176,7 +168,7 @@ type DateTime {
     timeZone:String
 }
 
-enum GoogleEventStatus {
+enum EventStatus {
     confirmed
     tentative
     cancelled
@@ -243,7 +235,7 @@ type Event {
     """
     Status of the event. Optional.
     """
-    status:GoogleEventStatus
+    status:EventStatus
     """
     Title of the event.
     """
