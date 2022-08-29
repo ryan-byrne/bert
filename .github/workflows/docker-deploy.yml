@@ -50,7 +50,7 @@ jobs:
             echo "MONGO_DB: ${{ secrets.PRODUCTION_MONGO_DB }}" >> ${{ env.BRANCH }}.env.yaml
             echo "SERVER_URL: https://bert.thebetalab.org" >> ${{ env.BRANCH }}.env.yaml
           fi
-          
+
       - id: auth
         name: Google Authentication
         uses: 'google-github-actions/auth@v0'
@@ -68,6 +68,7 @@ jobs:
           cd client
           npm ci
           npm run build
+          cd ..
 
       - name: 'Include Cloud SDK'
         uses: 'google-github-actions/setup-gcloud@v0'
@@ -78,7 +79,6 @@ jobs:
 
       - name: 'Build & Push Container'
         run: |-
-          cd ..
           docker build --build-arg NODE_ENV=${{ env.BRANCH }} -t "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.SERVICE }}/${{ env.BRANCH }}:latest" ./
           docker push "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.SERVICE }}/${{ env.BRANCH }}:latest"
           
