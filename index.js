@@ -15,7 +15,7 @@ const apolloServer = require('./graphql/index');
 const app = express();
 
 // Is Production
-const isProduction = process.env.NODE_ENV === 'development'
+const isProduction = process.env.NODE_ENV === 'production'
 
 // Middleware
 const corsOptions = {
