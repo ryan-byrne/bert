@@ -32,7 +32,7 @@ const authMiddleware = async (req, res, next) => {
           ],
             include_granted_scopes: true
         });
-        return res.json({authorizationUrl})
+        return isProduction ? res.redirect(authorizationUrl) : res.json({authorizationUrl})
     } else next()
 }
 
