@@ -44,7 +44,7 @@ app.use(authMiddleware);
 app.use('/auth', auth);
 
 // Client Route
-isProduction ? app.use(express.static(resolve(__dirname, 'client', 'build'))) : null;
+isProduction ? app.use(express.static(resolve(__dirname, 'build'))) : null;
 
 // Apollo Server
 apolloServer.start()

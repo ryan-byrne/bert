@@ -68,8 +68,8 @@ jobs:
           --set-env-vars "MONGO_DB=${{ secrets.TESTING_MONGO_DB }}"
           --set-env-vars "GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}"
           --set-env-vars "GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}"
-          --set-env-vars "SERVER_URL=https://testing-zcgw6ooqia-uc.a.run.app"
-          --set-env-vars "CLIENT_URL=https://testing-zcgw6ooqia-uc.a.run.app"
+          --set-env-vars "SERVER_URL=https://testing-bert-zcgw6ooqia-uc.a.run.app"
+          --set-env-vars "CLIENT_URL=https://testing-bert-zcgw6ooqia-uc.a.run.app"
           --set-env-vars "SESSION_SECRET=${{ secrets.SESSION_SECRET }}"
 
 
