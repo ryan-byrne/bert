@@ -10,7 +10,7 @@ const Month = ({from, setFrom}) => {
         d.setDate(1);
         setFrom(d);
         return () => setFrom(new Date())
-    },[setFrom]);
+    },[]);
 
     const getMonths = () => {
         const d = new Date(from);

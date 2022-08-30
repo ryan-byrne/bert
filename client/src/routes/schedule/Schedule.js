@@ -25,7 +25,6 @@ export default function Schedule({ create }) {
   const [interval, setInterval] = useState('w');
   const [locations, setLocations] = useState(['classroom', 'machineshop', 'powertool'])
   const [from, setFrom] = useState(new Date());
-  const [to, setTo] = useState(new Date());
   const [events, setEvents] = useState();
   const navigate = useNavigate();
 
@@ -35,15 +34,15 @@ export default function Schedule({ create }) {
     m: <Month {...{ from, setFrom }} />
   }
 
-  useEffect(() => {
-    const date = new Date(from);
-    if (interval === 'm') date.setMonth(date.getMonth() + 1)
-    else date.setDate(date.getDate() + (interval === 'w' ? 5 : 1))
-    setTo(date)
-  }, [from, interval])
-
   // Query for Schedule
   useEffect(() => {
+    if (from.toString() === 'Invalid Date') return
+
+    const to = new Date( from );
+
+    if ( interval === 'm' ) to.setMonth( from.getMonth() + 1 )
+    else to.setDate( from.getDate() + ( interval === 'w' ? 5 : 1 ) )
+
     setEvents();
     Query(`
         query GetCalendar($timeMin: Date!, $timeMax: Date!, $locations: [EventLocation]!) {
@@ -74,7 +73,7 @@ export default function Schedule({ create }) {
         }))
       .catch(err => console.error(err))
     return () => setEvents()
-  }, [from, to, locations, setEvents, create]);
+  }, [from, locations, setEvents, create]);
 
   return (
     <Container>
@@ -129,7 +128,7 @@ export default function Schedule({ create }) {
       {
         !events ?
           <Loading>
-            Loading Events from {from.toLocaleDateString()} to {to.toLocaleDateString()}...
+            Loading Events ...
           </Loading> :
           <Row className="m-3 justify-content-center" xl={6} md={3} xs={1}>
             {events.map((day, idx) => <DayCard key={idx} day={day} />)}
