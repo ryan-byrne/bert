@@ -64,6 +64,7 @@ jobs:
           --set-env-vars "NODE_ENV=production"
           --set-env-vars "MONGO_USER=${{ secrets.TESTING_MONGO_USER }}"
           --set-env-vars "MONGO_PASS=${{ secrets.TESTING_MONGO_PASS }}"
+          --set-env-vars "MONGO_URL=${{ secrets.MONGO_URL }}"
           --set-env-vars "MONGO_DB=${{ secrets.TESTING_MONGO_DB }}"
           --set-env-vars "GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}"
           --set-env-vars "GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}"
