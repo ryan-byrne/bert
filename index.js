@@ -26,6 +26,7 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(json());
 app.use(session({
+  proxy:isProduction,
   name:"bert_session",
   secret:process.env.SESSION_SECRET,
   resave:false,
@@ -34,7 +35,7 @@ app.use(session({
     mongoUrl:`mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASS}@${process.env.MONGO_URL}/${process.env.MONGO_DB}`
   }),
   cookie:{
-    secure: false,
+    secure: isProduction,
     httpOnly: true
   }
 }));
@@ -45,8 +46,8 @@ app.use('/auth', auth);
 
 // Client Route
 if (isProduction){
-  app.use(express.static(resolve(__dirname, "client", "build")))
-  app.get('*', (req, res) => res.sendFile(resolve( __dirname, "client" ,"build", "index.html" )))  
+  app.use(express.static(resolve(__dirname, "build")))
+  app.get('*', (req, res) => res.sendFile(resolve( __dirname, "build", "index.html" )))  
 }
 
 // Apollo Server
