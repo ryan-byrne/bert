@@ -46,9 +46,6 @@ jobs:
           docker build -t "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE }}:${{ github.sha }}" ./
           docker push "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE }}:${{ github.sha }}"
       # END - Docker auth and build
-
-      - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v0.2.1
     
 
       - id: 'deploy'
