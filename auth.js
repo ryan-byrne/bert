@@ -15,7 +15,7 @@ google.options({ auth: oauth2Client });
 const authMiddleware = async (req, res, next) => {
 
     // Ignore Callback
-    if ( '/auth/callback'=== req._parsedUrl.pathname ) next()
+    if ( '/auth/callback' === req._parsedUrl.pathname ) next()
     // Ignore GraphQL TODO: FIX
     else if ( !isProduction && req.headers.origin === 'https://studio.apollographql.com' ) next()
     // No Session User, Redirect
@@ -32,7 +32,7 @@ const authMiddleware = async (req, res, next) => {
           ],
             include_granted_scopes: true
         });
-        return isProduction ? res.redirect(authorizationUrl) : res.json({authorizationUrl})
+        return res.json({authorizationUrl})
     } else next()
 }
 
