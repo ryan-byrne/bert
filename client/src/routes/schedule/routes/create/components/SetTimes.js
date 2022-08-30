@@ -10,42 +10,65 @@ Date.prototype.toFormDateString = function(){
 //  (Math.ceil((this - )/1000/60/60/24/7))%2===1?"B":"A"
 
 const SetTimes = ({ setPayload, payload }) => {
+  
+  const [times, setTimes] = useState([{
+    date: new Date(), // 2022-08-01
+    start: "", // 09:30
+    end: "", // 10:30
+    division:"upper",
+    useBlocks:true,
+    blocks:[],
+    recurring: false,
+    recurringWeekly: false,
+    recurringUntil: new Date(), //
+  }]);
 
-  console.log(payload.times);
-
-  const [times, setTimes] = useState([]);
 
   const handleAddTime = () => setTimes([...times, {
     date: new Date(), // 2022-08-01
     start: "", // 09:30
     end: "", // 10:30
+    division:"",
+    useBlocks:false,
+    blocks:[],
     recurring: false,
     recurringWeekly: false,
     recurringUntil: new Date(), //
-    division: "",
   }]);
 
-  const handleChange = (e, index) => {
+  const handleChange = (event) => {
+
 
     const prevTimes = [...times]
-    const [field, idx] = e.target.id.split("-");
+    const [type, key, index] = event.target.id.split("-");
     let value;
-    if ( e.target.type === "select-one" ) {
-      const [index, start, end] = e.target.value.split("-");
-      prevTimes[index].start = start
-      prevTimes[index].end = end
-      setTimes(prevTimes)
-      return
-    } else if ( ["date", 'recurringUntil'].includes(field) ){
-      const date = new Date(e.target.value);
+    console.log(type, key, index);
+    if ( type === 'date' ){
+      const date = new Date(event.target.value);
       date.setDate( date.getDate() + 1 );
       date.setHours(0,0,0,0);
       value = date
-    } else {
-      value = e.target.value
     }
-    prevTimes[idx][field] = value;
+
+    else if ( type === 'switch' ) {
+      value = event.target.checked
+    }
+
+    else if ( type === 'msblocks' ) {
+      let msblocks = []
+      for ( const option of event.target.selectedOptions ) {
+        msblocks.push(option.value)
+      }
+      value = msblocks
+    }
+
+    else {
+      value = event.target.value
+    }
+
+    prevTimes[index][key] = value
     setTimes(prevTimes)
+
   }
 
   const handleRemove = (index) => {
@@ -54,23 +77,58 @@ const SetTimes = ({ setPayload, payload }) => {
     setTimes(prevTimes);
   }
 
-  useEffect(() => setPayload({
-    ...payload,
-    times: times.map(time => {
-      if ( [time.start, time.end].includes("") ) return null
-      const start = new Date(time.date);
-      const end = new Date(time.date);
-      var [hr, min] = time.start.split(":");
-      start.setHours(hr, min, 0, 0);
-      var [hr, min] = time.end.split(":");
-      end.setHours(hr, min, 0, 0);
+  useEffect(() => {
+
+    const getRecurrence = (time) => {
       const until = time.recurringUntil.toISOString().replace(/[-:.]/g, '').split("T")[0]
-      const recurrence = !time.recurring ? null : [
+      return !time.recurring ? null : [
         `RRULE:FREQ=WEEKLY;UNTIL=${until};INTERVAL=${time.recurringWeekly ? 1 : 2 }`
       ]
-      return ({ start:start.toISOString(), end:end.toISOString(), recurrence })
-    }).filter(t=>t)
-  }), [setPayload, times]);
+    }
+
+    const getUSBlocks = async () => {}
+
+    let tempTimes = []
+    for ( const time of times) {
+
+      if ( !time.useBlocks ) {
+
+        if ( [time.start, time.end].includes("") ) {}
+        else {
+
+          const start = new Date(time.date);
+          const end = new Date(time.date);
+          var [hr, min] = time.start.split(":");
+          start.setHours(hr, min, 0, 0);
+          var [hr, min] = time.end.split(":");
+          end.setHours(hr, min, 0, 0);
+          tempTimes.push({start:start.toISOString(), end:end.toISOString(), recurrence:getRecurrence(time)})
+
+        }
+
+      } else {
+
+        for ( const block of time.blocks ) {
+          
+          if ( time.division === 'middle' ) {
+            const start = new Date(time.date)
+            const end = new Date(time.date);
+            let [_, startTime, endTime] = block.split("-");
+            var [hr, min] = startTime.split(":");
+            start.setHours(hr, min, 0 ,0);
+            var [hr, min] = endTime.split(":");
+            end.setHours(hr, min, 0 ,0);
+            tempTimes.push({start:start.toISOString(), end:end.toISOString(), recurrence:getRecurrence(time)});
+          } else if ( time.division === 'upper' ) {
+
+          }
+
+        }
+
+      }
+    }
+    console.log(tempTimes);
+  }, [times]);
 
   return (
     <FormGroup className="mt-3">

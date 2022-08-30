@@ -9,40 +9,36 @@ const getWeek = (date) => {
   return Math.floor(dayOfYear/7) % 2 === 1 ? "A" : "B"
 }
 
-export default function SetBlocks({time, index, handleChange}){
+export default function SetBlocks({time, index, handleChange, handleToggle}){
 
-  const [blocks, setBlocks] = useState([]);
-  const [week, setWeek] = useState();
-  const [division, setDivision] = useState();
-
-  useEffect(()=>setWeek(getWeek(time.date)),[time.date])
+  const [msBlocks, setMSBlocks] = useState([]);
 
   useEffect(()=>{
-      if (!division ) setBlocks([])
-      else {
-          const d = new Date(time.date);
-          d.setHours(0,0,0,0);
-          const days = ['Monday','Tuesday','Wednesday','Thursday','Friday']
-          Query(`
-          query GetBlocks($day: String, $division: String, $week:String) {
-              getBlocks(day: $day, division: $division, week:$week) {
-                name
-                start
-                end
-              }
-          }`,{day:days[d.getDay()], division:division, week:division === "upper" ? week : null})
-              .then(resp => resp.json()
-                  .then(data=>setBlocks(data.data.getBlocks))
-              )
-              .catch(err => console.error(err))
+      if (!time.division ) setMSBlocks([])
+      else if ( time.division === 'middle' ) {
+        const d = new Date(time.date);
+        d.setHours(0,0,0,0);
+        const days = ['Monday','Tuesday','Wednesday','Thursday','Friday']
+        Query(`
+        query GetBlocks($day: String, $division: String, $week:String) {
+            getBlocks(day: $day, division: $division, week:$week) {
+              name
+              start
+              end
+            }
+        }`,{day:days[d.getDay()], division:time.division, week:time.division === "upper" ? getWeek(time.date) : null})
+            .then(resp => resp.json()
+                .then(data=>setMSBlocks(data.data.getBlocks))
+            )
+            .catch(err => console.error(err))
       }
-  },[time.date, division, week, setBlocks]);
+  },[time.date, time.division, setMSBlocks]);
 
   return(
     <FormGroup>
 
     <FormGroup className="mt-3" as={Row}>
-        <ToggleButtonGroup type="radio" value={division} onChange={(d)=>setDivision(d)} name={`division-${index}`}>
+        <ToggleButtonGroup type="radio" value={time.division} onChange={(d)=>handleToggle('division', d)} name={`division-${index}`}>
             <ToggleButton value="middle" id={`div-btn-${index}-1`} variant="outline-primary">
                 Middle School
             </ToggleButton>
@@ -52,17 +48,30 @@ export default function SetBlocks({time, index, handleChange}){
         </ToggleButtonGroup>
     </FormGroup>
 
-    <Collapse in={blocks.length > 0}>
+    <Collapse in={time.division === 'middle'}>
       <FormGroup className="mt-3">
-        <FormSelect onChange={handleChange} defaultValue="default">
-            <option disabled value="default">Select a Block</option>
-            {blocks.map( (option, idx) =>
+        <FormSelect onChange={handleChange} multiple defaultValue="default" id={`msblocks-blocks-${index}`}>
+            {msBlocks.map( (option, idx) =>
                 <option key={idx} value={`${index}-${option.start}-${option.end}`}>
                     {option.name} ({option.start} - {option.end})
                 </option>
             )}
         </FormSelect>
       </FormGroup>
+    </Collapse>
+
+    <Collapse in={time.division === 'upper'}>
+      <ToggleButtonGroup as={Row} xs={6} className="mt-3"  type="checkbox" value={time.blocks} onChange={(b)=>handleToggle("blocks",b)} name={`usblocks-${index}`}>
+        {
+          ['A','B','C','D','E','F'].map( block =>
+            ['1','2'].map(num =>
+              <ToggleButton as={Col} variant="outline-primary" value={`${block}${num}`} id={`${block}${num}${index}`}>
+                {block}{num}
+              </ToggleButton>)
+          ).flat()
+        }
+        <ToggleButton value="G" id={`G${index}`} variant="outline-primary">G</ToggleButton>
+      </ToggleButtonGroup>
     </Collapse>
 
 </FormGroup>

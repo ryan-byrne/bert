@@ -6,18 +6,29 @@ import Recurrence from './Recurrence';
 
 const EventTime = (props) => {
 
-  const [block, setBlock] = useState();
+  useEffect(() => props.handleChange({
+    target:{
+      id:`change-blocks-${props.index}`,
+      value:[]
+  }}), [props.time.useBlocks, props.time.division]);
+
+  const handleToggle = (key, value) => props.handleChange({
+    target:{
+      id:`toggle-${key}-${props.index}`,
+      value
+    }
+  })
 
   return (
     <FormGroup className="mt-3">
 
       <FormGroup as={Row}>
-        <FormText>Select a Date</FormText>
-        <FormControl type="date" value={props.time.date.toFormDateString()} id={`date-${props.index}`} onChange={props.handleChange}/>
+        <FormText>Select a Start Date</FormText>
+        <FormControl type="date" value={props.time.date.toFormDateString()} id={`date-date-${props.index}`} onChange={props.handleChange}/>
       </FormGroup>
 
       <Row className="mt-3">
-        <ToggleButtonGroup type="radio" value={block} onChange={(v)=>setBlock(v)} name={`block-${props.index}`}>
+        <ToggleButtonGroup type="radio" value={props.time.useBlocks} onChange={(v)=>handleToggle('useBlocks', v)} name={`toggle-useBlocks-${props.index}`}>
             <ToggleButton value={false} id={`${props.index}-btn-1`} variant="outline-primary">
                 Time
             </ToggleButton>
@@ -27,20 +38,20 @@ const EventTime = (props) => {
         </ToggleButtonGroup>
       </Row>
 
-      <Collapse in={block === false}>
+      <Collapse in={!props.time.useBlocks}>
         <div>
           <SetTime {...props}/>
         </div>
       </Collapse>
-      <Collapse in={block === true}>
+      <Collapse in={props.time.useBlocks}>
         <div>
-          <SetBlocks {...props}/>
+          <SetBlocks {...props} handleToggle={handleToggle} />
         </div>
       </Collapse>
 
-      <Collapse in={![props.time.start, props.time.end].includes("")}>
+      <Collapse in={![props.time.start, props.time.end].includes("") || props.time.blocks.length > 0}>
         <div>
-          <Recurrence {...props}/>
+          <Recurrence {...props} handleToggle={handleToggle}/>
         </div>
       </Collapse>
       

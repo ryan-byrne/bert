@@ -17,11 +17,9 @@ export default function Submit({ payload }) {
   useEffect(() => {
     setInvalid();
     let validation = []
-    console.log(payload.locations);
     if (payload.summary.length < 5) validation.push({ text: "Summary is too short", variant: 'danger' });
     if (payload.locations.length < 1) validation.push({ text: "You must select a Location!", variant: 'danger' })
     payload.times.map(({ start, end }) => {
-      console.log(start < new Date().setHours(0, 0, 0, 0));
       if (new Date(start) < new Date() || end < new Date()) validation.push({ text: 'Start and End Time must be after Today', variant: 'danger' })
       else if (start > end) validation.push({ text: 'Start Time cannot be after End Time', variant: 'danger' })
     })
