@@ -17,7 +17,7 @@ const authMiddleware = async (req, res, next) => {
     // Ignore Callback
     if ( '/auth/callback'=== req._parsedUrl.pathname ) next()
     // Ignore GraphQL TODO: FIX
-    else if ( req.headers.origin === 'https://studio.apollographql.com' ) next()
+    else if ( !isProduction && req.headers.origin === 'https://studio.apollographql.com' ) next()
     // No Session User, Redirect
     else if (!req.session.user) {
         const authorizationUrl = oauth2Client.generateAuthUrl({
@@ -36,10 +36,12 @@ const authMiddleware = async (req, res, next) => {
     } else next()
 }
 
-auth.get('/logout', (req, res, err) => {
+auth.get('/logout', async(req, res, err) => {
     try {
-        oauth2Client.revokeCredentials();
+        const user = req.session.user.id;
+        await oauth2Client.revokeCredentials();
         req.session.destroy((e)=>err(e));
+        console.log(`${user} logged out`);
         res.redirect(`/`);
     } catch (e) {
         err(e)
@@ -61,6 +63,7 @@ auth.get("/callback", async (req, res, err) => {
         const {tokens} = await oauth2Client.getToken(code);
         oauth2Client.setCredentials(tokens);
         const userInfo = await google.oauth2({version:"v2"}).userinfo.get();
+        console.log(`New login from ${userInfo.data.id}`);
         req.session.user = {...userInfo.data, tokens};
         return res.redirect(process.env.CLIENT_URL)
     } catch (e) {

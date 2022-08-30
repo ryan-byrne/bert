@@ -77,8 +77,8 @@ const Navigation = ({ user }) => {
             </span>
           }
         >
-          <NavDropdown.Item>
-            <Link to="/logout">Sign Out</Link>
+          <NavDropdown.Item as={Link} to="/logout">
+            Sign Out
           </NavDropdown.Item>
         </NavDropdown>
       </Container>
