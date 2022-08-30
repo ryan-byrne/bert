@@ -57,7 +57,18 @@ jobs:
           gcloud run deploy testing-bert
           --quiet
           --region ${{ env.REGION }}
-          --image ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE }}:${{ github.sha }} }}
+          --image ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE }}:${{ github.sha }}
           --platform managed
           --service-account my-service-account@bert-aug2022-359622.iam.gserviceaccount.com
-          --allow-unauthenticated         
+          --allow-unauthenticated
+          --set-env-vars "NODE_ENV=production"
+          --set-env-vars "MONGO_USER=${{ secrets.TESTING_MONGO_USER }}"
+          --set-env-vars "MONGO_PASS=${{ secrets.TESTING_MONGO_PASS }}"
+          --set-env-vars "MONGO_DB=${{ secrets.TESTING_MONGO_DB }}"
+          --set-env-vars "GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}"
+          --set-env-vars "GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}"
+          --set-env-vars "SERVER_URL=https://testing-zcgw6ooqia-uc.a.run.app"
+          --set-env-vars "CLIENT_URL=https://testing-zcgw6ooqia-uc.a.run.app"
+          --set-env-vars "SESSION_SECRET=${{ secrets.SESSION_SECRET }}"
+
+
