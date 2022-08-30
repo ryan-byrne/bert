@@ -1,12 +1,41 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Row, Alert, Col, Form, Button } from 'react-bootstrap'
 import { Query } from "../../../components/GraphQL";
 
 export default function Question({id, children, update}) {
 
+    const formRef = useRef();
     const [question, setQuestion] = useState();
     const [status, setStatus] = useState('loading');
     const [guess, setGuess] = useState("");
+
+    const submitGuess = () => {
+        setStatus('loading')
+        Query(`
+            mutation SubmitGuess($text: String, $questionId: String) {
+                submitGuess(text: $text, questionId: $questionId)
+            }
+        `,{text:guess, questionId:id})
+            .then( resp => resp.json()
+            .then( data => {
+                setStatus(data.data.submitGuess ? 'completed' : 'incorrect')
+                update()
+            } ) )
+    }
+
+    useEffect(() => {
+        const listener = event => {
+          if (event.code === "Enter" || event.code === "NumpadEnter") {
+            event.preventDefault();
+            
+            if (document.activeElement === formRef.current) submitGuess()
+          }
+        };
+        document.addEventListener("keydown", listener);
+        return () => {
+          document.removeEventListener("keydown", listener);
+        };
+    }, [formRef, guess]);
 
     useEffect(()=>{
         setStatus('loading')
@@ -33,20 +62,6 @@ export default function Question({id, children, update}) {
         if ( status === 'incorrect' ) setTimeout(()=>setStatus('waiting'), 2000)
     },[status])
 
-    const submitGuess = () => {
-        setStatus('loading')
-        Query(`
-            mutation SubmitGuess($text: String, $questionId: String) {
-                submitGuess(text: $text, questionId: $questionId)
-            }
-        `,{text:guess, questionId:id})
-            .then( resp => resp.json()
-            .then( data => {
-                setStatus(data.data.submitGuess ? 'completed' : 'incorrect')
-                update()
-            } ) )
-    }
-
     return (
         <Row className="justify-content-center" xs={1} md={2}><Col>
             <Alert variant={
@@ -64,7 +79,9 @@ export default function Question({id, children, update}) {
                 </Row>
                 <Row className="text-center mt-3">
                     <Col xs={7}>
-                        <Form.Control 
+                        <Form.Control
+                            ref={formRef}
+                            id={id}
                             className="text-center" 
                             value={status==='completed'?question.answer:guess} 
                             disabled={status!=='waiting'} 

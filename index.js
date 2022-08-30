@@ -44,7 +44,10 @@ app.use(authMiddleware);
 app.use('/auth', auth);
 
 // Client Route
-isProduction ? app.use(express.static(resolve(__dirname, 'build'))) : null;
+if (isProduction){
+  app.use(express.static(resolve(__dirname, "build")))
+  app.get('*', (req, res) => res.sendFile(resolve( __dirname, "build", "index.html" )))  
+}
 
 // Apollo Server
 apolloServer.start()
