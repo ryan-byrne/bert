@@ -74,17 +74,10 @@ const Month = ({from, setFrom}) => {
     )
 }
 
-const Week = ({from, setFrom, interval}) => {
+const Week = ({from, setFrom}) => {
 
     const [week, setWeek] = useState(51);
     const [weekOptions, setWeekOptions] = useState([]);
-
-    useEffect(()=>{
-      const d = new Date(from);
-      d.setDate( d.getDate() - d.getDay() + 1  )
-      setFrom(d);
-      return () => setFrom(new Date())
-    },[]);
 
     useEffect(()=>{
         const d = new Date(weekOptions[week]);

@@ -1,7 +1,6 @@
 const {Types} = require('mongoose');
 const {google, oauth2Client} = require('../auth');
 const { GraphQLScalarType } = require('graphql');
-const event = require('../db/models/event')
 const user = require('../db/models/user');
 const training = require('../db/models/training');
 const block = require('../db/models/block');
@@ -130,32 +129,32 @@ module.exports = {
         getBlockTimes: async (_, {blocks, start, end}) => {
 
           const days = ['Monday','Tuesday','Wednesday','Thursday','Friday']
-          let dates = []
-          const startDate = new Date(start);
-          const endDate = new Date(end);
-          const finishDate = new Date(start);
-          finishDate.setDate( finishDate.getDate() + 14 )
-          while ( startDate < endDate && startDate < finishDate ) {
-            const day = days[startDate.getDay() - 1]
-            const week = getWeek(startDate);
+          let dates = [];
+          var tzOffset = start.getTimezoneOffset();
+          var hrOff = parseInt(tzOffset/60, 10) - 4;
+          const max = new Date(start);
+          max.setDate( max.getDate() + 14 )
+          while ( start < end && start < max ) {
+            const day = days[start.getDay() - 1]
+            const week = getWeek(start);
             if (day) {
               const resp = await block.findOne({
                 name:{"$in":blocks}, day, week
               })
               if (resp) {
                 var [hr, min] = resp.start.split(":");
-                startDate.setHours(hr, min, 0, 0)
+                start.setHours(parseInt(hr) + hrOff, min, 0, 0);
+                const startTime = start.toISOString();
                 var [hr, min] = resp.end.split(":");
-                const startTime = startDate.toISOString();
-                startDate.setHours(hr, min, 0, 0);
-                const endTime = startDate.toISOString();
+                start.setHours(parseInt(hr) + hrOff, min, 0, 0);
+                const endTime = start.toISOString();
                 dates.push({
                   start:startTime,
                   end:endTime,
                 })
               }
             }
-            startDate.setDate( startDate.getDate() + 1 )
+            start.setDate( start.getDate() + 1 )
             
           }
           return dates

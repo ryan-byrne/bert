@@ -66,7 +66,7 @@ export default function Schedule({ create }) {
         }))
       .catch(err => console.error(err))
     return () => setEvents()
-  }, [from, locations, setEvents, create]);
+  }, [from, locations, setEvents, create, interval]);
 
   return (
     <Container>
