@@ -32,6 +32,8 @@ type Query {
 
     getTools(id:[String], keywords:[String]):[Tool]
 
+    getBlockTimes(blocks:[String]!, start:Date!, end:Date!):[Time]
+
 }
 
 type Mutation {
@@ -60,6 +62,11 @@ input TimeInput {
   start:Date!
   end:Date!
   recurrence:[String!]
+}
+
+type Time {
+  start:Date!
+  end:Date!
 }
 
 input ToolInput {

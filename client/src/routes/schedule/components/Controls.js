@@ -1,6 +1,13 @@
 import { Row, Col, FormSelect, FormControl } from "react-bootstrap"; 
 import { useState, useEffect } from "react";
 
+const getWeek = (date) => {
+    // TODO Change first day each year
+    const firstDay = new Date(date.getFullYear(), 9, 5);
+    const milliseconds = date - firstDay; // How many milliseconds have passed
+    return Math.ceil(milliseconds / 1000 / 60 / 60 / 24 / 7) % 2 === 1 ? 'A' : 'B'
+  }
+
 const Month = ({from, setFrom}) => {
 
     const month = ["January","February","March","April","May","June","July","August","September","October","November","December"];
@@ -101,7 +108,7 @@ const Week = ({from, setFrom}) => {
                 </Col>
                 <Col xs={5} md={3} lg={2}>
                     <FormSelect value={week} onChange={(e) => setWeek(e.target.value)}>
-                        {weekOptions.map( (d, idx) => <option key={idx} value={idx}>{d.toLocaleDateString()} ({d.getWeek()%2===0?'A':'B'})</option> )}
+                        {weekOptions.map( (d, idx) => <option key={idx} value={idx}>{d.toLocaleDateString()} ({getWeek(d)})</option> )}
                     </FormSelect>
                 </Col>
             </Row>

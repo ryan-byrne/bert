@@ -13,13 +13,6 @@ Date.prototype.toFormDateString = function () {
   return this.getFullYear() + "-" + (this.getMonth() + 1).toString().padStart(2, "0") + "-" + this.getDate().toString().padStart(2, "0")
 }
 
-Date.prototype.getWeek = function () {
-  // TODO Change first day each year
-  const firstDay = new Date(this.getFullYear(), 9, 5);
-  const milliseconds = this - firstDay; // How many milliseconds have passed
-  return Math.ceil(milliseconds / 1000 / 60 / 60 / 24 / 7)
-}
-
 export default function Schedule({ create }) {
 
   const [interval, setInterval] = useState('w');

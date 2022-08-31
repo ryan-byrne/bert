@@ -9,65 +9,6 @@ const question = require('../db/models/question');
 const tool = require('../db/models/tool');
 const guess = require('../db/models/guess');
 
-/*
-
-      - name: Setup Environment
-        run: |-
-          touch ${{ env.BRANCH }}.env.yaml
-          echo "GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}" >> ${{ env.BRANCH }}.env.yaml
-          echo "GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}" >> ${{ env.BRANCH }}.env.yaml
-          echo "MONGO_URL: ${{ secrets.MONGO_URL }}" >> ${{ env.BRANCH }}.env.yaml
-          echo "SESSION_SECRET: ${{ secrets.SESSION_SECRET }}" >> ${{ env.BRANCH }}.env.yaml
-          if [[ ${{ env.BRANCH }} == 'testing' ]]; then
-            echo "MONGO_USER: ${{ secrets.TESTING_MONGO_USER }}" >> ${{ env.BRANCH }}.env.yaml
-            echo "MONGO_PASS: ${{ secrets.TESTING_MONGO_PASS }}" >> ${{ env.BRANCH }}.env.yaml
-            echo "MONGO_DB: ${{ secrets.TESTING_MONGO_DB }}" >> ${{ env.BRANCH }}.env.yaml
-            echo "CLIENT_URL: https://testing-zcgw6ooqia-uc.a.run.app" >> ${{ env.BRANCH }}.env.yaml
-            echo "SERVER_URL: https://testing-zcgw6ooqia-uc.a.run.app" >> ${{ env.BRANCH }}.env.yaml
-          else
-            echo "CLIENT_URL: http://bert.thebetalab.org" >> ${{ env.BRANCH }}.env.yaml
-            echo "MONGO_USER: ${{ secrets.PRODUCTION_MONGO_USER }}" >> ${{ env.BRANCH }}.env.yaml
-            echo "MONGO_PASS: ${{ secrets.PRODUCTION_MONGO_PASS }}" >> ${{ env.BRANCH }}.env.yaml
-            echo "MONGO_DB: ${{ secrets.PRODUCTION_MONGO_DB }}" >> ${{ env.BRANCH }}.env.yaml
-            echo "SERVER_URL: https://bert.thebetalab.org" >> ${{ env.BRANCH }}.env.yaml
-          fi
-
-      - id: auth
-        name: Google Authentication
-        uses: 'google-github-actions/auth@v0'
-        with:
-          workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
-          service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
-
-      - name: Docker Auth
-        id: docker-auth
-        uses: 'docker/login-action@v1'
-        with:
-          username: 'oauth2accesstoken'
-          password: '${{ steps.auth.outputs.access_token }}'
-          registry: '${{ env.GAR_LOCATION }}-docker.pkg.dev'
-
-      - name: 'Build & Push Container'
-        run: |-
-          docker build --build-arg NODE_ENV=${{ env.BRANCH }} -t "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.SERVICE }}/${{ env.BRANCH }}:latest" ./
-          docker push "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.SERVICE }}/${{ env.BRANCH }}:latest"
-
-      - id: 'deploy'
-        uses: 'google-github-actions/deploy-cloudrun@v0'
-        with:
-          service: 'bert'
-          image: ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE }}:latest
-          env_vars: |
-            GOOGLE_CLIENT_ID=${{secrets.GOOGLE_CLIENT_ID}}
-            GOOGLE_CLIENT_SECRET=${{secrets.GOOGLE_CLIENT_SECRET}}
-            MONGO_URL=${{secrets.MONGO_URL}}
-            SESSION_SECRET=${{secrets.SESSION_SECRET}}
-            SESSION_SECRET=${{ env.BRANCH == 'test' ?  }}
-
-
-
-*/
-
 const isProduction = process.env.NODE_ENV === 'production' 
 
 const calendars = isProduction ? {
@@ -86,6 +27,13 @@ const getGoogleEvents = async (location, timeMin, timeMax) => await google.calen
   timeMax,
   singleEvents:true
 });
+
+const getWeek = (date) => {
+  // TODO Change first day each year
+  const firstDay = new Date(date.getFullYear(), 0, 1);
+  const milliseconds = date - firstDay; // How many milliseconds have passed
+  return Math.ceil(milliseconds / 1000 / 60 / 60 / 24 / 7) % 2 === 1 ? 'B' : 'A'
+}
 
 module.exports = {
 
@@ -155,7 +103,7 @@ module.exports = {
           const start = new Date(timeMin);
           const end = new Date(timeMax);
           while ( start < end ) {
-            if ( [0,6].includes(start.getDate()) ){}
+            if ( [0,6].includes(start.getDay()) ){}
             else {
               const events = allEvents.flat().filter( 
                 event => new Date(event.start.dateTime).getDate() === start.getDate()
@@ -176,7 +124,42 @@ module.exports = {
 
         getTools: async(_,{id, keywords}) => await tool.find(id && keywords ? {_id:id, keywords} :
             id ? {_id:id} :
-            keywords ? {keywords:{"$all":keywords}} : null)
+            keywords ? {keywords:{"$all":keywords}} : null
+        ),
+
+        getBlockTimes: async (_, {blocks, start, end}) => {
+
+          const days = ['Monday','Tuesday','Wednesday','Thursday','Friday']
+          let dates = []
+          const startDate = new Date(start);
+          const endDate = new Date(end);
+          const finishDate = new Date(start);
+          finishDate.setDate( finishDate.getDate() + 14 )
+          while ( startDate < endDate && startDate < finishDate ) {
+            const day = days[startDate.getDay() - 1]
+            const week = getWeek(startDate);
+            if (day) {
+              const resp = await block.findOne({
+                name:{"$in":blocks}, day, week
+              })
+              if (resp) {
+                var [hr, min] = resp.start.split(":");
+                startDate.setHours(hr, min, 0, 0)
+                var [hr, min] = resp.end.split(":");
+                const startTime = startDate.toISOString();
+                startDate.setHours(hr, min, 0, 0);
+                const endTime = startDate.toISOString();
+                dates.push({
+                  start:startTime,
+                  end:endTime,
+                })
+              }
+            }
+            startDate.setDate( startDate.getDate() + 1 )
+            
+          }
+          return dates
+        }
     },
 
     Mutation:{
