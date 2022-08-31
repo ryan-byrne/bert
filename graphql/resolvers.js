@@ -143,10 +143,10 @@ module.exports = {
               })
               if (resp) {
                 var [hr, min] = resp.start.split(":");
-                start.setHours(parseInt(hr) + hrOff, min, 0, 0);
+                start.setHours(parseInt(hr) - hrOff, min, 0, 0);
                 const startTime = start.toISOString();
                 var [hr, min] = resp.end.split(":");
-                start.setHours(parseInt(hr) + hrOff, min, 0, 0);
+                start.setHours(parseInt(hr) - hrOff, min, 0, 0);
                 const endTime = start.toISOString();
                 dates.push({
                   start:startTime,
