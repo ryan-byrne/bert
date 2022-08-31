@@ -37,15 +37,21 @@ const authMiddleware = async (req, res, next) => {
 }
 
 auth.get('/logout', async(req, res, err) => {
-    try {
-        const user = req.session.user.id;
-        await oauth2Client.revokeCredentials();
-        req.session.destroy((e)=>err(e));
+
+    const user = req.session.user.id
+
+    oauth2Client.revokeCredentials()
+      .then( resp => console.log(`User ${user} revoked their credentials`) )
+      .catch( e => err(e) )
+
+    req.session.destroy((e) => {
+      if (e) err(e)
+      else {
         console.log(`${user} logged out`);
-        res.redirect(`/`);
-    } catch (e) {
-        err(e)
-    }
+        res.json({success:"You have successfully logged out"});
+      }
+    })
+
 })
 
 auth.get('/user', (req, res, err) => {

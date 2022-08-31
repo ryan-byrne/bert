@@ -55,7 +55,6 @@ export default function Submit({ payload }) {
     })
       .then(resp => resp.json()
         .then(data => {
-          console.log(data);
           if (data.error || !data.data) console.error(data)
           else setConflicts(data.data.getConflicts)
         }
