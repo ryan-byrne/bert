@@ -12,18 +12,7 @@ Date.prototype.toFormDateString = function(){
 
 const SetTimes = ({ setPayload, payload }) => {
   
-  const [times, setTimes] = useState([{
-    date: new Date(), // 2022-08-01
-    start: "", // 09:30
-    end: "", // 10:30
-    division:"upper",
-    useBlocks:true,
-    blocks:[],
-    recurring: false,
-    recurringWeekly: false,
-    recurringUntil: new Date(), //
-  }]);
-
+  const [times, setTimes] = useState([]);
 
   const handleAddTime = () => setTimes([...times, {
     date: new Date(), // 2022-08-01
@@ -36,12 +25,6 @@ const SetTimes = ({ setPayload, payload }) => {
     recurringWeekly: false,
     recurringUntil: new Date(), //
   }]);
-
-  const handleChange2 = (key, value, index) => {
-    var prevTimes = [...times]
-    prevTimes[index][key] = value
-    setTimes(prevTimes)
-  }
 
   const handleChange = (event) => {
 
