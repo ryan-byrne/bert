@@ -374,8 +374,6 @@ module.exports = {
     },
 
     User:{
-        trainings_completed: async (u) => await training.find({_id:u.trainings_completed}),
-        demos_completed: async (u) => await training.find({_id:u.demos_completed}),
     },
 
     Event:{

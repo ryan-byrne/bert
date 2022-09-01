@@ -18,6 +18,6 @@ module.exports = model('User', new Schema({
     picture:String,
     locale:String,
     hd:String,
-    trainings_completed:[{ref:"Training", type:"ObjectId"}],
-    demos_completed:[{ref:"Training", type:"ObjectId"}]
+    last_login:Schema.Types.Date,
+    first_login:Schema.Types.Date
 }))
