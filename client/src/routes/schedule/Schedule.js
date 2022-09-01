@@ -61,7 +61,6 @@ export default function Schedule({ create }) {
     })
       .then(resp => resp.json()
         .then(data => {
-          console.log(data);
           if (data.errors || !data.data) console.error(data)
           setEvents(data.data.getCalendar)
         }))

@@ -13,6 +13,11 @@ export default function Submit({ payload }) {
   const [conflicts, setConflicts] = useState([]);
   const [invalid, setInvalid] = useState([]);
 
+  useEffect(() => {
+    console.log(status);
+    if (status.variant === 'danger' ) setTimeout(()=>setStatus({}),3000)
+  }, [status]);
+
   // Validate Payload
   useEffect(() => {
     setInvalid();
@@ -69,7 +74,6 @@ export default function Submit({ payload }) {
     setConflicts,
   ]);
 
-
   const handleSubmit = () => {
     setStatus({ text: "Submitting..." })
     Query(`
@@ -79,9 +83,10 @@ export default function Submit({ payload }) {
       $locations: [EventLocation]!, 
       $tools: [ToolInput]!, 
       $description: String, 
-      $attendees: [String]
+      $attendees: [Attendee]
       ){
         createEvent(
+          description: $description,
           summary: $summary, 
           times: $times, 
           locations: $locations,
@@ -93,7 +98,10 @@ export default function Submit({ payload }) {
         `, { ...payload })
       .then(resp => resp.json()
         .then(data => {
-          if (data.errors) setStatus({ text: data.errors[0].message, variant: 'danger' })
+          if (data.errors) {
+            console.error(data.errors);
+            setStatus({ text: "Something went wrong...", variant: 'danger' })
+          }
           else {
             setStatus({ text: 'Success!', variant: 'success' });
             navigate('/schedule')
