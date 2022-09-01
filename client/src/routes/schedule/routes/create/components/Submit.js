@@ -51,7 +51,8 @@ export default function Submit({ payload }) {
         `, {
       times: payload.times,
       locations: payload.locations,
-      tools: payload.tools
+      tools: payload.tools,
+      attendees:payload.attendees
     })
       .then(resp => resp.json()
         .then(data => {
@@ -64,6 +65,7 @@ export default function Submit({ payload }) {
     payload.times,
     payload.locations,
     payload.tools,
+    payload.attendees,
     setConflicts,
   ]);
 
@@ -71,15 +73,23 @@ export default function Submit({ payload }) {
   const handleSubmit = () => {
     setStatus({ text: "Submitting..." })
     Query(`
-        mutation Mutation($summary: String!, $times: [TimeInput]!, $locations: [EventLocation]!, $tools: [ToolInput]!) {
-            createEvent(
-              summary: $summary, 
-              times: $times, 
-              locations: $locations, 
-              tools: $tools) {
-                summary
-            }
-          }
+    mutation Mutation(
+      $summary: String!, 
+      $times: [TimeInput]!, 
+      $locations: [EventLocation]!, 
+      $tools: [ToolInput]!, 
+      $description: String, 
+      $attendees: [String]
+      ){
+        createEvent(
+          summary: $summary, 
+          times: $times, 
+          locations: $locations,
+          attendees: $attendees,
+          tools: $tools) {
+            id
+        }
+      }
         `, { ...payload })
       .then(resp => resp.json()
         .then(data => {

@@ -1,7 +1,6 @@
 import {useState, useEffect} from 'react';
 import {Query} from "../../../../../../components/GraphQL"
-import { FormCheck, ToggleButton, FormSelect, Button, FormGroup, Row, FloatingLabel, FormControl, Col, FormText, Collapse, ToggleButtonGroup, CloseButton } from 'react-bootstrap';
-import Loading from '../../../../../../components/Loading';
+import { ToggleButton, FormSelect, FormGroup, Row, Col, Collapse, ToggleButtonGroup } from 'react-bootstrap';
 
 const getWeek = (date) => {
   var onejan = new Date(date.getFullYear(),0,1);

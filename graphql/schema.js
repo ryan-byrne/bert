@@ -44,7 +44,7 @@ type Mutation {
       times:[TimeInput]!
       locations:[EventLocation]!
       tools:[ToolInput]!
-      attendees:[String]
+      attendees:[Attendee]!
     ): [Event],
 
     submitGuess(text:String, questionId:String):Boolean
