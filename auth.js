@@ -28,6 +28,7 @@ const authMiddleware = async (req, res, next) => {
         'email',
         'https://www.googleapis.com/auth/calendar',
         'https://www.googleapis.com/auth/calendar.events',
+        'https://www.googleapis.com/auth/classroom.courses.readonly',
         'https://www.googleapis.com/auth/classroom.rosters.readonly',
         'https://www.googleapis.com/auth/drive.file',
       ],
@@ -61,7 +62,7 @@ auth.get('/user', async (req, res, err) => {
     const userData = await user.findOne({email:resp.email});
     if ( userData ) {
       await user.updateOne({id:userData.id},{"$set":{last_login:new Date().toISOString()}});
-      console.log(`Logged in existing user ${userData.id}`);
+      console.log(`${userData.id} logged in`);
       return res.json({...resp})
     } else {
       await user.create({

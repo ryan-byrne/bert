@@ -181,7 +181,7 @@ export default function Submit({ payload }) {
               !(invalid && invalid.filter(i => i.variant === 'danger').length === 0)
             }
             onClick={handleSubmit}
-          >Create {payload.times.length} Events</Button>
+          >Create {payload.times.length} Event(s)</Button>
         </OverlayTrigger>
       </Row>
       {

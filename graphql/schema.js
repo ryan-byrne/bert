@@ -26,6 +26,8 @@ type Query {
       tools:[ToolInput]!
     ):[Event]
 
+    userSearch(text:String):[User]
+
     getQuestions(questions:[String]):[Question]
 
     getTrainings(trainings:[String]):[Training]
@@ -33,6 +35,10 @@ type Query {
     getTools(id:[String], keywords:[String]):[Tool]
 
     getBlockTimes(blocks:[String]!, start:Date!, end:Date!):[Time]
+
+    getCourses:[Course]
+
+    getClassRoster:[User]
 
 }
 
@@ -43,12 +49,21 @@ type Mutation {
       description:String
       times:[TimeInput]!
       locations:[EventLocation]!
-      tools:[ToolInput]!
+      tools:[ToolInput]
       attendees:[Attendee]
     ): [Event],
 
     submitGuess(text:String, questionId:String):Boolean
 
+}
+
+type Course {
+    description:String
+    id:String
+    name:String
+    section:String
+    room:String
+    ownerId:String
 }
 
 # SCHEDULING INPUTS

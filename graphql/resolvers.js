@@ -160,6 +160,38 @@ module.exports = {
             
           }
           return dates
+        },
+
+        userSearch: async (_, {text}, ctx) => {
+          const resp = await user.aggregate([
+            {
+              '$addFields': {
+                'fields': {
+                  '$concat': [
+                    '$name', ' ', '$email'
+                  ]
+                }
+              }
+            }, {
+              '$match': {
+                'fields': {
+                  '$regex': new RegExp(text, 'i')
+                }
+              }
+            }
+          ])
+          return resp.filter(r => r.email !== ctx.user.email)
+        },
+        
+        getCourses: async (_,{},{user}) => {
+          oauth2Client.setCredentials({...user.tokens});
+          const resp = await google.classroom({version:"v1"}).courses.list({courseStates:"ACTIVE"})
+          return resp.data.courses
+        },
+
+        getClassRoster: async (_,{},{user}) => {
+          
+          console.log(resp);
         }
     },
 
