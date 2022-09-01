@@ -63,7 +63,9 @@ module.exports = {
                 const [freq, until, interval] = recurrence[0].split(':')[1].split(';').map(i=>i.split('=')[1])
                 const untilDate = new Date(until.substring(0, 4),until.substring(4, 6), until.substring(6, 8) );
                 const startDate = new Date(start);
+                startDate.setHours( startDate.getHours(), startDate.getMinutes() + 1, 0, 0 )
                 const endDate = new Date(end);
+                endDate.setHours( endDate.getHours(), endDate.getMinutes() - 1, 0, 0 )
                 while ( startDate < untilDate ){
                   const resp = await getGoogleEvents(location, startDate, endDate);
                   conflicts.push( resp.data.items )
@@ -175,34 +177,34 @@ module.exports = {
           oauth2Client.setCredentials(user.tokens);
 
           const events = []
-          let toolData = {}
-          tools.map(tool=>{toolData[tool.id] = tool.quantity});
-          for ( let location of locations ){
-            for (let time of times){
-              const resp = await google.calendar({version:"v3"}).events.insert({
-                calendarId:calendars[location],
-                requestBody:{
-                  start:{
-                    dateTime:time.start,
-                    timeZone:"America/New_York"
-                  },
-                  end:{
-                    dateTime:time.end,
-                    timeZone:"America/New_York"
-                  },
-                  organizer:true,
-                  extendedProperties:{
-                    shared:toolData
-                  },
-                  status:"tentative",
-                  summary,
-                  description,
-                  recurrence:time.recurrence,
-                  attendees
-                }
-              });
-              events.push(resp.data)
-            }
+          let toolData = {};
+          for ( tool of tools ){
+            toolData[tool.id] = tool.quantity
+          }
+          for (let time of times){
+            const resp = await google.calendar({version:"v3"}).events.insert({
+              calendarId:user.email,
+              requestBody:{
+                start:{
+                  dateTime:time.start,
+                  timeZone:"America/New_York"
+                },
+                end:{
+                  dateTime:time.end,
+                  timeZone:"America/New_York"
+                },
+                organizer:true,
+                extendedProperties:{
+                  shared:toolData
+                },
+                status:"tentative",
+                summary,
+                description,
+                recurrence:time.recurrence,
+                attendees:[...attendees, ...locations.map(l=>({resource:true, email:calendars[l]}))]
+              }
+            });
+            events.push(resp.data)
           }
           return events.flat()
 
