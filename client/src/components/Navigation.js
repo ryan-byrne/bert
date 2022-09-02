@@ -32,14 +32,15 @@ const Glossary = [
     children:[
       {
         name:"Report a Bug",
-        link:'/bugs'
+        link:"/bugs"
       },{
         name:"Feature Request",
-        link:'/requests'
+        link:'/feature'
       }
     ]
   }
 ]
+
 const Navigation = ({ user }) => {
 
   /*

@@ -14,7 +14,12 @@ import Test from './routes/test/Test';
 //import {NotFound} from './components/Utilities.js';
 // Internal Components
 import Loading from './components/Loading';
-import Bugs from './routes/feedback/Bugs';
+
+const Feedback = ({subject, body}) => {
+  useEffect(()=>{
+    window.location.replace(`https://mail.google.com/mail/?view=cm&fs=1&to=rbyrne@berkeleycarroll.org&su=${subject}&body=${body}`)
+  },[subject, body])
+}
 
 function App() {
 
@@ -41,8 +46,9 @@ function App() {
             <Route path="schedule/create" element={<Schedule create={true}/>}/>
             <Route path="training/*" element={<TrainingRoutes/>}/>
             <Route path="tools/*" element={<ToolRoutes/>}/>
+            <Route path="bugs" element={<Feedback subject="I Found a Bug in Bert" body="Describe the bug below (include screenshots!):"/>}/>
+            <Route path="feature" element={<Feedback subject="I Have an Idea for a Bert Feature" body="Describe the feature below (include screenshots!):"/>}/>
             <Route path="logout" element={<Logout/>}/>
-            <Route path="bugs" element={<Bugs/>}/>
             <Route path="test" element={<Test/>}/>
           </Routes>
         </BrowserRouter>
