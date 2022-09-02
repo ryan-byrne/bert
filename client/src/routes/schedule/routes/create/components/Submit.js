@@ -14,7 +14,6 @@ export default function Submit({ payload }) {
   const [invalid, setInvalid] = useState([]);
 
   useEffect(() => {
-    console.log(status);
     if (status.variant === 'danger' ) setTimeout(()=>setStatus({}),3000)
   }, [status]);
 

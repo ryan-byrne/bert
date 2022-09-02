@@ -10,7 +10,6 @@ const oauth2Client = new google.auth.OAuth2(
 );
 
 const isProduction = process.env.NODE_ENV === 'production'
-
 google.options({ auth: oauth2Client });
 
 const authMiddleware = async (req, res, next) => {
@@ -26,10 +25,10 @@ const authMiddleware = async (req, res, next) => {
       scope: [
         'profile',
         'email',
-        'https://www.googleapis.com/auth/calendar',
-        'https://www.googleapis.com/auth/calendar.events',
+        'https://www.googleapis.com/auth/calendar.events.readonly',
+        'https://www.googleapis.com/auth/calendar.events.owned',
+        'https://www.googleapis.com/auth/classroom.profile.emails',
         'https://www.googleapis.com/auth/classroom.courses.readonly',
-        'https://www.googleapis.com/auth/classroom.rosters.readonly',
         'https://www.googleapis.com/auth/drive.file',
       ],
       include_granted_scopes: true

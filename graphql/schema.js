@@ -38,7 +38,7 @@ type Query {
 
     getCourses:[Course]
 
-    getClassRoster:[User]
+    getClassRoster(courseId:String!):[User]
 
 }
 

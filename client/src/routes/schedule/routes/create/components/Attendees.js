@@ -5,22 +5,44 @@ import classroomIcon from './img/classroomIcon.png';
 import searchIcon from './img/searchIcon.png';
 
 const Attendees = ({payload, setPayload}) => {
-
+  const [attendees, setAttendees] = useState([]);
   const [show, setShow] = useState(false);
   const [search, setSearch] = useState();
   const [text, setText] = useState("");
   const [userOptions, setUserOptions] = useState();
   const [classOptions, setClassOptions] = useState();
-  const [importedClassId, setImportedClassId] = useState();
+  const [importedClassIds, setImportedClassIds] = useState([]);
+
+  useEffect(() => {
+    setPayload((payload)=>({...payload, attendees:attendees.map(a=>({email:a.email}))}))
+  }, [attendees]);
 
   const handleUserSelect = (e, user) => {
     e.preventDefault()
-    setPayload((payload)=>({...payload, attendees:[...payload.attendees, {email:user.email}]}))
+    setAttendees([...attendees, user])
   }
 
-  const handleClassSelect = () => {}
+  const handleUserDelete = (idx) => {
+    const prev = [...attendees]
+    prev.splice(idx, 1);
+    setAttendees(prev);
+  }
 
-  const handleUserDelete = (idx) => {}
+  const handleClassSelect = (e, courseId) => {
+    e.preventDefault()
+    Query(`query Query($courseId: String!) {
+      getClassRoster(courseId: $courseId) {
+        id
+        name
+        email
+      }
+    }`,{courseId})
+    .then(resp => resp.json()
+    .then( data => {
+      setAttendees([...attendees, ...data.data.getClassRoster])
+      setImportedClassIds([...importedClassIds, courseId])
+    }))
+  }
 
   useEffect(() => {
     if (text.length === 0 || !search) return
@@ -91,7 +113,7 @@ const Attendees = ({payload, setPayload}) => {
                 !classOptions ? <ListGroup.Item variant="info">Loading Classes...</ListGroup.Item> :
                 classOptions.length === 0 ? <ListGroup.Item variant="warning">No Classes found...</ListGroup.Item> :
                 classOptions.map( classOption =>
-                  <ListGroup.Item action onClick={(e)=>handleClassSelect(e, classOption)}>
+                  <ListGroup.Item action disabled={importedClassIds.includes(classOption.id)} onClick={(e)=>handleClassSelect(e, classOption.id)}>
                     <div><strong>{classOption.name}</strong></div>
                     <div><FormText>{classOption.description}</FormText></div>
                   </ListGroup.Item>
@@ -105,11 +127,11 @@ const Attendees = ({payload, setPayload}) => {
               <FormText>Attendees:</FormText>
               <FormGroup>
                 <Badge>You</Badge>
-                {payload.attendees.map((user, idx)=>
+                {attendees.map((user, idx)=>
                   <Badge bg="secondary" className="m-1">
                     <Row>
                       <Col className="mt-auto mb-auto">{user.name}</Col>
-                      <Col><CloseButton/></Col>
+                      <Col><CloseButton onClick={()=>handleUserDelete(idx)}/></Col>
                     </Row>
                   </Badge>
                 )}
@@ -123,7 +145,7 @@ const Attendees = ({payload, setPayload}) => {
         <Button
           variant={show?'outline-primary':'primary'} 
           onClick={()=>setShow(!show)}>
-          {show ? 'Hide' : 'Add'} Attendees         
+          {show ? 'Hide' : 'Add'} Attendees {payload.attendees.length > 0 ? `(${payload.attendees.length} Added)` : null}
         </Button>
       <hr/>
     </FormGroup>

@@ -189,9 +189,11 @@ module.exports = {
           return resp.data.courses
         },
 
-        getClassRoster: async (_,{},{user}) => {
-          
-          console.log(resp);
+        getClassRoster: async (_,{courseId},{user}) => {
+          oauth2Client.setCredentials({...user.tokens});
+          const resp = await google.classroom({version:"v1"}).courses.students.list({courseId});
+          console.log(resp.data.students);
+          return resp.data.students.map(s=>({id:s.profile.id, name:s.profile.name.fullName, email:s.profile.emailAddress}))
         }
     },
 
