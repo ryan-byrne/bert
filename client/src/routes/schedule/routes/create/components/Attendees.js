@@ -15,7 +15,7 @@ const Attendees = ({payload, setPayload}) => {
 
   useEffect(() => {
     setPayload((payload)=>({...payload, attendees:attendees.map(a=>({email:a.email}))}))
-  }, [attendees]);
+  }, [attendees, setPayload]);
 
   const handleUserSelect = (e, user) => {
     e.preventDefault()
@@ -46,8 +46,10 @@ const Attendees = ({payload, setPayload}) => {
     }`,{courseId})
     .then(resp => resp.json()
     .then( data => {
-      setAttendees([...attendees, ...data.data.getClassRoster])
+      if (data.errors) console.error(data.errors)
+      else setAttendees([...attendees, ...data.data.getClassRoster])
     }))
+    .catch( err => console.error(err) )
   }
 
   useEffect(() => {
@@ -61,7 +63,11 @@ const Attendees = ({payload, setPayload}) => {
     }   
     `,{text})
       .then(resp => resp.json()
-      .then( data => setUserOptions(data.data.userSearch)))
+      .then( data => {
+        if (data.errors) console.error(data.errors)
+        else setUserOptions(data.data.userSearch)
+      }))
+      .catch( err => console.error(err))
   }, [text, search]);
 
   useEffect(() => {
@@ -74,7 +80,11 @@ const Attendees = ({payload, setPayload}) => {
       }
     }`)
     .then(resp => resp.json()
-    .then( data => setClassOptions(data.data.getCourses)))
+    .then( data => {
+      if (data.errors) console.error(data.errors)
+      else setClassOptions(data.data.getCourses)
+    }))
+    .catch( err => console.log(err) )
   }, [search]);
 
   return (

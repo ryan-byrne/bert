@@ -27,6 +27,7 @@ const authMiddleware = async (req, res, next) => {
         'email',
         'https://www.googleapis.com/auth/calendar.events.readonly',
         'https://www.googleapis.com/auth/calendar.events.owned',
+        'https://www.googleapis.com/auth/classroom.rosters.readonly',
         'https://www.googleapis.com/auth/classroom.profile.emails',
         'https://www.googleapis.com/auth/classroom.courses.readonly',
         'https://www.googleapis.com/auth/drive.file',
