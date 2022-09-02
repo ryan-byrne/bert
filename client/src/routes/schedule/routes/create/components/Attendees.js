@@ -28,8 +28,15 @@ const Attendees = ({payload, setPayload}) => {
     setAttendees(prev);
   }
 
+  const handleClear = (e) => {
+    e.preventDefault();
+    setImportedClassIds([]);
+    setAttendees([]);
+  }
+
   const handleClassSelect = (e, courseId) => {
     e.preventDefault()
+    setImportedClassIds([...importedClassIds, courseId])
     Query(`query Query($courseId: String!) {
       getClassRoster(courseId: $courseId) {
         id
@@ -40,7 +47,6 @@ const Attendees = ({payload, setPayload}) => {
     .then(resp => resp.json()
     .then( data => {
       setAttendees([...attendees, ...data.data.getClassRoster])
-      setImportedClassIds([...importedClassIds, courseId])
     }))
   }
 
@@ -136,6 +142,10 @@ const Attendees = ({payload, setPayload}) => {
                   </Badge>
                 )}
               </FormGroup>
+              <Row className="mt-3">
+                <Button variant="outline-danger" onClick={handleClear}>Clear</Button>
+              </Row>
+              
             </FormGroup>
           </Collapse>
 
