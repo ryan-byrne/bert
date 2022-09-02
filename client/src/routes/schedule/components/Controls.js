@@ -3,21 +3,14 @@ import { useState, useEffect } from "react";
 
 const getWeek = (date) => {
     // TODO Change first day each year
-    const firstDay = new Date(date.getFullYear(), 9, 5);
+    const firstDay = new Date(date.getFullYear(), 0, 1);
     const milliseconds = date - firstDay; // How many milliseconds have passed
-    return Math.ceil(milliseconds / 1000 / 60 / 60 / 24 / 7) % 2 === 1 ? 'A' : 'B'
+    return Math.ceil(milliseconds / 1000 / 60 / 60 / 24 / 7)
   }
 
 const Month = ({from, setFrom}) => {
 
     const month = ["January","February","March","April","May","June","July","August","September","October","November","December"];
-
-    useEffect(()=>{
-        const d = new Date(from);
-        d.setDate(1);
-        setFrom(d);
-        return () => setFrom(new Date())
-    },[]);
 
     const getMonths = () => {
         const d = new Date(from);
@@ -76,16 +69,14 @@ const Month = ({from, setFrom}) => {
 
 const Week = ({from, setFrom}) => {
 
-    const [week, setWeek] = useState(51);
     const [weekOptions, setWeekOptions] = useState([]);
 
-    useEffect(()=>{
-        const d = new Date(weekOptions[week]);
+    const handleSelect = (e) => {
+        const d = new Date(weekOptions[e.target.value]);
         d.setDate( d.getDate() - d.getDay() + 1);
         d.setHours(0,0,0,0);
         setFrom(d);
-        return () => setFrom(new Date())
-    },[week, weekOptions, setFrom])
+    }
 
     useEffect(()=>{
         const d = new Date()
@@ -107,8 +98,8 @@ const Week = ({from, setFrom}) => {
                     Week of:
                 </Col>
                 <Col xs={5} md={3} lg={2}>
-                    <FormSelect value={week} onChange={(e) => setWeek(e.target.value)}>
-                        {weekOptions.map( (d, idx) => <option key={idx} value={idx}>{d.toLocaleDateString()} ({getWeek(d)})</option> )}
+                    <FormSelect value={getWeek(from) + 16} onChange={handleSelect}>
+                        {weekOptions.map( (d, idx) => <option key={idx} value={idx}>{d.toLocaleDateString()} ({getWeek(d) % 2 === 1 ? 'A' : 'B'})</option> )}
                     </FormSelect>
                 </Col>
             </Row>

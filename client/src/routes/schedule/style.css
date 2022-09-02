@@ -23,38 +23,38 @@
 }
 
 .event-badge {
-    text-align: center;
-    word-wrap: none;
     overflow: hidden;
     position: absolute;
-    padding: .4em .3em;
-    font-size: 0.8em;
-    font-weight: 700;
     width: 50%;
-    color: #fff;
-    border: 1px solid gray;
-    border-radius: 1em;
     cursor: pointer;
-    text-decoration: none;
+    border-radius: 0.5em;
+    display: flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.event-text {
+    text-align: center;
+    padding: .1em .1em;
+    color: white;
+    font-size: 50%;
+    font-weight: 1000;
 }
 
 .event-badge:hover {
-    color:black;
-    background-color: white;
+    color: #fff;
+    border: 2px white solid;
     z-index: 100;
 }
 
 .event-badge-classroom {
     left:0%;
-    background-color:blueviolet
 }
 
 .event-badge-powertool {
     left:25%;
-    background-color:darkgreen
 }
 
 .event-badge-machineshop {
     left:50%;
-    background-color:darkorange;
 }

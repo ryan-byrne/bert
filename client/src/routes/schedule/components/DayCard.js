@@ -4,7 +4,7 @@ import EventBadge from './EventBadge'
 export default function DayCard({day}){
 
     return (
-    <Card as={Col} bg="dark" className={`day-container m-3`}>
+        <Card as={Col} bg="dark" className={`day-container m-3`}>
         <Card.Header>
             {
                 day ?

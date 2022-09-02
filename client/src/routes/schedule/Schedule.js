@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Button, Col, Container, Badge, Row, ToggleButton, ToggleButtonGroup } from "react-bootstrap";
+import { Button, Col, Container, Badge, Row, ToggleButton, ToggleButtonGroup, ButtonGroup } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import { Query } from '../../components/GraphQL'
 import DayCard from './components/DayCard';
@@ -13,11 +13,16 @@ Date.prototype.toFormDateString = function () {
   return this.getFullYear() + "-" + (this.getMonth() + 1).toString().padStart(2, "0") + "-" + this.getDate().toString().padStart(2, "0")
 }
 
+const getMonday = (date) => {
+  const day = new Date(date);
+  day.setDate( day.getDate() - day.getDay() + 1 )
+  return day
+}
+
 export default function Schedule({ create }) {
 
   const [interval, setInterval] = useState('w');
-  const [locations, setLocations] = useState(['classroom', 'machineshop', 'powertool'])
-  const [from, setFrom] = useState(new Date());
+  const [from, setFrom] = useState(getMonday(new Date()));
   const [events, setEvents] = useState();
   const navigate = useNavigate();
 
@@ -27,14 +32,29 @@ export default function Schedule({ create }) {
     m: <Month {...{ from, setFrom }} />
   }
 
+  const areaColors = {
+    "classroom": "primary",
+    "powertool": "warning",
+    "machineshop": "secondary"
+  }
+  
+  useEffect(() => {
+    const d = new Date();
+    if ( interval === 'm' ) d.setDate(1)
+    else if ( interval === 'w' ) d.setDate( d.getDate() - d.getDay() + 1 )
+    setFrom(d)
+  }, [interval, setFrom]);
+
   // Query for Schedule
   useEffect(() => {
     if (from.toString() === 'Invalid Date') return
 
-    const to = new Date( from );
+    const to = new Date(from);
 
-    if ( interval === 'm' ) to.setMonth( from.getMonth() + 1 )
-    else to.setDate( from.getDate() + ( interval === 'w' ? 5 : 1 ) )
+    console.log(from);
+
+    if (interval === 'm') to.setMonth(from.getMonth() + 1)
+    else to.setDate(from.getDate() + (interval === 'w' ? 5 : 1))
 
     setEvents();
     Query(`
@@ -43,7 +63,7 @@ export default function Schedule({ create }) {
             date
             events {
               summary
-              htmlLink
+              id
               location
               start {
                 dateTime
@@ -55,7 +75,7 @@ export default function Schedule({ create }) {
           }
         }
         `, {
-      locations,
+      locations: ['classroom', 'powertool', 'machineshop'],
       timeMin: from,
       timeMax: to
     })
@@ -66,7 +86,7 @@ export default function Schedule({ create }) {
         }))
       .catch(err => console.error(err))
     return () => setEvents()
-  }, [from, locations, setEvents, create, interval]);
+  }, [from, setEvents, create, interval]);
 
   return (
     <Container>
@@ -74,19 +94,17 @@ export default function Schedule({ create }) {
       <Create show={create} navigate={navigate} />
 
       <Row className="mt-3">
-        <ToggleButtonGroup
-          size="sm"
-          type="checkbox"
-          value={locations}
-          onChange={(v) => setLocations(v)}>
-          {[
-            ['Classroom Area', 'classroom'],
-            ['Power Tool Area', 'powertool'],
-            ['Machine Shop', 'machineshop']
-          ].map(([loc, id], idx) =>
-            <ToggleButton key={idx} variant="outline-light" id={idx} value={id}>{loc}</ToggleButton>
-          )}
-        </ToggleButtonGroup>
+        <ButtonGroup>
+          {
+            [
+              ['Classroom Area', 'classroom'],
+              ['Power Tool Area', 'powertool'],
+              ['Machine Shop', 'machineshop']
+            ].map(([loc, id], idx) =>
+              <Button disabled variant={areaColors[id]}>{loc}</Button>
+            )
+          }
+        </ButtonGroup>
       </Row>
 
       <Row className="mt-3">
@@ -110,12 +128,6 @@ export default function Schedule({ create }) {
             Create an Event
           </Button>
         </Col>
-      </Row>
-
-      <Row xs={3} className="mt-3">
-      <Button style={{backgroundColor:"blueviolet", borderColor:"transparent"}}>Classroom Area</Button>
-      <Button style={{backgroundColor:"darkgreen", borderColor:"transparent"}}>Power Tool Area</Button>
-      <Button style={{backgroundColor:"darkorange", borderColor:"transparent"}}>Machine Shop</Button>
       </Row>
 
       {

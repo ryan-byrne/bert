@@ -64,6 +64,7 @@ const Attendees = ({payload, setPayload}) => {
     `,{text})
       .then(resp => resp.json()
       .then( data => {
+        console.log(data);
         if (data.errors) console.error(data.errors)
         else setUserOptions(data.data.userSearch)
       }))

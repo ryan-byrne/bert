@@ -18,17 +18,6 @@ export default function Create({show, navigate}){
         attendees:[]
     });
 
-    // TODO URL Params
-
-    /*
-    <SetInfo options={options} setOptions={setOptions} payload={payload} setPayload={setPayload}/>
-    <SetTimes options={options} setOptions={setOptions}/>
-    <SetBlocks options={options} setOptions={setOptions}/>
-    <SetRecurring options={options} setOptions={setOptions}/>
-    <SetTools times={payload.times}/>
-    <Submit payload={payload} options={options} navigate={navigate}/>
-    */
-
     return(
         <Offcanvas show={show} onHide={()=>navigate('/schedule')}>
             <Offcanvas.Header closeButton>

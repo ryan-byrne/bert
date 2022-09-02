@@ -179,7 +179,7 @@ module.exports = {
                 }
               }
             }
-          ])
+          ]);
           return resp.filter(r => r.email !== ctx.user.email)
         },
         
