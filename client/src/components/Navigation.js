@@ -27,6 +27,17 @@ const Glossary = [
   }, {
     name: "Tools",
     link: "/tools"
+  }, {
+    name: "Feeback",
+    children:[
+      {
+        name:"Report a Bug",
+        link:'/bugs'
+      },{
+        name:"Feature Request",
+        link:'/requests'
+      }
+    ]
   }
 ]
 const Navigation = ({ user }) => {

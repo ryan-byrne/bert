@@ -14,6 +14,7 @@ import Test from './routes/test/Test';
 //import {NotFound} from './components/Utilities.js';
 // Internal Components
 import Loading from './components/Loading';
+import Bugs from './routes/feedback/Bugs';
 
 function App() {
 
@@ -41,6 +42,7 @@ function App() {
             <Route path="training/*" element={<TrainingRoutes/>}/>
             <Route path="tools/*" element={<ToolRoutes/>}/>
             <Route path="logout" element={<Logout/>}/>
+            <Route path="bugs" element={<Bugs/>}/>
             <Route path="test" element={<Test/>}/>
           </Routes>
         </BrowserRouter>
