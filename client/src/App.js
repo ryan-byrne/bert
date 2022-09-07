@@ -10,6 +10,7 @@ import Schedule from './routes/schedule/Schedule';
 import TrainingRoutes from './routes/training/Routes';
 import ToolRoutes from './routes/tools/Routes';
 import Logout from './routes/logout/Logout';
+import GettingStarted from './routes/GettingStarted';
 import Test from './routes/test/Test';
 //import {NotFound} from './components/Utilities.js';
 // Internal Components
@@ -49,6 +50,7 @@ function App() {
             <Route path="bugs" element={<Feedback subject="I Found a Bug in Bert" body="Describe the bug below (include screenshots!):"/>}/>
             <Route path="feature" element={<Feedback subject="I Have an Idea for a Bert Feature" body="Describe the feature below (include screenshots!):"/>}/>
             <Route path="logout" element={<Logout/>}/>
+            <Route path="getting-started" element={<GettingStarted/>}/>
             <Route path="test" element={<Test/>}/>
           </Routes>
         </BrowserRouter>

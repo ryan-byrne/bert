@@ -13,7 +13,6 @@ import Routers from "./routes/Routers";
 import FDMPrinting from "./routes/FDMPrinting";
 //import LaserCutting from "./routes/LaserCutting";
 //import Sanding from "./routes/Sanding";
-import './style.css'
 
 export default function TrainingRoutes(){
 

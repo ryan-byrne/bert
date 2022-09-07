@@ -1,27 +1,27 @@
-import { Col, Row, Image, Button } from 'react-bootstrap';
+import { Col, Row, Image, Button, ButtonGroup, DropdownButton, Dropdown } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import whiteBrand from '../img/logos/whiteBrand.png';
 
 const Landing = () =>
   <Row className="h-100">
-    <Row className="mt-auto mb-auto justify-content-center text-center">
-      <Col md={12}>
+    <Row className="mt-auto mb-auto justify-content-center">
+      <Col xs={6} className="text-left">
+        <h1>Welcome to...</h1>
+      </Col>
+      <Col xs={12} className="text-center">
         <Image src={whiteBrand} fluid/>
       </Col>
-      <Col xs={4} md={2} lg={1} className="mt-auto mb-auto">
-        <Link to='schedule'>
-          <Button variant="outline-light">View Schedule</Button>
-        </Link>
+      <Col xs={3} className="text-center">
+        <Button as={Link} to="getting-started" variant="outline-light">
+          Getting Started
+        </Button>
       </Col>
-      <Col xs={4} md={2} lg={1} className="mt-auto mb-auto">
-        <Link to='training'>
-          <Button variant="outline-light">View Trainings</Button>
-        </Link>
-      </Col>
-      <Col xs={4} md={2} lg={1} className="mt-auto mb-auto">
-        <Link to='tools'>
-          <Button variant="outline-light">View Tools</Button>
-        </Link>
+      <Col xs={3} className="text-center">
+        <DropdownButton title="Jump to..." variant="outline-light">
+          <Dropdown.Item as={Link} to="/schedule">Schedule</Dropdown.Item>
+          <Dropdown.Item as={Link} to="/training">Trainings</Dropdown.Item>
+          <Dropdown.Item as={Link} to="/tools">Tools</Dropdown.Item>
+        </DropdownButton>
       </Col>
     </Row>
   </Row>
