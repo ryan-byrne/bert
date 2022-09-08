@@ -21,9 +21,9 @@ type Query {
     getBlocks(division:String,day:String,week:String):[Block]
     
     getConflicts(
-      times:[TimeInput]!, 
-      locations:[EventLocation]!, 
-      tools:[ToolInput]!
+      times:[TimeInput!], 
+      locations:[EventLocation!], 
+      tools:[ToolInput]
     ):[Event]
 
     userSearch(text:String):[User]
@@ -47,10 +47,10 @@ type Mutation {
     createEvent(
       summary:String!,
       description:String
-      times:[TimeInput]!
-      locations:[EventLocation]!
-      tools:[ToolInput]
-      attendees:[Attendee]
+      times:[TimeInput!]
+      locations:[EventLocation!]
+      tools:[ToolInput]!
+      attendees:[Attendee]!
     ): [Event],
 
     submitGuess(text:String, questionId:String):Boolean
@@ -148,8 +148,7 @@ type Tool {
     _id:String
     brand:String!
     name:String!
-    quantity:Int!
-    available:Int
+    quantity:Int
     authorizedUsers:[User]
     photo:String
     manual:String
@@ -268,7 +267,12 @@ type Event {
     """
     List of Tool Reservations
     """
-    tools:[Tool]!
+    tools:[ToolReservation]!
+}
+
+type ToolReservation {
+    tool:Tool!
+    quantity:Int!
 }
 
 `

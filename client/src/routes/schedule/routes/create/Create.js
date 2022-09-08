@@ -30,6 +30,7 @@ export default function Create({show, navigate}){
                     <Describe payload={payload} setPayload={setPayload}/>
                     <SetTimes payload={payload} setPayload={setPayload}/>
                     <Attendees payload={payload} setPayload={setPayload}/>
+                    <Tools payload={payload} setPayload={setPayload}/>
                     <Submit payload={payload} setPayload={setPayload}/>
                 </Form>
             </Offcanvas.Body>

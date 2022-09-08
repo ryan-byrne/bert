@@ -192,7 +192,6 @@ module.exports = {
         getClassRoster: async (_,{courseId},{user}) => {
           oauth2Client.setCredentials({...user.tokens});
           const resp = await google.classroom({version:"v1"}).courses.students.list({courseId});
-          console.log(resp.data.students);
           return resp.data.students.map(s=>({id:s.profile.id, name:s.profile.name.fullName, email:s.profile.emailAddress}))
         }
     },
@@ -211,8 +210,8 @@ module.exports = {
           oauth2Client.setCredentials(user.tokens);
 
           const events = []
-          let toolData = {};
-          for ( tool of tools ){
+          var toolData = {};
+          for ( const tool of tools ){
             toolData[tool.id] = tool.quantity
           }
           for (let time of times){
@@ -232,6 +231,9 @@ module.exports = {
                   shared:toolData
                 },
                 status:"tentative",
+                extendedProperties:{
+                  shared:toolData
+                },
                 summary,
                 description,
                 recurrence:time.recurrence,
@@ -240,6 +242,7 @@ module.exports = {
             });
             events.push(resp.data)
           }
+          console.log(events.map(e=>e.extendedProperties));
           return events.flat()
 
         },
@@ -413,13 +416,24 @@ module.exports = {
     },
 
     Event:{
-        tools: async (e) => await tool.find({_id:e.tools.map(t=>t.tool)}),
+        tools: async (eventDoc) => {
+          try {
+            return Object.entries(eventDoc.extendedProperties.shared).map(([t,q])=>({
+              tool:t,quantity:q
+            }))
+          } catch (e) {
+            return []
+          }
+        },
         creator: async (e) => await user.findOne({email:e.creator.email}),
         attendees: async (e) => await user.find({email:e.attendees.map(a=>a.email)})
     },
 
+    ToolReservation:{
+      tool: async (toolRes) => await tool.findOne({_id:toolRes.tool})
+    },
+
     Tool:{
-      training: async (t) => await training.findOne({id:t.training}),
-      authorizedUsers: async (t) => await tools.aggregate([])
+      training: async (toolDoc) => await training.findOne({id:toolDoc.training})
     },
 }

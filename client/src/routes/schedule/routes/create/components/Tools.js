@@ -1,23 +1,25 @@
-import {Row, Badge, FormText, FormGroup, FormControl, FloatingLabel, ListGroup} from 'react-bootstrap'
+import {Row, Badge, Col, Image, Button, FormGroup, FormControl, FloatingLabel, ListGroup, Collapse, CloseButton, ButtonGroup} from 'react-bootstrap'
 import {useState, useEffect} from 'react';
 import Loading from '../../../../../components/Loading'
 import { Query } from '../../../../../components/GraphQL';
 
 export const Tools = (props) => {
 
-  const [tools, setTools] = useState();
+  const [show, setShow] = useState(false);
+  const [allTools, setAllTools] = useState();
+  const [tools, setTools] = useState([]);
   const [search, setSearch] = useState("")
-  const [options, setOptions] = useState(null);
+  const [options, setOptions] = useState();
 
   useEffect(() => {
-    if (!tools || search.length < 3) setOptions(null)
-    else setOptions(tools.map( tool => {
-      if ( [...tool.keywords, tool.brand, tool.name].join(" ").match(search) ) return tool
-    }).filter(t=>t))
-  }, [tools, search]);
+    if (!allTools || search.length < 3) setOptions(null)
+    else setOptions(
+      allTools.filter( t => [...t.keywords, t.brand, t.name].join(" ").toLowerCase().match(search.toLowerCase())
+    ).filter(t=>t))
+  }, [allTools, search]);
 
   useEffect(() => {
-    setTools()
+    setAllTools()
     Query(`
       query GetCalendar {
         getTools {
@@ -25,6 +27,8 @@ export const Tools = (props) => {
           name
           brand
           keywords
+          quantity
+          photo
           training {
             completed
           }
@@ -34,56 +38,86 @@ export const Tools = (props) => {
       .then( resp => resp.json()
       .then( data =>{
         if (data.error || !data.data) console.error(data)
-        else setTools(data.data.getTools)
+        else setAllTools(data.data.getTools)
       } ) )
   }, []);
 
-  const handleAdd = (e) => props.setPayload({
-    ...props.payload, 
-    tools:[...props.payload.tools, {id:e.target.id, quantity:1}]
-  })
+  const handleAdd = (e, tool) => {
+    e.preventDefault();
+    setSearch("");
+    setTools([...tools, {...tool, requesting:1}])
+  }
+
+  const handleRemove = (idx) => {
+
+  }
+
+  const handleQuantity = (idx, amount) => {
+    let prevTools = [...tools];
+    prevTools[idx].requesting = prevTools[idx].requesting + amount;
+    if (prevTools[idx].requesting == 0){
+      prevTools.splice(idx, 1);
+    }
+    setTools(prevTools);
+  }
 
   console.log(props.payload);
 
+  useEffect(() => props.setPayload({...props.payload, tools:tools.map(t=>({id:t._id, quantity:t.requesting}))}), [tools]);
+
   return (
-    !tools ? <Loading>Loading Tools...</Loading> :
-    <div>
-      {
-        props.payload.tools.map( tool =>
-          <Badge>
-            {tool.id}
-          </Badge>
-        )
-      }
-      <FloatingLabel label="Search for a Tool...">
-        <FormControl placeholder="Search for a Tool..." value={search} onChange={(e)=>setSearch(e.target.value)}/>
-        {
-          !options ? null :
+    <FormGroup as={Row}>
+      <hr/>
+      <Collapse in={show}>
+        <FormGroup className="mb-3">
+          <FloatingLabel label="Search for a Tool...">
+            <FormControl value={search} onChange={(e)=>setSearch(e.target.value)} placeholder="Search for a Tool..."/>
+          </FloatingLabel>
           <ListGroup style={{maxHeight:"200px", overflowY:"scroll"}}>
-            {
-              options.length === 0 ?
-              <ListGroup.Item variant='warning'>No tools found...</ListGroup.Item> :
-              options.map( tool =>
-                <ListGroup.Item 
-                  id={tool._id} 
-                  action
-                  onClick={handleAdd}
-                  disabled={(tool.training && !tool.training.completed) || props.payload.tools.map(t=>t.id).includes(tool.id)}>
+          {
+            !options ? null :
+            options.length === 0 ? <ListGroup.Item variant="warning">No tools found...</ListGroup.Item> :
+            options.map( option =>
+              <ListGroup.Item
+                disabled={tools.map(t=>t.id).includes(option._id)}
+                id={option._id}
+                action
+                onClick={(e)=>handleAdd(e, option)}
+              >
+                <Image height="50" src={option.photo}/> {option.brand} {option.name}
+              </ListGroup.Item>
+            )
+          }
+          </ListGroup>
+          <FormGroup className="mt-3">
+          {
+              tools.map((tool, idx)=>
+                <FormGroup as={Row}>
+                  <Col xs={3} className="mt-auto mb-auto text-center">
+                    <Image width="50" src={tool.photo}/>
+                  </Col>
+                  <Col xs={6} className="mt-auto mb-auto text-center">
                     {tool.brand} {tool.name}
-                    <div>
-                      <FormText>{tool.keywords.join(", ")}</FormText>
-                    </div>
-                 
-                </ListGroup.Item>
+                  </Col>
+                  <Col xs={3} className="mt-auto mb-auto">
+                    <ButtonGroup>
+                      <Button size="sm" onClick={()=>handleQuantity(idx, -1)} variant={tool.requesting == "1" ? "danger": "primary"}>-</Button>
+                      <Button size="sm" disabled>{tool.requesting}</Button>
+                      <Button size="sm" onClick={()=>handleQuantity(idx, 1)} disabled={tool.requesting === tool.quantity}>+</Button>
+                    </ButtonGroup>
+                  </Col>
+                </FormGroup>
               )
             }
-          </ListGroup>
-          
-          
-        }
-      </FloatingLabel>
-      
-    </div>
+          </FormGroup>
+        </FormGroup>
+      </Collapse>
+      <Button 
+        onClick={()=>setShow(!show)} 
+        variant={show?'outline-primary':'primary'} >
+          {!show ? 'Add' : 'Hide'} Tool(s) {tools.length > 0 ? `(${tools.length} Added)` : ""}
+      </Button>
+    </FormGroup>
   )
 }
 
