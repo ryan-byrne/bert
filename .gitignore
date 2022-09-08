@@ -4,3 +4,4 @@ bert-legacy/
 client/build
 scripts
 env
+.DS_STORE

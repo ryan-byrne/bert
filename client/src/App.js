@@ -10,7 +10,7 @@ import Schedule from './routes/schedule/Schedule';
 import TrainingRoutes from './routes/training/Routes';
 import ToolRoutes from './routes/tools/Routes';
 import Logout from './routes/logout/Logout';
-import GettingStarted from './routes/GettingStarted';
+import GettingStarted from './routes/getting-started/GettingStarted';
 import Test from './routes/test/Test';
 //import {NotFound} from './components/Utilities.js';
 // Internal Components
