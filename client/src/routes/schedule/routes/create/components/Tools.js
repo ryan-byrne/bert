@@ -1,5 +1,6 @@
-import {Row, Badge, Col, Image, Button, FormGroup, FormControl, FloatingLabel, ListGroup, Collapse, CloseButton, ButtonGroup} from 'react-bootstrap'
+import {Row, Badge, Col, Image, Button, FormGroup, FormControl, FloatingLabel, ListGroup, Collapse, CloseButton, ButtonGroup, Alert, OverlayTrigger, Tooltip, FormText} from 'react-bootstrap'
 import {useState, useEffect} from 'react';
+import { Link } from 'react-router-dom';
 import Loading from '../../../../../components/Loading'
 import { Query } from '../../../../../components/GraphQL';
 
@@ -30,7 +31,9 @@ export const Tools = (props) => {
           quantity
           photo
           training {
+            name
             completed
+            id
           }
         }
       }
@@ -48,10 +51,6 @@ export const Tools = (props) => {
     setTools([...tools, {...tool, requesting:1}])
   }
 
-  const handleRemove = (idx) => {
-
-  }
-
   const handleQuantity = (idx, amount) => {
     let prevTools = [...tools];
     prevTools[idx].requesting = prevTools[idx].requesting + amount;
@@ -60,8 +59,6 @@ export const Tools = (props) => {
     }
     setTools(prevTools);
   }
-
-  console.log(props.payload);
 
   useEffect(() => props.setPayload({...props.payload, tools:tools.map(t=>({id:t._id, quantity:t.requesting}))}), [tools]);
 
@@ -79,12 +76,23 @@ export const Tools = (props) => {
             options.length === 0 ? <ListGroup.Item variant="warning">No tools found...</ListGroup.Item> :
             options.map( option =>
               <ListGroup.Item
-                disabled={tools.map(t=>t.id).includes(option._id)}
+                disabled={tools.map(t=>t.id).includes(option._id) || !option.training.complete}
                 id={option._id}
                 action
                 onClick={(e)=>handleAdd(e, option)}
               >
-                <Image height="50" src={option.photo}/> {option.brand} {option.name}
+                <Row>
+                  <Col xs={4} className="mt-auto mb-auto text-center"><Image width="80" src={option.photo}/></Col>
+                  <Col className="mt-auto mb-auto" xs={8}>
+                    <div>{option.brand} {option.name}</div>
+                    {
+                      option.training.complete ? null :
+                      <FormText>
+                        <span>&#9888;</span> {option.training.name} Training Not Completed
+                      </FormText>
+                    }
+                  </Col>
+                </Row>
               </ListGroup.Item>
             )
           }
@@ -92,17 +100,23 @@ export const Tools = (props) => {
           <FormGroup className="mt-3">
           {
               tools.map((tool, idx)=>
-                <FormGroup as={Row}>
+                <FormGroup as={Row} className="mt-1">
                   <Col xs={3} className="mt-auto mb-auto text-center">
                     <Image width="50" src={tool.photo}/>
                   </Col>
-                  <Col xs={6} className="mt-auto mb-auto text-center">
-                    {tool.brand} {tool.name}
+                  <Col 
+                    xs={6} 
+                    as={Alert}
+                    variant='primary' 
+                    className="mt-auto mb-auto text-center">
+                    <FormGroup>
+                      <div>{tool.brand} {tool.name}</div>
+                    </FormGroup>
                   </Col>
                   <Col xs={3} className="mt-auto mb-auto">
                     <ButtonGroup>
                       <Button size="sm" onClick={()=>handleQuantity(idx, -1)} variant={tool.requesting == "1" ? "danger": "primary"}>-</Button>
-                      <Button size="sm" disabled>{tool.requesting}</Button>
+                      <Button size="sm" disabled variant="outline-primary">{tool.requesting}</Button>
                       <Button size="sm" onClick={()=>handleQuantity(idx, 1)} disabled={tool.requesting === tool.quantity}>+</Button>
                     </ButtonGroup>
                   </Col>
