@@ -16,7 +16,7 @@ import startDrill from '../img/drill-press/startDrill.png'
 import lowerDrill from '../img/drill-press/lowerDrill.png'
 import raiseTable from '../img/drill-press/raiseTable.png'
 
-export default ({update}) =>
+const PowerDrills = ({update}) =>
 <Training id="drill-press" >
     
     <Topic name="Location" topicKey={0} >
@@ -33,13 +33,11 @@ export default ({update}) =>
             As shown in the <a href="/#/power-drill">Power Drill Training</a>,
             drill bits are stored in the tool chest below the handheld tools.
         </p>
-        <Row xs={1} md={2} className="justify-content-center">
-            <Col><Image src={powerDrillLocation3} fluid/></Col>
-        </Row>
-        <Question id="6290d12ab9b607c258dd75dd" {...{update}}>
+        <Image src={powerDrillLocation3} fluid/>
+        <Question id="6290d12ab9b607c258dd75dd" {...{update}} choices={['Classroom Area', 'Power Tools Area','Machine Shop']}>
             What area is the drill press located in?
         </Question>
-        <Question id="6290d113b9b607c258dd75dc" {...{update}}>
+        <Question id="6290d113b9b607c258dd75dc" {...{update}} choices={['Cart', 'Tool Chest', 'Filing Cabinet']}>
             Drill bits can be found in what below the handheld tools?
         </Question>
     </Topic>
@@ -162,3 +160,5 @@ export default ({update}) =>
         </Question>
     </Topic>
 </Training>
+
+export default PowerDrills

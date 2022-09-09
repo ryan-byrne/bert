@@ -62,8 +62,7 @@ auth.get('/user', async (req, res, err) => {
     const userData = await user.findOne({email:resp.email});
     if ( userData ) {
       await user.updateOne({id:userData.id},{"$set":{last_login:new Date().toISOString()}});
-      console.log(`${userData.id} logged in`);
-      return res.json({...resp})
+      return res.json({...resp, admin:userData._doc.admin})
     } else {
       await user.create({
         ...resp,

@@ -119,6 +119,7 @@ type Training {
     questions:[Question]
     completed(user:String):Boolean
     demo_completed(user:String):Boolean
+    completed_by:[User]
     tools:[Tool]
     required_by:[Training]
     description:String!
@@ -149,7 +150,7 @@ type Tool {
     brand:String!
     name:String!
     quantity:Int
-    authorizedUsers:[User]
+    authorized_users:[User]
     photo:String
     manual:String
     training:Training
@@ -272,7 +273,9 @@ type Event {
 
 type ToolReservation {
     tool:Tool!
-    quantity:Int!
+    quantity:Int
 }
+
+
 
 `

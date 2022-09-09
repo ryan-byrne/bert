@@ -6,7 +6,7 @@ import Note from '../components/Note';
 
 import laserExample from '../img/laser-cutting/example.gif'
 
-export default ({user, update}) =>
+const LaserCutting = ({user, update}) =>
 <Training id="laser-cutting" user={user}>
 
     <Topic name="Basics of Laser Cutting" topicKey={0} user={user}>
@@ -43,3 +43,5 @@ export default ({user, update}) =>
     </Topic>
 
 </Training>
+
+export default LaserCutting;

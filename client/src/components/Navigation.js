@@ -89,6 +89,7 @@ const Navigation = ({ user }) => {
             </span>
           }
         >
+          {user.admin ? <NavDropdown.Item as={Link} to="admin">Admin</NavDropdown.Item> : null}
           <NavDropdown.Item as={Link} to="/logout">
             Sign Out
           </NavDropdown.Item>

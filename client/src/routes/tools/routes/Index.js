@@ -33,8 +33,11 @@ export const Index = () => {
       }
     }
     `,{keywords})
-      .then(resp=>resp.json()
-      .then(data=>setTools(data.data.getTools)))
+      .then(resp=>resp.json())
+      .then(data=>{
+        if (data.errors) console.error(data.errors)
+        else setTools(data.data.getTools)
+      })
   }, [keywords]);
 
   const KeywordButton = ({children}) =>

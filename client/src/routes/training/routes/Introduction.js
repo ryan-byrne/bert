@@ -18,7 +18,7 @@ import fireExtinguishers from '../img/intro/fireExtinguishers.png';
 import firstAid from '../img/intro/firstAid.png';
 import safetyGlasses from '../img/intro/safetyGlasses.png';
 
-export default ({update}) => 
+const Introduction = ({update}) => 
     <Training id="introduction">
 
         <Topic name="How to Complete a Training" topicKey={0}>
@@ -362,3 +362,5 @@ export default ({update}) =>
         </Topic>
 
     </Training>
+
+    export default Introduction

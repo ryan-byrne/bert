@@ -11,6 +11,7 @@ import TrainingRoutes from './routes/training/Routes';
 import ToolRoutes from './routes/tools/Routes';
 import Logout from './routes/logout/Logout';
 import GettingStarted from './routes/getting-started/GettingStarted';
+import Admin from './routes/admin/Admin';
 import Test from './routes/test/Test';
 //import {NotFound} from './components/Utilities.js';
 // Internal Components
@@ -50,6 +51,7 @@ function App() {
             <Route path="bugs" element={<Feedback subject="I Found a Bug in Bert" body="Describe the bug below (include screenshots!):"/>}/>
             <Route path="feature" element={<Feedback subject="I Have an Idea for a Bert Feature" body="Describe the feature below (include screenshots!):"/>}/>
             <Route path="logout" element={<Logout/>}/>
+            {user.admin ? <Route path="admin" element={<Admin/>}/> : null}
             <Route path="getting-started" element={<GettingStarted/>}/>
             <Route path="test" element={<Test/>}/>
           </Routes>

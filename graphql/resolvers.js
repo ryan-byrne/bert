@@ -249,7 +249,7 @@ module.exports = {
 
         submitGuess: async (_, {questionId, text}, {user}) => {
           const q = await question.findOne({_id:questionId});
-          const correct = text.toLowerCase() === q.answer;
+          const correct = text.toLowerCase() === q.answer.toLowerCase();
           const g = await guess.create({
             submitted:new Date(),
             text,
@@ -267,7 +267,9 @@ module.exports = {
         prerequisites: async ({_doc}) => await training.find({_id:_doc.prerequisites}),
         
         questions: async ({_id}) => await question.find({training:_id}),
-        
+
+        demo_completed: async ({_doc}, {user}, ctx) => {},
+
         completed: async ({_doc}, {user}, ctx) => {
 
           const resp = await training.aggregate([
@@ -434,6 +436,13 @@ module.exports = {
     },
 
     Tool:{
-      training: async (toolDoc) => await training.findOne({id:toolDoc.training})
+      training: async (toolDoc) => await training.findOne({id:toolDoc.training}),
+      authorized_users: async (toolDoc) => await training.aggregate([
+        {
+          "$match":{
+            "id":toolDoc.training
+          }
+        }
+      ])
     },
 }
