@@ -119,7 +119,7 @@ module.exports = {
           
         },
 
-        getTrainings: async (_, {trainings}) => await training.find( trainings ? {id:trainings} : null ),
+        getTrainings: async (_, {trainings}) => await training.find( trainings ? {id:trainings} : null ).sort({name:1}),
 
         getQuestions: async (_,{questions}) => await question.find( questions ? {_id:questions} : null ),
 

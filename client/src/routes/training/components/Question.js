@@ -9,13 +9,13 @@ export default function Question({ id, children, update, choices }) {
   const [status, setStatus] = useState('loading');
   const [guess, setGuess] = useState("");
 
-  const submitGuess = () => {
-    setStatus('loading')
+  const submitGuess = (newGuess) => {
+    setStatus('loading');
     Query(`
-            mutation SubmitGuess($text: String, $questionId: String) {
-                submitGuess(text: $text, questionId: $questionId)
-            }
-        `, { text: guess, questionId: id })
+        mutation SubmitGuess($text: String, $questionId: String) {
+            submitGuess(text: $text, questionId: $questionId)
+        }
+        `, { text: newGuess, questionId: id })
       .then(resp => resp.json()
         .then(data => {
           setStatus(data.data.submitGuess ? 'completed' : 'incorrect')
@@ -25,8 +25,7 @@ export default function Question({ id, children, update, choices }) {
 
   const handleSelectChoice = (e) => {
     e.preventDefault();
-    setGuess(e.target.id);
-    submitGuess()
+    submitGuess(e.target.id);
   }
 
   useEffect(() => {
@@ -34,7 +33,7 @@ export default function Question({ id, children, update, choices }) {
       if (event.code === "Enter" || event.code === "NumpadEnter") {
         event.preventDefault();
 
-        if (document.activeElement === formRef.current) submitGuess()
+        if (document.activeElement === formRef.current) submitGuess(guess)
       }
     };
     document.addEventListener("keydown", listener);
@@ -99,7 +98,7 @@ export default function Question({ id, children, update, choices }) {
           <Col xs={5}>
             <Button
               disabled={status !== 'waiting'}
-              onClick={submitGuess}
+              onClick={e=>submitGuess(guess, e)}
               variant={status === 'incorrect' ? "outline-danger" : status === 'completed' ? "outline-success" : "outline-primary"}
             >
               {

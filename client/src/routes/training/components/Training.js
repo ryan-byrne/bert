@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Row, Alert, Col, Accordion, Spinner, Container, Badge } from 'react-bootstrap'
 import { Query } from "../../../components/GraphQL";
+import Loading from "../../../components/Loading";
 import Announcement from "./Announcement";
 
 export default function Training({ id, children }) {
@@ -55,7 +56,7 @@ export default function Training({ id, children }) {
   },[training])
 
   return (
-    !training ? <Alert className="m-5"><Spinner animation="grow" size="sm" /> Loading <strong>{id}</strong></Alert> :
+    !training ? <Loading>Loading <strong>{id}</strong>...</Loading> :
       training.errors ? <Alert variant="danger" className="m-5">Unable to load <strong>{id}</strong></Alert> :
         <Container>
           <Announcement show={announcement} onHide={()=>showAnnouncement(false)} training={training}/>

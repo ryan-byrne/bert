@@ -12,7 +12,7 @@ import PowerSanders from "./routes/PowerSanders";
 import Routers from "./routes/Routers";
 import FDMPrinting from "./routes/FDMPrinting";
 import FireExtinguisher from "./routes/FireExtinguisher";
-//import LaserCutting from "./routes/LaserCutting";
+import LaserCutting from "./routes/LaserCutting";
 //import Sanding from "./routes/Sanding";
 
 export default function TrainingRoutes(){
@@ -44,6 +44,7 @@ export default function TrainingRoutes(){
             <Route path="routers" element={<Routers update={update}/>}/>
             <Route path="fdm-3d-printing" element={<FDMPrinting update={update}/>}/>
             <Route path="fire-extinguisher" element={<FireExtinguisher update={update}/>}/>
+            <Route path="laser-cutting" element={<LaserCutting update={update}/>}/>
             <Route path="*" element={<div>Sorry this Training is Unvailable</div>}/>
         </Routes>
     )
