@@ -104,10 +104,10 @@ const LaserCutting = ({ update }) =>
         will usually be done in conjunction with a <b>Rotary Table</b> attachment to engrave
         glasses, vases, and other cylindrical objects.
       </p>
-      <Question id="632201991849c9f508be87e5" choices={['True', 'False']}>
+      <Question id="632201991849c9f508be87e5" {...{ update }} choices={['True', 'False']}>
         All types of plastic are able to be laser cut.
       </Question>
-      <Question id="632201f4c0ab105a1a0ca4ee">
+      <Question id="632201f4c0ab105a1a0ca4ee" {...{ update }}>
         What attachment is needed if you would like to laser engrave a baseball bat?
       </Question>
     </Topic>
@@ -131,10 +131,10 @@ const LaserCutting = ({ update }) =>
       </p>
       <h2><a href="https://www.epiloglaser.com/assets/downloads/manuals/fusion-manual-web.pdf">Epilog Fusion M2</a></h2>
       <h2><a href="https://assets.ctfassets.net/ljtyf78xujn2/4iPdXekCDpHE58x27ntx9P/ca299106e36d7575b8df6cda4dd0a415/Glowforge_Manual_v3.3.pdf">Glowforge Pro</a></h2>
-      <Question id="63221df8e0c0d5784ec6c9f1" choices={['Manual', 'Instagram Page', 'Website']}>
+      <Question id="63221df8e0c0d5784ec6c9f1" {...{ update }} choices={['Manual', 'Instagram Page', 'Website']}>
         Each laser cutter has a specific _______ that must always be consulted before use.
       </Question>
-      <Question id="632210253e34956d107d4901" choices={['Polycarbonate', 'Polyethylene', 'Acryllic']}>
+      <Question id="632210253e34956d107d4901" {...{ update }} choices={['Polycarbonate', 'Polyethylene', 'Acryllic']}>
         The only type of plastic that can be cut using a laser cutter is:
       </Question>
     </Topic>
@@ -153,7 +153,7 @@ const LaserCutting = ({ update }) =>
         Additionally, if you notice smoke filling up the laser cutter or being released to the rest of the room,
         <b> <u>shut down the laser immediately</u></b>
       </p>
-      <Question id="63221c471eae6ca1284fb5f0" choices={["True","False"]}>
+      <Question id="63221c471eae6ca1284fb5f0" {...{ update }} choices={["True","False"]}>
         Small flames are ok, as long as they do not grow.
       </Question>
     </Topic>
@@ -173,7 +173,7 @@ const LaserCutting = ({ update }) =>
         Be sure to remove any and all excess material from the printer, as this can cause a fire
         hazard if left for the next person.
       </p>
-      <Question id="6322211e06bc47f755bf69ae" choices={["Chemical", "Fire", "UV"]}>
+      <Question id="6322211e06bc47f755bf69ae" {...{ update }} choices={["Chemical", "Fire", "UV"]}>
         Cleaning the print bed after use prevents what type of hazard for the next person who uses it?
       </Question>
     </Topic>
