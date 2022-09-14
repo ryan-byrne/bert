@@ -4,11 +4,12 @@ import Topic from "../components/Topic";
 import Question from "../components/Question";
 import Note from '../components/Note';
 
-import laserExample from '../img/laser-cutting/example.gif'
 import cutting from '../img/laser-cutting/cutting.gif'
 import scoring from '../img/laser-cutting/scoring.gif'
 import engraving from '../img/laser-cutting/engraving.gif'
 import coasters from '../img/laser-cutting/coasters.jpeg'
+import plywood from '../img/laser-cutting/plywood.png'
+import acryllic from '../img/laser-cutting/acryllic.jpeg'
 
 const LaserCutting = ({ user, update }) =>
   <Training id="laser-cutting" user={user}>
@@ -63,9 +64,30 @@ const LaserCutting = ({ user, update }) =>
     
     </Topic>
 
-    <Topic name="Setup Procedures" topicKey={1} user={user}>
-      <h1>How Does it Work?</h1>
-      <p></p>
+    <Topic name="Materials" topicKey={1} user={user}>
+      <h1>Common Materials</h1>
+      <p>
+        A variety of materials are able to be laser cut, but far and 
+        away the most common are
+      </p>
+      <h2>Wood</h2>
+      <p className="text-center">
+        <Image src={plywood}/>
+      </p>
+      <p>
+        Usually coming in the form of plywood sheets, virtually all types
+        of wood are able to be laser cut or engraved with the typical
+        laser cutter.
+      </p>
+      <h2>Acryllic</h2>
+      <p className="text-center">
+        <Image src={acryllic}/>
+      </p>
+      <p>
+        Another common material for laser cutting is acryllic sheets, which is
+        a variety of hard plastic which comes in sheets of a variety of colors 
+        and styles.
+      </p>
       <Question id="627d4fd10783abd908d257dd" {...{ user, update }}>Test Question</Question>
     </Topic>
 

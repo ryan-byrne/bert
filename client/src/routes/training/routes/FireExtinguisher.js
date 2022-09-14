@@ -77,10 +77,10 @@ const FireEstinguisher = ({update}) =>
       </p>
       <p>Vegetable oils, animal oils, or fats in cooking equipment typically used in kitchens</p>
 
-      <Question id="631baa2816ec670021b2a96c" {...{update}} choices={['Class A', 'Class B', 'Class C', 'Class D', 'Class K']}>
+      <Question id="631baa2816ec670021b2a96c" {...{update}} choices={['Class A', 'Class B', 'Class C', 'Class D', 'Class F']}>
         A <strong>chop saw</strong> suddenly catches fire. Which Class of Fire is this considered?
       </Question>
-      <Question id="631bb11e5b46fda8921ff7fc" {...{update}} choices={['Class A', 'Class B', 'Class C', 'Class D', 'Class K']}>
+      <Question id="631bb11e5b46fda8921ff7fc" {...{update}} choices={['Class A', 'Class B', 'Class C', 'Class D', 'Class F']}>
         You are heating up vegetable oil to make popcorn when the pan suddenly catches fire. This is a ________ fire.
       </Question>
 
