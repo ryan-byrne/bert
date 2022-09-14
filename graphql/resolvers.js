@@ -7,6 +7,7 @@ const block = require('../db/models/block');
 const question = require('../db/models/question');
 const tool = require('../db/models/tool');
 const guess = require('../db/models/guess');
+const demo = require('../db/models/demo');
 
 const isProduction = process.env.NODE_ENV === 'production' 
 
@@ -162,6 +163,27 @@ module.exports = {
           return dates
         },
 
+        trainingSearch: async (_, {text}, ctx) => {
+          const resp = await training.aggregate([
+            {
+              '$addFields': {
+                'fields': {
+                  '$concat': [
+                    '$name', ' ', '$id'
+                  ]
+                }
+              }
+            }, {
+              '$match': {
+                'fields': {
+                  '$regex': new RegExp(text, 'i')
+                }
+              }
+            }
+          ]);
+          return resp
+        },
+
         userSearch: async (_, {text}, ctx) => {
           const resp = await user.aggregate([
             {
@@ -258,8 +280,12 @@ module.exports = {
             user:user.id
           })
           return correct
-        }
+        },
     
+        completeDemo: async (_,{user, training}) =>{
+          const d = await demo.create({user, training});
+          return d._id
+        }
     },
 
     Training:{
@@ -268,7 +294,11 @@ module.exports = {
         
         questions: async ({_id}) => await question.find({training:_id}),
 
-        demo_completed: async ({_doc}, {user}, ctx) => {},
+        demo_completed: async (trainingDoc, {user}, ctx) => {
+          const d = await demo.findOne({
+            
+          })
+        },
 
         completed: async ({_doc}, {user}, ctx) => {
 

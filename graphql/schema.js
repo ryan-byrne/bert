@@ -28,6 +28,8 @@ type Query {
 
     userSearch(text:String):[User]
 
+    trainingSearch(text:String):[Training]
+
     getQuestions(questions:[String]):[Question]
 
     getTrainings(trainings:[String]):[Training]
@@ -54,6 +56,8 @@ type Mutation {
     ): [Event],
 
     submitGuess(text:String, questionId:String):Boolean
+
+    completeDemo(user:String!, training:String!):String
 
 }
 

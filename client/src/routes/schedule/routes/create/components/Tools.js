@@ -75,6 +75,7 @@ export const Tools = (props) => {
             !options ? null :
             options.length === 0 ? <ListGroup.Item variant="warning">No tools found...</ListGroup.Item> :
             options.map( option =>
+              !option.training ? null : 
               <ListGroup.Item
                 disabled={tools.map(t=>t.id).includes(option._id) || !option.training.complete}
                 id={option._id}
