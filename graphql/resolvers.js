@@ -124,10 +124,9 @@ module.exports = {
 
         getQuestions: async (_,{questions}) => await question.find( questions ? {_id:questions} : null ),
 
-        getTools: async(_,{id, keywords}) => await tool.find(id && keywords ? {_id:id, keywords} :
-            id ? {_id:id} :
-            keywords ? {keywords:{"$all":keywords}} : null
-        ),
+        getTool:async (_,{id}) => await tool.findOne({_id:id}),
+
+        getTools: async(_,{keywords}) => await tool.find(keywords.length > 0 ?{keywords:{"$all":keywords}}:null),
 
         getBlockTimes: async (_, {blocks, start, end}) => {
 
@@ -293,12 +292,6 @@ module.exports = {
         prerequisites: async ({_doc}) => await training.find({_id:_doc.prerequisites}),
         
         questions: async ({_id}) => await question.find({training:_id}),
-
-        demo_completed: async (trainingDoc, {user}, ctx) => {
-          const d = await demo.findOne({
-            
-          })
-        },
 
         completed: async ({_doc}, {user}, ctx) => {
 

@@ -8,7 +8,7 @@ export default function Tools() {
   return (
     <Routes>
       <Route index element={<Index/>}/>
-      <Route path='viewer/:id' element={<Viewer/>}/>
+      <Route path='view/:id' element={<Viewer/>}/>
     </Routes>
   )
 }

@@ -1,4 +1,4 @@
-import {Table, Alert, Image, Badge, FormGroup, Button, FormControl, Row, Collapse, Col} from 'react-bootstrap'
+import {Table, Alert, Image, Badge, FormGroup, Button, FormControl, Row, Collapse, Col, Container} from 'react-bootstrap'
 import {useState, useEffect} from 'react';
 import {Link, useNavigate} from 'react-router-dom';
 import { Query } from '../../../components/GraphQL';
@@ -7,19 +7,18 @@ export const Index = () => {
 
   const [tools, setTools] = useState();
   // Keyword Filters
-  const [keywords, setKeywords] = useState([]);
+  const [keywords, setKeywords] = useState(['cutting']);
 
   const navigate = useNavigate()
 
   useEffect(() => {
     setTools()
     Query(`
-    query GetCalendar($keywords: [String], $id: [String]) {
-      getTools(keywords: $keywords, id: $id) {
+    query GetCalendar($keywords: [String]) {
+      getTools(keywords: $keywords) {
         _id
         name
         brand
-        keywords
         photo
         quantity
         training {
@@ -92,39 +91,21 @@ export const Index = () => {
               {
                 !tools ? <Loading>Loading Tool Data...</Loading> :
                   tools.length === 0 ? <Alert variant="warning">No tools fit your criteria.</Alert> :
-                      <Table variant="dark" hover>
-                          <thead><th></th><th>Name</th><th>Training</th><th>Keywords</th><th>Quantity</th></thead>
-                          <tbody>
-                              {tools.map((tool, idx)=>
-                                  <tr onClick={()=>{}} style={{cursor:"pointer"}} id={idx} key={idx}>
-                                      <td className='text-center'>
-                                        <Image src={tool.photo} height={50}/>
-                                      </td>
-                                      <td className='mt-auto mb-auto'>{tool.brand} {tool.name}</td>
-                                      <td>
-                                        <Badge 
-                                        as={Link} to={`/training/${tool.training?tool.training.id:''}`}
-                                          bg={
-                                          !tool.training ? null :
-                                          tool.training.completed? "success" : 
-                                          tool.training.questions.filter(q=>q.completed).length > 0 ? "warning" :
-                                          "primary"
-                                        }>
-                                          {tool.training ? tool.training.name : ""}
-                                        </Badge>
-                                      </td>
-                                      <td style={{maxWidth:"190px"}}>
-                                        {
-                                          tool.keywords.map(word=>
-                                          <Badge bg="secondary" className="m-1">{word}</Badge>
-                                          )
-                                        }
-                                      </td>
-                                      <td>{tool.quantity}</td>
-                                  </tr>
-                              )}
-                          </tbody>
-                      </Table>
+                    <Container>
+                      {tools.map( (tool, idx) =>
+                        <Row className="mt-5 justify-content-center">
+                          <Col className="text-center" xs={2} lg={1}><Image fluid src={tool.photo}/></Col>
+                          <Col xs={4} lg={3} className="mt-auto mb-auto">
+                            <Link className="text-white" to={`/tools/view/${tool._id}`}>{tool.brand} {tool.name}</Link>
+                          </Col>
+                          <Col xs={4} lg={2} className="mt-auto mb-auto">
+                            {!tool.training ? null :
+                            <Badge bg={tool.training.completed ? 'success' : 'warning'} as={Link} to={`/training/${tool.training.id}`}>{tool.training.name}</Badge>}
+                          </Col>
+                          <Col xs={2} lg={1} className="text-center mt-auto mb-auto">{tool.quantity}</Col>
+                        </Row>
+                      )}
+                    </Container>
               }
           </Col>
       </Row>

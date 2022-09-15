@@ -34,7 +34,9 @@ type Query {
 
     getTrainings(trainings:[String]):[Training]
 
-    getTools(id:[String], keywords:[String]):[Tool]
+    getTools(keywords:[String]):[Tool]
+
+    getTool(id:String!):Tool
 
     getBlockTimes(blocks:[String]!, start:Date!, end:Date!):[Time]
 

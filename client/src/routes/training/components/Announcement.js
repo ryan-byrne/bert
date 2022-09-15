@@ -73,7 +73,7 @@ export default function Announcement({training, show, onHide}){
                     {
                       training.tools.map( tool => 
                         <ListGroup.Item>
-                          {tool.name}
+                          {tool.brand} {tool.name}
                         </ListGroup.Item>
                       )
                     }
