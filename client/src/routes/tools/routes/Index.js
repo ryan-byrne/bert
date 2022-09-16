@@ -21,14 +21,6 @@ export const Index = () => {
         brand
         photo
         quantity
-        training {
-          name
-          id
-          questions {
-            completed
-          }
-          completed
-        }
       }
     }
     `,{keywords})
@@ -92,15 +84,16 @@ export const Index = () => {
                 !tools ? <Loading>Loading Tool Data...</Loading> :
                   tools.length === 0 ? <Alert variant="warning">No tools fit your criteria.</Alert> :
                     <Container>
+                      <Row className='mt-5 justify-content-center'>
+                        <Col xs={2} lg={1}></Col>
+                        <Col xs={4} lg={3}><strong><u>Description</u></strong></Col>
+                        <Col xs={2} lg={1}><strong><u>Quantity</u></strong></Col>
+                      </Row>
                       {tools.map( (tool, idx) =>
-                        <Row className="mt-5 justify-content-center">
+                        <Row className='justify-content-center mt-3'>
                           <Col className="text-center" xs={2} lg={1}><Image fluid src={tool.photo}/></Col>
                           <Col xs={4} lg={3} className="mt-auto mb-auto">
                             <Link className="text-white" to={`/tools/view/${tool._id}`}>{tool.brand} {tool.name}</Link>
-                          </Col>
-                          <Col xs={4} lg={2} className="mt-auto mb-auto">
-                            {!tool.training ? null :
-                            <Badge bg={tool.training.completed ? 'success' : 'warning'} as={Link} to={`/training/${tool.training.id}`}>{tool.training.name}</Badge>}
                           </Col>
                           <Col xs={2} lg={1} className="text-center mt-auto mb-auto">{tool.quantity}</Col>
                         </Row>

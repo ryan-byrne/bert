@@ -369,6 +369,11 @@ module.exports = {
           return resp[0] ? resp[0].completed : false
         },
 
+        demo_completed: async (doc, {user}, ctx) => {
+          const resp = await demo.find({training:doc.id})
+          return resp.map(r=>r.user).includes(user ? user.id : ctx.user.id)
+        },
+
         tools: async (doc) => await tool.find({training:doc.id}),
 
         required_by: async({_id}) => {
@@ -460,10 +465,53 @@ module.exports = {
 
     Tool:{
       training: async (toolDoc) => await training.findOne({id:toolDoc.training}),
-      authorized_users: async (toolDoc) => await training.aggregate([
+      authorized_users: async (toolDoc) => await tool.aggregate([
         {
-          "$match":{
-            "id":toolDoc.training
+          '$match': {
+            '_id': toolDoc._id
+          }
+        }, {
+          '$lookup': {
+            'from': 'trainings', 
+            'localField': 'training', 
+            'foreignField': 'id', 
+            'as': 'training'
+          }
+        }, {
+          '$unwind': {
+            'path': '$training'
+          }
+        }, {
+          '$lookup': {
+            'from': 'demos', 
+            'localField': 'training.id', 
+            'foreignField': 'training', 
+            'as': 'demos'
+          }
+        }, {
+          '$project': {
+            'user': '$demos.user'
+          }
+        }, {
+          '$lookup': {
+            'from': 'users', 
+            'localField': 'user', 
+            'foreignField': 'id', 
+            'as': 'user'
+          }
+        }, {
+          '$unwind': {
+            'path': '$user'
+          }
+        }, {
+          '$project': {
+            'id': '$user.id', 
+            'name': '$user.name', 
+            'email': '$user.email'
+          }
+        }, {
+          "$sort":{
+            "name":1
           }
         }
       ])
