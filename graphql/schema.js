@@ -26,9 +26,11 @@ type Query {
       tools:[ToolInput]
     ):[Event]
 
-    userSearch(text:String):[User]
+    toolSearch(text:String!):[Tool]
 
-    trainingSearch(text:String):[Training]
+    userSearch(text:String!):[User]
+
+    trainingSearch(text:String!):[Training]
 
     getQuestions(questions:[String]):[Question]
 

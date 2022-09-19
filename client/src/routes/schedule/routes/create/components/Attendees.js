@@ -55,7 +55,7 @@ const Attendees = ({payload, setPayload}) => {
   useEffect(() => {
     if (text.length === 0 || !search) return
     Query(`
-    query Query($text: String) {
+    query Query($text: String!) {
       userSearch(text: $text) {
         name
         email
@@ -64,7 +64,6 @@ const Attendees = ({payload, setPayload}) => {
     `,{text})
       .then(resp => resp.json()
       .then( data => {
-        console.log(data);
         if (data.errors) console.error(data.errors)
         else setUserOptions(data.data.userSearch)
       }))
@@ -90,6 +89,16 @@ const Attendees = ({payload, setPayload}) => {
 
   return (
     <FormGroup as={Row}>
+          <FormGroup className="mb-3">
+            {attendees.map((user, idx)=>
+                <Badge bg="secondary" className="m-1">
+                  <Row>
+                    <Col className="mt-auto mb-auto">{user.name}</Col>
+                    <Col><CloseButton onClick={()=>handleUserDelete(idx)}/></Col>
+                  </Row>
+                </Badge>
+              )}
+          </FormGroup>
       <Collapse in={show}>
         <FormGroup className="mb-3">
           <ToggleButtonGroup value={search} type="radio" onChange={(s)=>setSearch(s)} name="searchUser">
@@ -138,28 +147,6 @@ const Attendees = ({payload, setPayload}) => {
               }
             </ListGroup>
           </Collapse>
-
-          <Collapse in={payload.attendees.length > 0}>
-            <FormGroup className="mt-3">
-              <FormText>Attendees:</FormText>
-              <FormGroup>
-                <Badge>You</Badge>
-                {attendees.map((user, idx)=>
-                  <Badge bg="secondary" className="m-1">
-                    <Row>
-                      <Col className="mt-auto mb-auto">{user.name}</Col>
-                      <Col><CloseButton onClick={()=>handleUserDelete(idx)}/></Col>
-                    </Row>
-                  </Badge>
-                )}
-              </FormGroup>
-              <Row className="mt-3">
-                <Button variant="outline-danger" onClick={handleClear}>Clear</Button>
-              </Row>
-              
-            </FormGroup>
-          </Collapse>
-
 
         </FormGroup>
       </Collapse>

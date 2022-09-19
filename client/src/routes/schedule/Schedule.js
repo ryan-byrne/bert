@@ -51,8 +51,6 @@ export default function Schedule({ create }) {
 
     const to = new Date(from);
 
-    console.log(from);
-
     if (interval === 'm') to.setMonth(from.getMonth() + 1)
     else to.setDate(from.getDate() + (interval === 'w' ? 5 : 1))
 

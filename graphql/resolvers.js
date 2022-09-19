@@ -162,8 +162,26 @@ module.exports = {
           return dates
         },
 
-        trainingSearch: async (_, {text}, ctx) => {
-          const resp = await training.aggregate([
+
+        toolSearch: async (_, {text}, ctx) => await tool.aggregate([
+          {
+            '$addFields': {
+              'longName': {
+                '$concat': [
+                  '$brand', ' ', '$name'
+                ]
+              }
+            }
+          }, {
+            '$match': {
+              'longName': {
+                '$regex': new RegExp(text, 'i')
+              }
+            }
+          }
+        ]),
+
+        trainingSearch: async (_, {text}, ctx) => await training.aggregate([
             {
               '$addFields': {
                 'fields': {
@@ -179,12 +197,9 @@ module.exports = {
                 }
               }
             }
-          ]);
-          return resp
-        },
+        ]),
 
-        userSearch: async (_, {text}, ctx) => {
-          const resp = await user.aggregate([
+        userSearch: async (_, {text}, ctx) => await user.aggregate([
             {
               '$addFields': {
                 'fields': {
@@ -200,9 +215,7 @@ module.exports = {
                 }
               }
             }
-          ]);
-          return resp.filter(r => r.email !== ctx.user.email)
-        },
+        ]),
         
         getCourses: async (_,{},{user}) => {
           oauth2Client.setCredentials({...user.tokens});
