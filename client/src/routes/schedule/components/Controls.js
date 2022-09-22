@@ -69,14 +69,18 @@ const Month = ({from, setFrom}) => {
 
 const Week = ({from, setFrom}) => {
 
+    const [selected, setSelected] = useState(51);
     const [weekOptions, setWeekOptions] = useState([]);
 
-    const handleSelect = (e) => {
-        const d = new Date(weekOptions[e.target.value]);
+    const handleSelect = (e) => setSelected(e.target.value);
+
+    useEffect(() => {
+        const d = new Date(weekOptions[selected]);
+        console.log(d);
         d.setDate( d.getDate() - d.getDay() + 1);
         d.setHours(0,0,0,0);
         setFrom(d);
-    }
+    }, [selected, setFrom, weekOptions]);
 
     useEffect(()=>{
         const d = new Date()
@@ -98,8 +102,8 @@ const Week = ({from, setFrom}) => {
                     Week of:
                 </Col>
                 <Col xs={5} md={3} lg={2}>
-                    <FormSelect value={getWeek(from) + 16} onChange={handleSelect}>
-                        {weekOptions.map( (d, idx) => <option key={idx} value={idx}>{d.toLocaleDateString()} ({getWeek(d) % 2 === 1 ? 'A' : 'B'})</option> )}
+                    <FormSelect value={selected} onChange={handleSelect}>
+                        {weekOptions.map( (d, idx) => <option key={idx} value={idx}>{d.toLocaleDateString()} ({getWeek(d) % 2 === 1 ? 'B' : 'A'})</option> )}
                     </FormSelect>
                 </Col>
             </Row>
