@@ -28,7 +28,7 @@ const Glossary = [
     name: "Tools",
     link: "/tools"
   }, {
-    name: "Feeback",
+    name: "Feedback",
     children:[
       {
         name:"Report a Bug",

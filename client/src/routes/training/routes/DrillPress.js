@@ -34,7 +34,7 @@ const PowerDrills = ({update}) =>
             drill bits are stored in the tool chest below the handheld tools.
         </p>
         <Image src={powerDrillLocation3} fluid/>
-        <Question id="6290d12ab9b607c258dd75dd" {...{update}} choices={['Classroom Area', 'Power Tools Area','Machine Shop']}>
+        <Question id="6290d12ab9b607c258dd75dd" {...{update}} choices={['Classroom Area', 'Power Tool Area','Machine Shop']}>
             What area is the drill press located in?
         </Question>
         <Question id="6290d113b9b607c258dd75dc" {...{update}} choices={['Cart', 'Tool Chest', 'Filing Cabinet']}>
