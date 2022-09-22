@@ -76,7 +76,6 @@ const Week = ({from, setFrom}) => {
 
     useEffect(() => {
         const d = new Date(weekOptions[selected]);
-        console.log(d);
         d.setDate( d.getDate() - d.getDay() + 1);
         d.setHours(0,0,0,0);
         setFrom(d);
