@@ -56,7 +56,7 @@ const Demos = () => {
       return
     }
     Query(`
-    query Query($text: String) {
+    query Query($text: String!) {
       userSearch(text: $text) {
         name
         id
@@ -77,7 +77,7 @@ const Demos = () => {
       return
     }
     Query(`
-    query Query($text: String) {
+    query Query($text: String!) {
       trainingSearch(text: $text) {
         name
         id
