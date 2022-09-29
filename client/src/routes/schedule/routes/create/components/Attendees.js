@@ -89,7 +89,7 @@ const Attendees = ({payload, setPayload}) => {
 
   return (
     <FormGroup as={Row}>
-          <FormGroup className="mb-3">
+          <FormGroup>
             {attendees.map((user, idx)=>
                 <Badge bg="secondary" className="m-1">
                   <Row>

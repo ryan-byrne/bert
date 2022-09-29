@@ -44,7 +44,7 @@ export const Tools = (props) => {
   return (
     <FormGroup as={Row}>
       <hr/>
-      <ListGroup className="m-1">
+      <ListGroup>
       {
         tools.map( (tool, idx) =>
           <ListGroup.Item variant={notAuthorized(tool) ? 'warning' : 'light'}>
