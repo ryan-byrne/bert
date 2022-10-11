@@ -10,7 +10,19 @@ export default function Materials({payload, setPayload}){
   const [show, setShow] = useState(false);
   const [materials, setMaterials] = useState([]);
 
-  const handleSelect = () => {}
+  const handleSelect = () => {};
+
+  const materialsOptions = [
+    {
+      id:"15483",
+      vendor:"Lowes",
+      material:"MDF",
+      link:"https://www.lowes.com/pd/47-75-in-x-7-98-ft-Smooth-Brown-Wall-Panel/3014304",
+      unit_price:"$14.98",
+      description:"Smooth Brown Wall Panel",
+      size:"0.115-in thick, 48-in x 96-in"
+    }
+  ]
 
   return(
     <FormGroup>

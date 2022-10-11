@@ -6,7 +6,7 @@ import SetTimes from './components/SetTimes';
 import Attendees from './components/Attendees';
 import Tools from './components/Tools';
 import Submit from './components/Submit';
-import Materials from './components/Materials';
+//import Materials from './components/Materials';
 
 export default function Create({ show, navigate }) {
 
@@ -32,7 +32,6 @@ export default function Create({ show, navigate }) {
           <SetTimes payload={payload} setPayload={setPayload} />
           <Attendees payload={payload} setPayload={setPayload} />
           <Tools payload={payload} setPayload={setPayload} />
-          <Materials payload={payload} setPayload={setPayload}/>
           <Submit payload={payload} setPayload={setPayload} />
         </Form>
       </Offcanvas.Body>

@@ -14,6 +14,7 @@ import FDMPrinting from "./routes/FDMPrinting";
 import FireExtinguisher from "./routes/FireExtinguisher";
 import LaserCutting from "./routes/LaserCutting";
 import Sanding from "./routes/Sanding";
+import Soldering from "./routes/Soldering";
 
 export default function TrainingRoutes(){
 
@@ -46,6 +47,7 @@ export default function TrainingRoutes(){
             <Route path="fire-extinguisher" element={<FireExtinguisher update={update}/>}/>
             <Route path="laser-cutting" element={<LaserCutting update={update}/>}/>
             <Route path="sanding" element={<Sanding update={update}/>}/>
+            <Route path="soldering" element={<Soldering update={update}/>}/>
             <Route path="*" element={<div>Sorry this Training is Unvailable</div>}/>
         </Routes>
     )
