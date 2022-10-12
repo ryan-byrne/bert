@@ -159,6 +159,19 @@ const PowerDrills = ({update}) =>
             You shouldn't touch the drill bit immediatly after drilling because it is ______________.
         </Question>
     </Topic>
+
+    <Topic name="Additional Resources" topicKey={4}>
+        <h1>Videos</h1>
+        <iframe className="w-100" height="315" src="https://www.youtube.com/embed/gg4dPxUaQY0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        <iframe className="w-100" height="315" src="https://www.youtube.com/embed/vFH-6wz9i5Y" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        <iframe className="w-100" height="315" src="https://www.youtube.com/embed/s4_D3ldGzq0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        <h1>Links</h1>
+        <ul>
+            <li><a href="https://www.powertoolinstitute.com/pti-pages/tools/drill-press.asp">Power Tool Institute</a></li>
+            <li><a href="https://www.ehs.harvard.edu/node/7370">Harvard EHS</a></li>
+        </ul>
+    </Topic>
+
 </Training>
 
 export default PowerDrills

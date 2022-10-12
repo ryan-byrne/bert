@@ -5,7 +5,7 @@ import { Query } from "../../../components/GraphQL";
 
 export default function Topics({children, name, topicKey}) {
 
-    const [progress, setProgress] = useState([]);
+    const [progress, setProgress] = useState(null);
 
     useEffect(()=>{
         const questionIds = children.filter( child => child.props.id ).map(c => c.props.id)
@@ -33,9 +33,11 @@ export default function Topics({children, name, topicKey}) {
                     </Col>
                     <Col xs={4}>
                         {
-                            progress.length>0?
-                            progress.map( (q,idx) => <span key={idx} className={`progress-tile-${q?"1":"0"}`}></span> ):
-                            <Spinner animation="grow" size="sm" className="ml-3"/>}
+                            !progress ?
+                            <Spinner animation="grow" size="sm" className="ml-3"/>:
+                            progress.length===0?null:
+                            progress.map( (q,idx) => <span key={idx} className={`progress-tile-${q?"1":"0"}`}></span> )
+                        }
                     </Col>
                 </Row>
             </Accordion.Header>
