@@ -36,8 +36,8 @@ const Introduction = ({update}) =>
                 Each <b>Question</b> is represented by a <b>red tile</b> (<span className="progress-tile-0"></span>)
                 that will turn to a <b>green tile</b> (<span className="progress-tile-1"></span>) when the correct answer is submitted
             </p>
-            <Question id="6282b50a90fb3d0449fe4d1d" {...{update}}>
-                Using the <b>Progress Tiles</b>, how many <b>Questions</b> are in this <b>Training?</b>
+            <Question id="6282b50a90fb3d0449fe4d1d" {...{update}} choices={[6, 12, 14]}>
+                Using the <b>Progress Tiles</b>, how many <b>Questions</b> are in this <u>entire</u> <b>Training?</b>
             </Question>
             <p>
                 As you complete <b>Questions</b>, your total progress within the <b>Training </b>
@@ -355,7 +355,7 @@ const Introduction = ({update}) =>
                 to borrow?
             </Question>
 
-            <Question id="628f8807b9b607c258dd75b1" {...{update}}>
+            <Question id="628f8807b9b607c258dd75b1" {...{update}} choices={["scissors", "hair tie", "rubber band"]}>
                 If you have long hair, what should you ask Mr. Byrne for before beginning your work?
             </Question>
 
