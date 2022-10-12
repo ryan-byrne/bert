@@ -43,7 +43,10 @@ const Introduction = ({update}) =>
                 As you complete <b>Questions</b>, your total progress within the <b>Training </b>
                 will be tracked at the top right of the page.
             </p>
-            <Question id="6282ba0490fb3d0449fe4d1e" {...{update}}>What color is this number?</Question>
+            <Question id="6282ba0490fb3d0449fe4d1e" {...{update}}>
+                On the top right of each training will be a number with a percent
+                indicating your progress through a training. What color is this number?
+            </Question>
             <p>
                 When you complete all <b>Questions</b> in a <b>Training, </b>
                 this number will change to <Badge bg="success">Completed</Badge>.
