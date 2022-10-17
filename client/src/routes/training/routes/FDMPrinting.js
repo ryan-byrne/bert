@@ -62,11 +62,11 @@ export default function FDMPrinting({ update }) {
           </li>
           <iframe className="w-100" height="500" src="https://www.youtube.com/embed/yiUUZxp7bLQ" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
         </ul>
-        <Question id="62b0866c66a743ab817e4d53" {...{ update }}>
-          <b>3D Printing</b> is a <b>(Additive/Reductive)</b> manufacturing process.
+        <Question id="62b0866c66a743ab817e4d53" {...{ update }} choices={['Additive', 'Reductive']}>
+          <b>3D Printing</b> is a(n) __________ manufacturing process.
         </Question>
-        <Question id="62b08aaaad376e41cc77718e" {...{ update }}>
-          <b>(FDM/SLA/SLS)</b> uses a laser to cure a liquid resin.
+        <Question id="62b08aaaad376e41cc77718e" {...{ update }} choices={['FDM', 'SLA', 'SLS']}>
+          Which type of 3D Printing uses a laser to cure a liquid resin?
         </Question>
       </Topic>
 
@@ -111,8 +111,8 @@ export default function FDMPrinting({ update }) {
             Rubber-like material used in 3D printing to produce semi-flexible parts.
           </li>
         </ul>
-        <Question id="62b0a837897fd4c5433743a9" {...{ update }}>
-          <b>(PLA/ABS/TPU)</b> is a rubber-like plastic that creates flexible 3D printed parts.
+        <Question id="62b0a837897fd4c5433743a9" {...{ update }} choices={['PLA','ABS','TPU']}>
+          ______ is a rubber-like plastic that creates flexible 3D printed parts.
         </Question>
         <Question id="62b0ab054d0bf53e8255c1f5" {...{ update }}>
           3D printing filament is pushed through a hot __________ to melt plastic the plastic and
@@ -239,15 +239,15 @@ export default function FDMPrinting({ update }) {
           is GCODE, which will act as instructions for the printer, controlling everything from the
           bed temperature to the printer's movements in the XYZ coordinate system.
         </p>
-        <Question id="62b0d8d3e9229982648ed8af" {...{ update }}>
-          Increasing the <b>(Infill/Layer Height)</b> also increases the time required to print.
+        <Question id="62b0d8d3e9229982648ed8af" {...{ update }} choices={['Infill', 'Layer Height']}>
+          Increasing the ___________ also increases the time required to print.
         </Question>
         <Question id="62b0d945de01f3a7ff9f54cc" {...{ update }}>
           What setting needs to be added in order to print the 3D model shown below?
           <Image src={horseExample} fluid />
         </Question>
-        <Question id="62b0da09652fe2051de84fc3" {...{ update }}>
-          If you want your model to look as detailed as possible, you want a <b>(Higher/Lower) </b>
+        <Question id="62b0da09652fe2051de84fc3" {...{ update }} choices={['Higher', 'Lower']}>
+          If you want your model to look as detailed as possible, you want a ____________
           Layer Height.
         </Question>
       </Topic>
@@ -298,8 +298,8 @@ export default function FDMPrinting({ update }) {
           periodic checks help to catch issues (missed supports, filament runout), and prevent wasted
           materials or broken printers.
         </p>
-        <Question id="62b31ad35ee1db2c6876eebb" {...{ update }}>
-          <b>(True/False)</b> you must sit with the printer for the entirity of your print.
+        <Question id="62b31ad35ee1db2c6876eebb" {...{ update }} choices={['True', 'False']}>
+          You must sit with the printer for the entirity of your print.
         </Question>
         <Question id="62b31b475ee1db2c6876eebc" {...{ update }}>
           If the filament on the first layer is not sticking to the bed, then the nozzle is too
