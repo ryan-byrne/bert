@@ -36,7 +36,8 @@ app.use(session({
   }),
   cookie:{
     secure: isProduction,
-    httpOnly: true
+    httpOnly: true,
+    maxAge: 1000 * 60 * 60 * 24 * 29
   }
 }));
 app.use(authMiddleware);
