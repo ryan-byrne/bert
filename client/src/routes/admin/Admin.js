@@ -1,6 +1,8 @@
 import {useState, useEffect} from 'react'
-import { Button, ButtonGroup, CloseButton, Col, Container, FloatingLabel, FormControl, FormGroup, FormText, ListGroup, Row } from "react-bootstrap"
+import { Accordion, Button, ButtonGroup, CloseButton, Col, Container, FloatingLabel, FormControl, FormGroup, FormText, ListGroup, Row, Tab, Table, Tabs } from "react-bootstrap"
+import { Link } from 'react-router-dom';
 import { Query } from '../../components/GraphQL';
+import Loading from '../../components/Loading';
 
 const SearchList = ({query, queryName, label}) => {
 
@@ -155,13 +157,129 @@ const Demos = () => {
   )
 }
 
+const Home = () => {
+  return(
+    <div>
+      Admin Page
+    </div>
+  )
+}
+
+const UserTraining = ({id}) => {
+
+  const [trainings, setTrainings] = useState();
+  const [demo, setDemo] = useState(null);
+
+  useEffect(() => {
+    const query = `
+    query UserSearch($user:String!) {
+      getTrainings {
+        id
+        completed(user: $user)
+        demo_completed(user: $user)
+        demo
+        name
+      }
+    }
+    `
+    Query(query, {user:id})
+      .then( resp => resp.json() )
+      .then( data => setTrainings(data.data.getTrainings))
+  }, []);
+
+  const handleDemo = (trainingId) => {
+    const mutation = `
+    mutation Mutation($user: String!, $training: String!) {
+      completeDemo(user: $user, training: $training)
+    }`
+    setDemo("Submitting")
+    Query(mutation, {user:id, training:trainingId})
+      .then( resp => resp.json() )
+      .then( data => setDemo("Demo Completed") )
+  }
+
+  return(
+    !trainings ? <Loading>Loading Trainings...</Loading> : 
+    <Table size="sm" striped bordered hover>
+    <thead><th>Name</th><th>Status</th></thead>
+    <tbody>
+    {trainings.map(training=>
+      <tr>
+        <td><Link to={`/training/${training.id}`}>{training.name}</Link></td>
+        <td className="text-center">
+          {
+            (training.demo && training.demo_completed) || (training.completed && !training.demo) ? <span>&#9989;</span> :
+            training.completed && training.demo ? 
+            <Button
+              disabled={demo} 
+              size="sm" 
+              onClick={()=>handleDemo(training.id)} 
+              variant="outline-primary">
+                {demo ? demo : "Complete Demo"}
+            </Button> : null
+          }
+        </td>
+      </tr>
+    )}
+    </tbody>
+  </Table>
+  )
+}
+
+const Trainings = () => {
+
+  const [users, setUsers] = useState();
+
+  useEffect(() => {
+    const query = `
+    query UserSearch($text: String!) {
+      userSearch(text: $text) {
+        id
+        name
+        email
+      }
+    }
+    `
+    setUsers()
+    Query(query, {text:""})
+      .then( resp => resp.json())
+      .then( data => setUsers(data.data.userSearch))
+      .catch(err => console.error(err))
+  }, []);
+
+  return(
+      <div>
+        {
+          !users ? <Loading>Getting Users...</Loading> :
+          <Accordion className="mt-3">
+            {users.map( (user, idx) =>
+              <Accordion.Item eventKey={idx}>
+                <Accordion.Header>{user.name}</Accordion.Header>
+                <Accordion.Body>
+                  <UserTraining id={user.id}/>
+                </Accordion.Body>
+              </Accordion.Item>
+            )}
+          </Accordion>
+        }
+      </div>
+  )
+}
+
 const Admin = () => {
+
+  const [key, setKey] = useState('home');
+
   return (
-    <Container>
-      <Row>
-        <Demos/>
-        <Col></Col>
-      </Row>
+    <Container className="mt-3">
+      <Tabs defaultActiveKey="home" onSelect={(k)=>setKey(k)} activeKey={key}>
+        <Tab eventKey="home" title="Home">
+          <Home/>
+        </Tab>
+        <Tab eventKey="trainings" title="Trainings">
+          <Trainings/>
+        </Tab>
+      </Tabs>
     </Container>
   )
 }

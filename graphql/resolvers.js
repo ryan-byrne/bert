@@ -162,7 +162,6 @@ module.exports = {
           return dates
         },
 
-
         toolSearch: async (_, {text}, ctx) => await tool.aggregate([
           {
             '$addFields': {
@@ -213,6 +212,10 @@ module.exports = {
                 'fields': {
                   '$regex': new RegExp(text, 'i')
                 }
+              }
+            }, {
+              '$sort':{
+                'family_name':1
               }
             }
         ]),
@@ -307,7 +310,6 @@ module.exports = {
         questions: async ({_id}) => await question.find({training:_id}),
 
         completed: async ({_doc}, {user}, ctx) => {
-
           const resp = await training.aggregate([
             {
               '$match': {
@@ -382,10 +384,7 @@ module.exports = {
           return resp[0] ? resp[0].completed : false
         },
 
-        demo_completed: async (doc, {user}, ctx) => {
-          const resp = await demo.find({training:doc.id})
-          return resp.map(r=>r.user).includes(user ? user.id : ctx.user.id)
-        },
+        demo_completed: async ({id}, {user}, ctx) => await demo.findOne({training:id, user:user}) ? true : false,
 
         tools: async (doc) => await tool.find({training:doc.id}),
 
@@ -455,8 +454,7 @@ module.exports = {
         }
     },
 
-    User:{
-    },
+    User:{},
 
     Event:{
         tools: async (eventDoc) => {
