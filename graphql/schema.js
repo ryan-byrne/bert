@@ -125,8 +125,8 @@ type Training {
     id:String!
     name:String!
     questions:[Question]
-    completed(user:String!):Boolean
-    demo_completed(user:String!):Boolean
+    completed(user:String):Boolean
+    demo_completed(user:String):Boolean
     completed_by:[User]
     tools:[Tool]
     required_by:[Training]

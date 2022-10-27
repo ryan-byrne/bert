@@ -46,7 +46,7 @@ function App() {
             <Route index element={<Index/>}/>
             <Route path="schedule" element={<Schedule create={false}/>}/>
             <Route path="schedule/create" element={<Schedule create={true}/>}/>
-            <Route path="training/*" element={<TrainingRoutes/>}/>
+            <Route path="training/*" element={<TrainingRoutes user={user}/>}/>
             <Route path="tools/*" element={<ToolRoutes/>}/>
             <Route path="bugs" element={<Feedback subject="I Found a Bug in Bert" body="Describe the bug below (include screenshots!):"/>}/>
             <Route path="feature" element={<Feedback subject="I Have an Idea for a Bert Feature" body="Describe the feature below (include screenshots!):"/>}/>

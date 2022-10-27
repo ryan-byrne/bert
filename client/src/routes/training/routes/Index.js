@@ -8,6 +8,7 @@ export default function Index() {
 
   const [trainings, setTrainings] = useState();
 
+
   useEffect(() => {
     Query(`
         query AllTrainings {

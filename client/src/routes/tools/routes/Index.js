@@ -40,6 +40,8 @@ export const Index = () => {
             {children}
     </Button>
 
+  console.log(tools);
+
   return (
     <div>
 
