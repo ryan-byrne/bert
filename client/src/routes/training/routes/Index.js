@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Container, ListGroup, Row, Col, Badge, Alert, Spinner } from "react-bootstrap";
+import { Container, ListGroup, Row, Col, Badge, Alert, Spinner, Accordion, Image } from "react-bootstrap";
 import { Link } from "react-router-dom"
 import { Query } from "../../../components/GraphQL"
 import Loading from "../../../components/Loading";
@@ -75,22 +75,65 @@ export default function Index() {
     )
   }
 
+  const modules = [
+    {
+      name:"Safety",
+      icon:"https://cdn-icons-png.flaticon.com/512/2345/2345547.png",
+      submodules:['introduction','fire-extinguisher']
+    },{
+      name:"Basic Woodworking",
+      icon:"https://cdn-icons-png.flaticon.com/512/1973/1973728.png",
+      submodules:['hand-saws', 'sanding', 'hammering']
+    },{
+      name:"Maplewoodshop",
+      icon:"https://static1.squarespace.com/static/58b83ae51b10e3d34485ce4c/t/597b5c06ff7c50c9e4d1da1c/1662475500748/",
+      submodules:['hand-saws', 'sanding', 'hammering', 'maplewoodshop']
+    },{
+      name:"Power Tools (Handheld)",
+      icon:"https://cdn0.iconfinder.com/data/icons/elasto-power-tools/26/04-ELASTOFONT-POWER-TOOLS-READY_drill-512.png",
+      submodules:['power-drills', 'power-sanders', 'jig-saws', 'nail-guns']
+    },{
+      name:"Power Tools (Stationary)",
+      icon:"https://cdn-icons-png.flaticon.com/512/1037/1037645.png",
+      submodules:['drill-press', 'band-saws', 'hammering', 'circular-saws']
+    },{
+      name:"3D Printing",
+      icon:"https://cdn-icons-png.flaticon.com/512/2628/2628492.png",
+      submodules:['fdm-3d-printing','sla-3d-printing']
+    },{
+      name:"Laser Cutting",
+      icon:"https://cdn-icons-png.flaticon.com/512/2162/2162429.png",
+      submodules:['laser-cutting']
+    },{
+      name:"Advanced Woodworking",
+      icon:"https://cdn-icons-png.flaticon.com/512/313/313674.png",
+      submodules:['lathes', 'routers', 'table-saws']
+    },{
+      name:"Metalworking",
+      icon:"https://cdn-icons-png.flaticon.com/512/1814/1814422.png",
+      submodules:['chop-saws', 'horizontal-band-saws', 'grinders', 'soldering', 'welding']
+    }
+  ]
+
+
   return (!trainings ? <Loading>Loading Trainings...</Loading> :
     <Container className="mt-3">
-      <Row className="justify-content-center">
-        <Col xs={12} md={8} lg={4}>
-          <ListGroup>
-            {trainings.map(training =>
-              training.id !== 'introduction' ? null :
-                <TrainingTile training={training} />
-            )}
-          </ListGroup>
-          <ListGroup className="mt-3">
-            {trainings.map(training =>
-              training.id === 'introduction' ? null :
-                <TrainingTile training={training} />
-            )}
-          </ListGroup>
+      <Row xs={1} md={2} lg={3} className="justify-content-center">
+        <Col>
+          <Accordion>
+          {modules.map((module, idx)=>
+            <Accordion.Item eventKey={idx}>
+              <Accordion.Header><Image height="50" src={module.icon}/><span className="m-3">{module.name}</span></Accordion.Header>
+              <Accordion.Body>
+                <ListGroup>
+                  {trainings.filter(t=>module.submodules.includes(t.id)).map( (training, tid)=>
+                    <TrainingTile training={training} />
+                  )}
+                </ListGroup>
+              </Accordion.Body>
+            </Accordion.Item>
+          )}
+        </Accordion>
         </Col>
       </Row>
     </Container>

@@ -43,7 +43,7 @@ const Introduction = ({update}) =>
                 As you complete <b>Questions</b>, your total progress within the <b>Training </b>
                 will be tracked at the top right of the page.
             </p>
-            <Question id="6282ba0490fb3d0449fe4d1e" {...{update}}>
+            <Question id="6282ba0490fb3d0449fe4d1e" {...{update}} choices={['Green', 'Yellow','Red']}>
                 On the top right of each training will be a number with a percent
                 indicating your progress through a training. What color is this number?
             </Question>
@@ -214,8 +214,8 @@ const Introduction = ({update}) =>
 
             <p><a href="/#/tools/">Click here for a complete inventory of the <b>Machine Shop</b></a></p>
 
-            <Question id="62840cca90fb3d0449fe4d20" {...{update}}>Where are the rulers located?</Question>
-            <Question id="62840d1a90fb3d0449fe4d21" {...{update}}>If you need to work on metal, which area should you reserve?</Question>
+            <Question id="62840cca90fb3d0449fe4d20" {...{update}} choices={['Classroom Area', 'Power Tool Area', 'Machine Shop']}>Where are the rulers located?</Question>
+            <Question id="62840d1a90fb3d0449fe4d21" {...{update}} choices={['Classroom Area', 'Power Tool Area', 'Machine Shop']}>If you need to work on metal, which area should you reserve?</Question>
 
             <h1>&#129717; Raw Materials</h1>
             <p><b>Raw Materials</b> are located in the <b>Power Tool Area</b>, to the left along the far wall.</p>
@@ -248,7 +248,7 @@ const Introduction = ({update}) =>
                 know and he would be happy to order it for you.
             </Note>
 
-            <Question id="62840f0790fb3d0449fe4d22" {...{update}}>Raw Materials are located in which part of the lab?</Question>
+            <Question id="62840f0790fb3d0449fe4d22" {...{update}} choices={['Classroom Area', 'Power Tool Area', 'Machine Shop']}>Raw Materials are located in which part of the lab?</Question>
             
             <h1>&#128452; Storage</h1>
 
@@ -274,11 +274,11 @@ const Introduction = ({update}) =>
                 below the stairs.
             </p>
 
-            <Question id="6284134e90fb3d0449fe4d23" {...{update}}>
-                True or False, You can store your project anywhere, as long as it's out of the way.
+            <Question id="6284134e90fb3d0449fe4d23" {...{update}} choices={["True",'False']}>
+                You can store your project anywhere, as long as it's out of the way.
             </Question>
-            <Question id="628f7b6ab9b607c258dd75ae" {...{update}}>
-                Before beginning their work, students must place their belongings below the:
+            <Question id="628f7b6ab9b607c258dd75ae" {...{update}} choices={["Mr. Byrne's Desk", "Stairs", "Catwalk"]}>
+                Before beginning their work, students must place their belongings below:
             </Question>
             
 
@@ -308,8 +308,8 @@ const Introduction = ({update}) =>
                 Additionally, each tool has a <b>Safety Document,</b> which provides additional precautions for that particular tool.
             </p>
             <h1>&#128226; Report Injuries, Accidents, or Broken Tools <i>Immediately</i> </h1>
-            <Question id="628f7ba0b9b607c258dd75af" {...{update}}>
-                <b>True</b> or <b>False... </b> you are allowed to bring your Chik-Fil-A to the lab.
+            <Question id="628f7ba0b9b607c258dd75af" {...{update}} choices={['True', 'False']}>
+                You are allowed to bring your Chik-Fil-A to the lab.
             </Question>
             <Question id="628f7dc9b9b607c258dd75b0" {...{update}}>
                 Before using a tool, you must first complete its ________________

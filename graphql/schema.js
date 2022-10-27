@@ -157,6 +157,7 @@ type Tool {
     _id:String
     brand:String!
     name:String!
+    available(from:DateTime):
     quantity:Int
     authorized_users:[User]
     photo:String
