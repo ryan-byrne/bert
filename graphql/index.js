@@ -2,8 +2,8 @@ const { ApolloServer } = require("apollo-server-express");
 
 const graphqlUser = {
   id: process.env.GRAPHQL_USER,
-  email: "rbyrne@berkeleycarroll.org",
-  name: "GraphQL User",
+  email: "bert@berkeleycarroll.org",
+  name: "Bert GraphQL User",
   tokens: {
     refresh_token: process.env.REFRESH_TOKEN
   }

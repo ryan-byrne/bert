@@ -8,22 +8,28 @@ export const Index = () => {
   const [tools, setTools] = useState();
   // Keyword Filters
   const [keywords, setKeywords] = useState(['cutting']);
+  // Text Filters
+  const [search, setSearch] = useState("");
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   useEffect(() => {
+    const now = new Date();
+    const soon = new Date();
+    soon.setMinutes( soon.getMinutes() + 1 )
     setTools()
     Query(`
-    query GetCalendar($keywords: [String]) {
+    query GetCalendar($keywords: [String], $timeMax:Date!, $timeMin:Date!) {
       getTools(keywords: $keywords) {
         _id
         name
         brand
         photo
         quantity
+        available(timeMin:$timeMin, timeMax:$timeMax)
       }
     }
-    `,{keywords})
+    `,{keywords, timeMin:now, timeMax:soon})
       .then(resp=>resp.json())
       .then(data=>{
         if (data.errors) console.error(data.errors)
@@ -39,8 +45,6 @@ export const Index = () => {
         active={[...keywords].includes(children.toLowerCase())}>
             {children}
     </Button>
-
-  console.log(tools);
 
   return (
     <div>
@@ -81,27 +85,31 @@ export const Index = () => {
         </Row>
 
       <Row className="justify-content-center m-1">
-          <Col xs={12} md={10} lg={8} className="mt-3">
+          <Col xs={12} md={8} lg={4} className="mt-3">
               {
                 !tools ? <Loading>Loading Tool Data...</Loading> :
                   tools.length === 0 ? <Alert variant="warning">No tools fit your criteria.</Alert> :
-                    <Container>
-                      <Row className='mt-5 justify-content-center'>
-                        <Col xs={2} lg={1}></Col>
-                        <Col xs={4} lg={3}><strong><u>Description</u></strong></Col>
-                        <Col xs={2} lg={1}><strong><u>Quantity</u></strong></Col>
-                      </Row>
-                      {tools.map( (tool, idx) =>
-                        <Row className='justify-content-center mt-3'>
-                          <Col className="text-center" xs={2} lg={1}><Image fluid src={tool.photo}/></Col>
-                          <Col xs={4} lg={3} className="mt-auto mb-auto">
-                            <Link className="text-white" to={`/tools/view/${tool._id}`}>{tool.brand} {tool.name}</Link>
-                          </Col>
-                          <Col xs={2} lg={1} className="text-center mt-auto mb-auto">{tool.quantity}</Col>
-                        </Row>
-                      )}
-                    </Container>
-              }
+                    <Table variant="dark" size="sm" className="text-center" hover>
+                      <thead>
+                        <tr>
+                          <th>Picture</th>
+                          <th>Brand</th>
+                          <th>Name</th>
+                          <th></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {tools.map( (tool, idx) =>
+                          <tr onClick={()=>navigate(`/tools/view/${tool._id}`)}>
+                            <td><Image src={tool.photo} height="50"/></td>
+                            <td>{tool.brand}</td>
+                            <td>{tool.name}</td>
+                            <td><Badge bg={tool.available === 0 ? 'danger':'success'} size="sm">{tool.available} Available</Badge></td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </Table>
+            }
           </Col>
       </Row>
   </div>

@@ -126,7 +126,7 @@ module.exports = {
 
         getTool:async (_,{id}) => await tool.findOne({_id:id}),
 
-        getTools: async(_,{keywords}) => await tool.find(keywords.length > 0 ?{keywords:{"$all":keywords}}:null),
+        getTools: async(_,{keywords}) => await tool.find(keywords.length > 0 ?{keywords:{"$in":keywords}}:null),
 
         getBlockTimes: async (_, {blocks, start, end}) => {
 
@@ -248,8 +248,17 @@ module.exports = {
 
           const events = []
           var toolData = {};
+
+          /*
+          sharedExtendedProperties:{
+            60e6469458e61d0b3d60fe34:true,
+            60e6469458e61d0b3d60fe34_qty:4
+          }
+          */
+
           for ( const tool of tools ){
-            toolData[tool.id] = tool.quantity
+            toolData[tool.id] = true
+            toolData[`${tool.id}_qty`] = tool.quantity
           }
           for (let time of times){
             const resp = await google.calendar({version:"v3"}).events.insert({
@@ -268,9 +277,6 @@ module.exports = {
                   shared:toolData
                 },
                 status:"tentative",
-                extendedProperties:{
-                  shared:toolData
-                },
                 summary,
                 description,
                 recurrence:time.recurrence,
@@ -279,7 +285,6 @@ module.exports = {
             });
             events.push(resp.data)
           }
-          console.log(events.map(e=>e.extendedProperties));
           return events.flat()
 
         },
@@ -456,20 +461,6 @@ module.exports = {
 
     User:{},
 
-    Event:{
-        tools: async (eventDoc) => {
-          try {
-            return Object.entries(eventDoc.extendedProperties.shared).map(([t,q])=>({
-              tool:t,quantity:q
-            }))
-          } catch (e) {
-            return []
-          }
-        },
-        creator: async (e) => await user.findOne({email:e.creator.email}),
-        attendees: async (e) => await user.find({email:e.attendees.map(a=>a.email)})
-    },
-
     ToolReservation:{
       tool: async (toolRes) => await tool.findOne({_id:toolRes.tool})
     },
@@ -525,6 +516,23 @@ module.exports = {
             "name":1
           }
         }
-      ])
+      ]),
+      available: async (toolDoc, {timeMin, timeMax}, {user}) => {
+        let available = toolDoc.quantity;
+        oauth2Client.setCredentials({...user.tokens});
+        for (let calendarId of Object.values(calendars)){
+          const resp = await google.calendar({version:"v3"}).events.list({
+            calendarId,
+            timeMin,
+            timeMax,
+            sharedExtendedProperty:[`${toolDoc._id}=true`],
+            singleEvents:true
+          });
+          for (let event of resp.data.items){
+            available = available - event.extendedProperties.shared[`${toolDoc._id}_qty`]
+          }
+        }
+        return available
+      }
     },
 }

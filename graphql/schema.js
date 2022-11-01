@@ -157,7 +157,7 @@ type Tool {
     _id:String
     brand:String!
     name:String!
-    available(from:DateTime):
+    available(timeMin:Date!, timeMax:Date!):Int
     quantity:Int
     authorized_users:[User]
     photo:String
@@ -269,7 +269,7 @@ type Event {
     """
     Title of the event.
     """
-    summary:String!
+    summary:String
     """
     """
     recurringEvents:[DateTime]
