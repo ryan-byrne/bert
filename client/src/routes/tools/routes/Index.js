@@ -1,15 +1,19 @@
-import {Table, Alert, Image, Badge, FormGroup, Button, FormControl, Row, Collapse, Col, Container} from 'react-bootstrap'
+import {Table, Alert, Image, Badge, FormGroup, Button, FormControl, Row, Collapse, Col, Container, ToggleButtonGroup, ToggleButton, FormText, ButtonGroup, Form} from 'react-bootstrap'
 import {useState, useEffect} from 'react';
 import {Link, useNavigate} from 'react-router-dom';
 import { Query } from '../../../components/GraphQL';
 import Loading from '../../../components/Loading';
+
 export const Index = () => {
 
   const [tools, setTools] = useState();
   // Keyword Filters
-  const [keywords, setKeywords] = useState(['cutting']);
-  // Text Filters
-  const [search, setSearch] = useState("");
+  const [material, setMaterial] = useState("wood");
+  const [category, setCategory] = useState("cutting");
+  const [skillLevel, setSkillLevel] = useState('advanced');
+  const [handheld, setHandheld] = useState(false);
+  const [powered, setPowered] = useState(true);
+  
 
   const navigate = useNavigate();
 
@@ -27,83 +31,91 @@ export const Index = () => {
         photo
         quantity
         available(timeMin:$timeMin, timeMax:$timeMax)
+        training {
+          id
+          demo_completed
+          demo
+          completed
+        }
       }
     }
-    `,{keywords, timeMin:now, timeMax:soon})
+    `,{keywords:[category, material, skillLevel], timeMin:now, timeMax:soon})
       .then(resp=>resp.json())
       .then(data=>{
         if (data.errors) console.error(data.errors)
         else setTools(data.data.getTools)
       })
-  }, [keywords]);
+  }, [category, material, skillLevel]);
 
-  const KeywordButton = ({children}) =>
-    <Button
-        size="sm"
-        variant="outline-light"
-        onClick={()=>setKeywords([...keywords].includes(children.toLowerCase())?[...keywords].splice([...keywords].indexOf(children.toLowerCase())+1, 1):[...keywords, children.toLowerCase()])} 
-        active={[...keywords].includes(children.toLowerCase())}>
-            {children}
-    </Button>
+  const Filter = ({name, value, onChange, options}) =>
+    <FormGroup as={Col}>
+      <FormText>{name}</FormText>
+      <FormGroup>
+        <ToggleButtonGroup type="radio" name={name} onChange={(v)=>onChange(v)} value={value} id={name} vertical>
+          {options.map((option, idx)=>
+            <ToggleButton size="sm" value={option.toLowerCase()} id={option} variant="dark" name={option}>
+              {option}
+            </ToggleButton>
+          )}
+        </ToggleButtonGroup>
+      </FormGroup>
+    </FormGroup>
 
   return (
     <div>
+      <FormGroup as={Row} className="justify-content-center m-1" xs={3} md={6}>
+        <Filter 
+          name="Category" 
+          value={category} 
+          onChange={(v)=>setCategory(v)} 
+          options={["Cutting", "Sanding", "Fastening", "3D Printing", "Laser Cutting"]}
+        />
 
-      <Row xs={1} md={2} lg={5} className="m-3 text-center justify-content-center">
-              <Col className="mt-3">
-                  <div >
-                      Categories
-                  </div>
-                  {['Cutting','Drilling','Sanding', 'Fastening', '3D Printing','Laser Cutting','Clamping', 'Powered', 'Hand'].map((mat, idx)=>
-                      <KeywordButton>{mat}</KeywordButton>
-                  )}
-              </Col>
-              <Col className="mt-3">
-                  <div>
-                      Mobility
-                  </div>
-                  {['Cordless','Corded','Stationary'].map((mat, idx)=>
-                      <KeywordButton>{mat}</KeywordButton>
-                  )}
-              </Col>
-              <Col className="mt-3">
-                  <div>
-                      Materials
-                  </div>
-                  {['Wood','Metal','Plastic'].map((mat, idx)=>
-                      <KeywordButton>{mat}</KeywordButton>
-                  )}
-              </Col>
-              <Col className="mt-3">
-                  <div>
-                      Skill Level
-                  </div>
-                  {['Basic','Advanced','Expert'].map((mat, idx)=>
-                      <KeywordButton>{mat}</KeywordButton>
-                  )}
-              </Col>
-        </Row>
+        <Filter 
+          name="Material" 
+          value={material} 
+          onChange={(v)=>setMaterial(v)} 
+          options={["Wood", "Metal", "Plastic"]}
+        />
+
+        <Filter 
+          name="Skill Level" 
+          value={skillLevel} 
+          onChange={(v)=>setSkillLevel(v)} 
+          options={["Basic", "Advanced", "Expert"]}
+        />
+      </FormGroup>
 
       <Row className="justify-content-center m-1">
           <Col xs={12} md={8} lg={4} className="mt-3">
               {
-                !tools ? <Loading>Loading Tool Data...</Loading> :
+                  !tools ? <Loading>Loading Tool Data...</Loading> :
                   tools.length === 0 ? <Alert variant="warning">No tools fit your criteria.</Alert> :
-                    <Table variant="dark" size="sm" className="text-center" hover>
-                      <thead>
+                    <Table variant="dark" size="sm" hover>
+                      <thead className="text-center">
                         <tr>
                           <th>Picture</th>
-                          <th>Brand</th>
                           <th>Name</th>
+                          <th></th>
                           <th></th>
                         </tr>
                       </thead>
                       <tbody>
                         {tools.map( (tool, idx) =>
                           <tr onClick={()=>navigate(`/tools/view/${tool._id}`)}>
-                            <td><Image src={tool.photo} height="50"/></td>
-                            <td>{tool.brand}</td>
-                            <td>{tool.name}</td>
+                            <td className="text-center"><Image src={tool.photo} height="50"/></td>
+                            <td>{tool.brand} {tool.name}</td>
+                            <td>
+                              <Badge>
+                                {
+                                  !tool.training ? "N/A" :
+                                  tool.training.demo && tool.training.demo_completed ? "Authorized" :
+                                  tool.training.completed && tool.training.demo ? "Demo Missing" :
+                                  !tool.training.completed ? "Not Authorized" : "Authorized"
+                                  
+                                }
+                              </Badge>
+                            </td>
                             <td><Badge bg={tool.available === 0 ? 'danger':'success'} size="sm">{tool.available} Available</Badge></td>
                           </tr>
                         )}

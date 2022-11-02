@@ -126,7 +126,7 @@ module.exports = {
 
         getTool:async (_,{id}) => await tool.findOne({_id:id}),
 
-        getTools: async(_,{keywords}) => await tool.find(keywords.length > 0 ?{keywords:{"$in":keywords}}:null),
+        getTools: async(_,{keywords}) => await tool.find(keywords.length > 0 ?{keywords:{"$all":keywords}}:null),
 
         getBlockTimes: async (_, {blocks, start, end}) => {
 
