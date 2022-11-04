@@ -83,7 +83,7 @@ module.exports = {
           }
         },
 
-        getCalendar: async (_, {timeMin, timeMax, locations, attendees}, {user}) => {
+        getCalendar: async (_, {timeMin, timeMax, locations, tools}, {user}) => {
 
 
           oauth2Client.setCredentials({...user.tokens});
@@ -94,6 +94,7 @@ module.exports = {
 
             const resp = await google.calendar({version:"v3"}).events.list({
               calendarId:calendars[location],
+              sharedExtendedProperty:tools?tools.map(t=>`${t}=true`):[],
               timeMin,
               timeMax,
               singleEvents:true

@@ -1,21 +1,25 @@
-import {Table, Alert, Image, Badge, FormGroup, Button, FormControl, Row, Collapse, Col, Container, ToggleButtonGroup, ToggleButton, FormText, ButtonGroup, Form} from 'react-bootstrap'
+import {Table, Alert, Image, Badge, FormGroup, Button, FormControl, Row, Collapse, Col, Container, ToggleButtonGroup, ToggleButton, FormText, ButtonGroup, Form, DropdownButton} from 'react-bootstrap'
 import {useState, useEffect} from 'react';
-import {Link, useNavigate} from 'react-router-dom';
+import {Link, useNavigate, useParams} from 'react-router-dom';
 import { Query } from '../../../components/GraphQL';
 import Loading from '../../../components/Loading';
+import DropdownItem from 'react-bootstrap/esm/DropdownItem';
+import Viewer from './Viewer';
+import Reserve from './Reserve';
 
-export const Index = () => {
+export const Index = ({viewer, reserve}) => {
 
   const [tools, setTools] = useState();
+  const id = useParams().id;
   // Keyword Filters
-  const [material, setMaterial] = useState("wood");
-  const [category, setCategory] = useState("cutting");
-  const [skillLevel, setSkillLevel] = useState('advanced');
-  const [handheld, setHandheld] = useState(false);
-  const [powered, setPowered] = useState(true);
+  const [material, setMaterial] = useState("Wood");
+  const [category, setCategory] = useState("Cutting");
+  const [skillLevel, setSkillLevel] = useState('Advanced');
   
 
   const navigate = useNavigate();
+
+  console.log(viewer, reserve, id);
 
   useEffect(() => {
     const now = new Date();
@@ -39,7 +43,7 @@ export const Index = () => {
         }
       }
     }
-    `,{keywords:[category, material, skillLevel], timeMin:now, timeMax:soon})
+    `,{keywords:[category, material, skillLevel].map(k=>k.toLowerCase()), timeMin:now, timeMax:soon})
       .then(resp=>resp.json())
       .then(data=>{
         if (data.errors) console.error(data.errors)
@@ -48,43 +52,47 @@ export const Index = () => {
   }, [category, material, skillLevel]);
 
   const Filter = ({name, value, onChange, options}) =>
-    <FormGroup as={Col}>
+    <FormGroup>
       <FormText>{name}</FormText>
       <FormGroup>
-        <ToggleButtonGroup type="radio" name={name} onChange={(v)=>onChange(v)} value={value} id={name} vertical>
+        <DropdownButton as={ButtonGroup} size="sm" variant="dark" title={`${value}`}>
           {options.map((option, idx)=>
-            <ToggleButton size="sm" value={option.toLowerCase()} id={option} variant="dark" name={option}>
+            <DropdownItem onClick={(e)=>onChange(e.target.id)} id={`${option}`}>
               {option}
-            </ToggleButton>
+            </DropdownItem>
           )}
-        </ToggleButtonGroup>
+        </DropdownButton>
       </FormGroup>
     </FormGroup>
 
   return (
     <div>
-      <FormGroup as={Row} className="justify-content-center m-1" xs={3} md={6}>
-        <Filter 
-          name="Category" 
-          value={category} 
-          onChange={(v)=>setCategory(v)} 
-          options={["Cutting", "Sanding", "Fastening", "3D Printing", "Laser Cutting"]}
-        />
-
-        <Filter 
-          name="Material" 
-          value={material} 
-          onChange={(v)=>setMaterial(v)} 
-          options={["Wood", "Metal", "Plastic"]}
-        />
-
-        <Filter 
-          name="Skill Level" 
-          value={skillLevel} 
-          onChange={(v)=>setSkillLevel(v)} 
-          options={["Basic", "Advanced", "Expert"]}
-        />
-      </FormGroup>
+      <Row className="m-1 justify-content-center">
+        <Col xs={4} md={2} lg={1}>
+          <Filter 
+            name="Category" 
+            value={category} 
+            onChange={(v)=>setCategory(v)} 
+            options={["Cutting", "Sanding", "Fastening", "3D Printing", "Laser Cutting"]}
+          />
+        </Col>
+        <Col xs={4} md={2} lg={1}>
+          <Filter 
+              name="Material" 
+              value={material} 
+              onChange={(v)=>setMaterial(v)} 
+              options={["Wood", "Metal", "Plastic"]}
+            />
+        </Col>
+        <Col xs={4} md={2} lg={1}>
+          <Filter 
+              name="Skill Level" 
+              value={skillLevel} 
+              onChange={(v)=>setSkillLevel(v)} 
+              options={["Basic", "Advanced", "Expert"]}
+            />
+        </Col>
+      </Row>
 
       <Row className="justify-content-center m-1">
           <Col xs={12} md={8} lg={4} className="mt-3">
@@ -102,17 +110,23 @@ export const Index = () => {
                       </thead>
                       <tbody>
                         {tools.map( (tool, idx) =>
-                          <tr onClick={()=>navigate(`/tools/view/${tool._id}`)}>
+                          <tr onClick={()=>navigate(`/tools/view/${tool._id}`)} style={{cursor:"pointer"}}>
                             <td className="text-center"><Image src={tool.photo} height="50"/></td>
                             <td>{tool.brand} {tool.name}</td>
                             <td>
-                              <Badge>
+                              <Badge
+                                bg={
+                                  !tool.training ? "secondary" :
+                                  tool.training.demo && tool.training.demo_completed ? "success" :
+                                  tool.training.completed && tool.training.demo ? "warning" :
+                                  !tool.training.completed ? "danger" : "success"
+                                }
+                              >
                                 {
                                   !tool.training ? "N/A" :
                                   tool.training.demo && tool.training.demo_completed ? "Authorized" :
                                   tool.training.completed && tool.training.demo ? "Demo Missing" :
                                   !tool.training.completed ? "Not Authorized" : "Authorized"
-                                  
                                 }
                               </Badge>
                             </td>
@@ -124,6 +138,10 @@ export const Index = () => {
             }
           </Col>
       </Row>
+
+      <Viewer id={id} show={viewer}/>
+      <Reserve id={id} show={reserve}/>
+
   </div>
   )
 }

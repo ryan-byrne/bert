@@ -14,7 +14,8 @@ type Query {
     getCalendar(
         timeMin:Date!
         timeMax:Date!
-        attendees:[String]
+        tools:[String!]
+        attendees:[String!]
         locations:[EventLocation]!
     ):[CalendarDay]
         
@@ -51,11 +52,11 @@ type Query {
 type Mutation {
 
     createEvent(
-      summary:String!,
+      summary:String!
       description:String
-      times:[TimeInput!]
-      locations:[EventLocation!]
-      tools:[ToolInput]!
+      times:[TimeInput!]!
+      locations:[EventLocation]!
+      tools:[ToolInput]
       attendees:[Attendee]!
     ): [Event],
 

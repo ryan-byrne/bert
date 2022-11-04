@@ -1,109 +1,109 @@
 import { useState, useEffect } from 'react';
-import { Modal, Button, Row, Image, Table, Alert, Col, Badge, ListGroup, FormText } from "react-bootstrap";
+import { Modal, Button, Row, Image, Table, Alert, Col, Badge, Accordion, ListGroup, FormText } from "react-bootstrap";
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { Query } from '../../../components/GraphQL';
+import Loading from '../../../components/Loading';
 
-const Viewer = () => {
+const Viewer = ({id, show}) => {
 
   const navigate = useNavigate();
-  const id = useParams().id;
   const [tool, setTool] = useState();
 
   useEffect(() => {
-    setTool();
-    Query(`
-      query GetTool($id: String!) {
+    if (!id) navigate('/tools')
+    else {
+      const timeMin = new Date();
+      const timeMax = new Date();
+      timeMax.setMinutes(timeMin.getMinutes() + 30)
+      Query(`
+      query GetTool($id: String!, $timeMin: Date!, $timeMax: Date!) {
         getTool(id: $id) {
+          _id
+          quantity
+          available(timeMin: $timeMin, timeMax: $timeMax)
           brand
           name
-          quantity
-          photo
           manual
-          authorized_users {
-            name
-            email
-            id
-          }
+          photo
           training {
             id
-            completed
             name
             demo_completed
             demo
+            completed
             questions {
               completed
             }
           }
+          authorized_users {
+            name
+          }
         }
       }
-    `, { id })
-      .then(resp => resp.json())
-      .then(data => {
-        if (data.errors) console.error(data.errors)
-        else  setTool(data.data.getTool)
-      })
+      `,{id, timeMin, timeMax})
+        .then(resp => resp.json())
+        .then( data => setTool(data.data.getTool) )
+      setTool();
+    }
   }, [id]);
 
-  return (!id ? navigate('/tools') :
-    <Modal centered show={id} onHide={() => navigate('/tools')}>
+  const authorized = tool ? tool.training.completed && (tool.training.demo && tool.training.demo_completed) : false;
+
+  return (
+    <Modal centered show={show} onHide={() => navigate('/tools')}>
       <Modal.Header closeButton>
-        <Modal.Title>{tool ? `${tool.brand} ${tool.name}` : "Loading..."}</Modal.Title>
+        <Modal.Title>{tool ? `${tool.brand} ${tool.name}` : null}</Modal.Title>
       </Modal.Header>
       {
-        !tool ? null :
+        !tool ? <Loading>Loading Tool Data...</Loading> :
           <Modal.Body>
-            <p className='text-center'>
-              <Image src={tool.photo} fluid />
-            </p>
             <Row>
-              <Col><strong>Manual</strong></Col>
-              <Col><Button href={tool.manual}>Open</Button></Col>
-            </Row>
-            <Row className='mt-3'>
-              <Col><strong>Training</strong></Col>
+              <Col><Image src={tool.photo} fluid/></Col>
               <Col>
-                {
-                  !tool.training ||  tool.training.questions.length === 0 ? "None" :
-                  <Button
-                    as={Link}
-                    to={`/training/${tool.training.id}`}
-                    variant={
-                      tool.training.completed && (tool.training.demo && tool.training.demo_completed) ? "success" : "warning"}
-                  >
-                    {tool.training.name} ({
-                      !tool.training.completed ?
-                      `${Math.floor(100*tool.training.questions.filter(q=>q.completed).length / tool.training.questions.length)}% Complete`:
-                      tool.training.demo && !tool.training.demo_completed ? "Demo Not Completed" :
-                      "Completed"
-                    })
-                  </Button>
-                }
-              </Col>
-            </Row>
-            <Row className="mt-3">
-              <Col><strong>Authorized Users</strong></Col>
-              <Col>
-                <ListGroup style={{maxHeight:"400px", overflowY:"scroll"}}>
+                <Row className="mt-1">
                   {
-                    !tool.training.demo ? <ListGroup.Item>N/A</ListGroup.Item> :
-                    tool.authorized_users.length === 0 ? <ListGroup.Item>None</ListGroup.Item> :
-                    tool.authorized_users.map(user=>
-                      <ListGroup.Item>
-                        <div>{user.name}</div>
-                        <div><FormText>{user.email}</FormText> </div>
-                      </ListGroup.Item>  
-                    )
+                    !tool.training ||  tool.training.questions.length === 0 ? "None" :
+                    <Button
+                      as={Link}
+                      to={`/training/${tool.training.id}`}
+                      variant={authorized ? "success" : "warning"}
+                    >
+                      {tool.training.name} ({
+                        !tool.training.completed ?
+                        `${Math.floor(100*tool.training.questions.filter(q=>q.completed).length / tool.training.questions.length)}% Complete`:
+                        tool.training.demo && !tool.training.demo_completed ? "Demo Not Completed" :
+                        "Completed"
+                      })
+                    </Button>
                   }
-                </ListGroup>
+                </Row>
+                <Row className="mt-1">
+                  <Button as={Link} to={`/schedule/create?tools=[{id:${tool._id}, quantity:1}]`}>
+                    Reserve ({tool.available} Available)
+                  </Button>
+                </Row>
+                <Row className="mt-1">
+                  <Button href={tool.manual} variant="outline-primary" target='_blank'>View Manual</Button>
+                </Row>
+                <Row>
+                  <FormText>Authorized Users</FormText>
+                  <ListGroup style={{maxHeight:"400px", overflowY:"scroll"}}>
+                    {
+                      !tool.training.demo ? <ListGroup.Item>N/A</ListGroup.Item> :
+                      tool.authorized_users.length === 0 ? <ListGroup.Item>None</ListGroup.Item> :
+                      tool.authorized_users.map(user=>
+                        <ListGroup.Item>
+                          <div>{user.name}</div>
+                          <div><FormText>{user.email}</FormText> </div>
+                        </ListGroup.Item>  
+                      )
+                    }
+                  </ListGroup>
+                </Row>
               </Col>
             </Row>
-
-
           </Modal.Body>
       }
-      <Modal.Footer>
-        <Button onClick={() => navigate(-1)} variant="secondary">Close</Button>
-      </Modal.Footer>
     </Modal>
   );
 }

@@ -6,6 +6,7 @@ import SetTimes from './components/SetTimes';
 import Attendees from './components/Attendees';
 import Tools from './components/Tools';
 import Submit from './components/Submit';
+import { useLocation, useNavigate } from "react-router-dom";
 //import Materials from './components/Materials';
 
 export default function Create({ show, navigate }) {
@@ -18,6 +19,10 @@ export default function Create({ show, navigate }) {
     tools: [],
     attendees: []
   });
+
+  const search = useLocation().search;
+  const params = new URLSearchParams(search);
+  console.log(params.forEach(param=>console.log(param)));
 
   return (
     <Offcanvas show={show} onHide={() => navigate('/schedule')}>
