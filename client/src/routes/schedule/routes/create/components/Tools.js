@@ -32,6 +32,7 @@ export const Tools = (props) => {
         quantity
         photo
         training {
+          completed
           demo
           demo_completed
         }
@@ -39,11 +40,10 @@ export const Tools = (props) => {
     }
   `
 
-  const notAuthorized = (tool) => tool.training.demo && !tool.training.demo_completed
+  const notAuthorized = (tool) =>  !tool.training.completed || (tool.training.demo && !tool.training.demo_completed)
 
   return (
     <FormGroup as={Row}>
-      <hr/>
       <ListGroup>
       {
         tools.map( (tool, idx) =>

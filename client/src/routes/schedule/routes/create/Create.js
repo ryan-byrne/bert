@@ -20,10 +20,6 @@ export default function Create({ show, navigate }) {
     attendees: []
   });
 
-  const search = useLocation().search;
-  const params = new URLSearchParams(search);
-  console.log(params.forEach(param=>console.log(param)));
-
   return (
     <Offcanvas show={show} onHide={() => navigate('/schedule')}>
       <Offcanvas.Header closeButton>

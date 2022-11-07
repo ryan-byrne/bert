@@ -78,7 +78,7 @@ const Viewer = ({id, show}) => {
                   }
                 </Row>
                 <Row className="mt-1">
-                  <Button as={Link} to={`/schedule/create?tools=[{id:${tool._id}, quantity:1}]`}>
+                  <Button as={Link} to={`/schedule/create?tools=${JSON.stringify([{id:tool._id, quantity:1}])}`}>
                     Reserve ({tool.available} Available)
                   </Button>
                 </Row>

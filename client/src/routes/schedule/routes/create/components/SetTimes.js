@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import {  Button, FormGroup, Row } from 'react-bootstrap';
-import { Query, SyncQuery } from '../../../../../components/GraphQL';
+import {  Button, Collapse, FormGroup, FormText, Row } from 'react-bootstrap';
+import { useLocation } from 'react-router-dom';
+import { Query } from '../../../../../components/GraphQL';
 
 import EventTime from './times/EventTime';
 
@@ -13,59 +14,34 @@ Date.prototype.toFormDateString = function(){
 const SetTimes = ({ setPayload, payload }) => {
   
   const [times, setTimes] = useState([]);
+  const [show, setShow] = useState(false);
+  const search = useLocation().search;
 
-  const handleAddTime = () => setTimes([...times, {
-    date: new Date(), // 2022-08-01
-    start: "", // 09:30
-    end: "", // 10:30
-    division:"",
-    useBlocks:false,
-    blocks:[],
-    recurring: false,
-    recurringWeekly: false,
-    recurringUntil: new Date(), //
-  }]);
-
-  const handleChange = (event) => {
-
-    const prevTimes = [...times]
-    const [type, key, index] = event.target.id.split("-");
-    let value;
-
-    if ( type === 'date' ){
-      const date = new Date(event.target.value);
-      date.setDate( date.getDate() + 1 );
-      date.setHours(0,0,0,0);
-      value = date
-    }
-
-    else if ( type === 'switch' ) {
-      value = event.target.checked
-    }
-
-    else if ( type === 'msblocks' ) {
-      let msblocks = []
-      for ( const option of event.target.selectedOptions ) {
-        msblocks.push(option.value)
-      }
-      value = msblocks
-    }
-
+  // Parse Query parameters and change payload
+  useEffect(() => {
+    const params = new URLSearchParams(search);
+    const startTime = params.get('startTime');
+    const endTime = params.get('endTime');
+    if (!startTime || !endTime) return
     else {
-      value = event.target.value
+      const start = new Date(startTime);
+      const end = new Date(endTime);
+      setTimes([{
+        date: start,
+        start:start.toTimeString().substring(0,5),
+        end:end.toTimeString().substring(0,5),
+        division:"",
+        useBlocks:false,
+        blocks:[],
+        recurring: false,
+        recurringWeekly: false,
+        recurringUntil: start
+      }])
     }
+    
+  }, [search]);
 
-    prevTimes[index][key] = value
-    setTimes(prevTimes)
-
-  }
-
-  const handleRemove = (index) => {
-    const prevTimes = [...times]
-    prevTimes.splice(index, 1)
-    setTimes(prevTimes);
-  }
-
+  // Hook for updating Times payload
   useEffect(() => {
 
     const getRecurrence = (time) => {
@@ -134,16 +110,77 @@ const SetTimes = ({ setPayload, payload }) => {
 
   }, [times]);
 
+  const handleAddTime = () => setTimes([...times, {
+    date: new Date(), // 2022-08-01
+    start: "", // 09:30
+    end: "", // 10:30
+    division:"",
+    useBlocks:false,
+    blocks:[],
+    recurring: false,
+    recurringWeekly: false,
+    recurringUntil: new Date(), //
+  }]);
+
+  const handleChange = (event) => {
+
+    const prevTimes = [...times]
+    const [type, key, index] = event.target.id.split("-");
+    let value;
+
+    if ( type === 'date' ){
+      const date = new Date(event.target.value);
+      date.setDate( date.getDate() + 1 );
+      date.setHours(0,0,0,0);
+      value = date
+    }
+
+    else if ( type === 'switch' ) {
+      value = event.target.checked
+    }
+
+    else if ( type === 'msblocks' ) {
+      let msblocks = []
+      for ( const option of event.target.selectedOptions ) {
+        msblocks.push(option.value)
+      }
+      value = msblocks
+    }
+
+    else {
+      value = event.target.value
+    }
+
+    prevTimes[index][key] = value
+    setTimes(prevTimes)
+
+  }
+
+  const handleRemove = (index) => {
+    const prevTimes = [...times]
+    prevTimes.splice(index, 1)
+    setTimes(prevTimes);
+  }
+
   return (
-    <FormGroup className="mt-3">
-      {times.map((time, idx) => 
-        <EventTime index={idx} time={time} handleChange={handleChange} handleRemove={handleRemove}/>
-      )}
+    <div className="mt-3">
       <Row className="mt-3">
-        <Button onClick={handleAddTime}>Add Time(s)</Button>
+        <Button onClick={()=>setShow(!show)} variant={show ? "outline-primary" : "primary"}>
+          {show ? "Hide" : "Show"} Times ({payload.times.length} Added)
+        </Button>
       </Row>
+      <Collapse in={show}>
+        <FormGroup>
+          {times.map((time, idx) => 
+            <EventTime index={idx} time={time} handleChange={handleChange} handleRemove={handleRemove}/>
+          )}
+          <Row className="mt-3">
+            <Button onClick={handleAddTime} variant="outline-success">Add Time</Button>
+          </Row>
+        </FormGroup>
+      </Collapse>
       <hr/>
-    </FormGroup>
+    </div>
   )
 }
 

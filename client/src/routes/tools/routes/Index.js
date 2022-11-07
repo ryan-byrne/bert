@@ -5,7 +5,6 @@ import { Query } from '../../../components/GraphQL';
 import Loading from '../../../components/Loading';
 import DropdownItem from 'react-bootstrap/esm/DropdownItem';
 import Viewer from './Viewer';
-import Reserve from './Reserve';
 
 export const Index = ({viewer, reserve}) => {
 
@@ -140,7 +139,6 @@ export const Index = ({viewer, reserve}) => {
       </Row>
 
       <Viewer id={id} show={viewer}/>
-      <Reserve id={id} show={reserve}/>
 
   </div>
   )

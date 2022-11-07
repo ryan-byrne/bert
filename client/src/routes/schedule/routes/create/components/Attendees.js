@@ -5,6 +5,7 @@ import classroomIcon from './img/classroomIcon.png';
 import searchIcon from './img/searchIcon.png';
 
 const Attendees = ({payload, setPayload}) => {
+
   const [attendees, setAttendees] = useState([]);
   const [show, setShow] = useState(false);
   const [search, setSearch] = useState();
@@ -89,28 +90,36 @@ const Attendees = ({payload, setPayload}) => {
 
   return (
     <FormGroup as={Row}>
-          <FormGroup>
-            {attendees.map((user, idx)=>
-                <Badge bg="secondary" className="m-1">
-                  <Row>
-                    <Col className="mt-auto mb-auto">{user.name}</Col>
-                    <Col><CloseButton onClick={()=>handleUserDelete(idx)}/></Col>
-                  </Row>
-                </Badge>
-              )}
-          </FormGroup>
+      <Button
+        variant={show?'outline-primary':'primary'} 
+        onClick={()=>setShow(!show)}>
+        {show ? 'Hide' : 'Show'} Attendees {`(${payload.attendees.length} Added)`}
+      </Button>
+      
       <Collapse in={show}>
-        <FormGroup className="mb-3">
-          <ToggleButtonGroup value={search} type="radio" onChange={(s)=>setSearch(s)} name="searchUser">
-          <ToggleButton size="sm" variant="outline-primary" value={true} id="attendees-search">
-              <Image src={searchIcon} height="20" className="m-1" />
-              Search for Users
-            </ToggleButton>
-            <ToggleButton value={false} size="sm" variant="outline-primary" id="attendees-import">
-              <Image src={classroomIcon} height="20" className="m-1"/>
-                Import from Classroom
-            </ToggleButton>
-          </ToggleButtonGroup>
+        <FormGroup>
+          <FormGroup className="mt-3">
+            {attendees.map((user, idx)=>
+              <Badge bg="secondary" className="m-1">
+                <Row>
+                  <Col className="mt-auto mb-auto">{user.name}</Col>
+                  <Col><CloseButton onClick={()=>handleUserDelete(idx)}/></Col>
+                </Row>
+              </Badge>
+            )}
+          </FormGroup>
+          <Row className="mt-3">
+            <ToggleButtonGroup value={search} type="radio" onChange={(s)=>setSearch(s)} name="searchUser">
+              <ToggleButton size="sm" variant="outline-primary" value={true} id="attendees-search">
+                <Image src={searchIcon} height="20" className="m-1" />
+                Search for Users
+              </ToggleButton>
+              <ToggleButton value={false} size="sm" variant="outline-primary" id="attendees-import">
+                <Image src={classroomIcon} height="20" className="m-1"/>
+                  Import from Classroom
+              </ToggleButton>
+            </ToggleButtonGroup>
+          </Row>
 
           <Collapse in={search === true}>
             <FormGroup className="mt-3">
@@ -147,15 +156,9 @@ const Attendees = ({payload, setPayload}) => {
               }
             </ListGroup>
           </Collapse>
-
         </FormGroup>
       </Collapse>
-        <Button
-          variant={show?'outline-primary':'primary'} 
-          onClick={()=>setShow(!show)}>
-          {show ? 'Hide' : 'Add'} Attendees {payload.attendees.length > 0 ? `(${payload.attendees.length} Added)` : null}
-        </Button>
-      <hr/>
+      <hr className="mt-3"/>
     </FormGroup>
   )
 }

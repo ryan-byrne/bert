@@ -57,9 +57,14 @@ const EventTime = (props) => {
       
 
       <Row className="mt-3">
-        <Button onClick={props.handleRemove} variant="outline-secondary">Remove Time</Button>
+        <Col>
+          <Row>
+            <Button onClick={props.handleRemove} variant="outline-danger">Remove Time</Button>
+          </Row>
+        </Col>
+        
       </Row>
-    
+      <hr/>
     </FormGroup>
   )
 }
