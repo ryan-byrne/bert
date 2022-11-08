@@ -44,37 +44,38 @@ export const Tools = (props) => {
 
   return (
     <FormGroup as={Row}>
-      <ListGroup>
-      {
-        tools.map( (tool, idx) =>
-          <ListGroup.Item variant={notAuthorized(tool) ? 'warning' : 'light'}>
-            <Row key={idx}>
-              <Col xs={8} className="mt-auto mb-auto">
-                <div>{ notAuthorized(tool) ? <span>&#9888;</span> : null} {tool.brand} {tool.name}</div>
-                <div>{ notAuthorized(tool) ? <FormText>Not an Authorized User</FormText> : null}</div>
-              </Col>
-              <Col xs={2} className="mt-auto mb-auto">
-                <ButtonGroup>
-                  <Button variant={tool.requesting === 1 ? 'danger' : 'primary'} onClick={()=>handleQuantity(idx, -1)}>-</Button>
-                  <Button disabled>{tool.requesting}</Button>
-                  <Button disabled={tool.requesting === tool.quantity} onClick={()=>handleQuantity(idx, 1)}>+</Button>
-                </ButtonGroup>
-              </Col>
-            </Row>
-          </ListGroup.Item>
-        )
-      }
-      </ListGroup>
-      <Collapse in={show}>
-        <div>
-          <SearchSelect name="Tools" query={toolQuery} queryName="toolSearch" columns={['photo','brand','name']} onSelect={(tool)=>handleAdd(tool)}/>
-        </div>
-      </Collapse>
       <Button
         onClick={()=>setShow(!show)} 
         variant={show?'outline-primary':'primary'} >
-          {!show ? 'Add' : 'Hide'} Tool(s) {tools.length > 0 ? `(${tools.length} Added)` : ""}
+          {!show ? 'Show' : 'Hide'} Tools {`(${tools.length} Added)`}
       </Button>
+      <Collapse in={show}>
+        <div>
+          <SearchSelect name="Tools" query={toolQuery} queryName="toolSearch" columns={['photo','brand','name']} onSelect={(tool)=>handleAdd(tool)}/>
+          <ListGroup>
+            {
+              tools.map( (tool, idx) =>
+                <ListGroup.Item variant={notAuthorized(tool) ? 'warning' : 'light'}>
+                  <Row key={idx}>
+                    <Col xs={8} className="mt-auto mb-auto">
+                      <div>{ notAuthorized(tool) ? <span>&#9888;</span> : null} {tool.brand} {tool.name}</div>
+                      <div>{ notAuthorized(tool) ? <FormText>Not an Authorized User</FormText> : null}</div>
+                    </Col>
+                    <Col xs={2} className="mt-auto mb-auto">
+                      <ButtonGroup>
+                        <Button variant={tool.requesting === 1 ? 'danger' : 'primary'} onClick={()=>handleQuantity(idx, -1)}>-</Button>
+                        <Button disabled>{tool.requesting}</Button>
+                        <Button disabled={tool.requesting === tool.quantity} onClick={()=>handleQuantity(idx, 1)}>+</Button>
+                      </ButtonGroup>
+                    </Col>
+                  </Row>
+                </ListGroup.Item>
+              )
+            }
+          </ListGroup>
+        </div>
+      </Collapse>
+      <hr className="mt-3"/>
     </FormGroup>
   )
 }

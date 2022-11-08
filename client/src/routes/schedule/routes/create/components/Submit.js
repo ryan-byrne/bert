@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
-import { Alert, Button, FormGroup, ListGroup, OverlayTrigger, Popover, Row, Col, Table } from "react-bootstrap";
+import { Alert, Button, FormGroup, ListGroup, OverlayTrigger, Popover, Row, Col, Table, Collapse } from "react-bootstrap";
 
 import { Query } from "../../../../../components/GraphQL";
 import Loading from "../../../../../components/Loading";
@@ -11,6 +11,10 @@ export default function Submit({ payload }) {
   const navigate = useNavigate();
   // TODO
   const [conflicts, setConflicts] = useState([]);
+  const [errors, setErrors] = useState([]);
+  const [showErrors, setShowErrors] = useState(false);
+  const [warnings, setWarnings] = useState([]);
+  const [showWarnings, setShowWarnings] = useState(false);
   const [invalid, setInvalid] = useState([]);
 
   useEffect(() => {
@@ -19,19 +23,23 @@ export default function Submit({ payload }) {
 
   // Validate Payload
   useEffect(() => {
-    setInvalid();
-    let validation = []
-    if (payload.summary.length < 5) validation.push({ text: "Summary is too short", variant: 'danger' });
-    if (payload.locations.length < 1) validation.push({ text: "You must select a Location!", variant: 'danger' })
-    payload.times.map(({ start, end }) => {
-      if (new Date(start) < new Date() || end < new Date()) validation.push({ text: 'Start and End Time must be after Today', variant: 'danger' })
-      else if (start > end) validation.push({ text: 'Start Time cannot be after End Time', variant: 'danger' })
+    setWarnings();
+    setErrors();
+    let tempErrors = [];
+    let tempWarnings = [];
+    if (payload.summary.length < 5) tempErrors.push(<span><b>Summary</b> is too short. (Must be longer than 4 characters)</span>)
+    if (payload.locations.length < 1) tempErrors.push(<span>You must select a <b>Location</b>. (Tools cannot leave the lab)</span>)
+    if (payload.times.length === 0) tempErrors.push(<span>You have not specified any <b>times</b> for your event(s).</span>)
+    payload.times.map(({ start, end }, idx) => {
+      if (new Date(start) < new Date() || end < new Date()) tempErrors.push(`Time ${idx}: Start and End Time must be after Today`)
+      else if (start > end) tempErrors.push(`Time ${idx}: Start Time cannot be after End Time`)
     })
-    if (payload.tools.length === 0) validation.push({ text: 'No tools have been added.', variant: 'warning' })
-    if (payload.attendees.length === 0) validation.push({ text: "You have not added any attendees.", variant: "warning" })
-    setInvalid(validation)
+    if (payload.tools.length === 0) tempWarnings.push(<span>No <b>tools</b> have been added.</span>)
+    if (payload.attendees.length === 0) tempWarnings.push(<span>No <b>attendees</b> have been added.</span>)
+    setWarnings(tempWarnings);
+    setErrors(tempErrors)
 
-  }, [payload, setInvalid])
+  }, [payload])
 
 
   // Check for Conflicts
@@ -43,7 +51,6 @@ export default function Submit({ payload }) {
             getConflicts(times: $times, locations: $locations, tools: $tools) {
               summary
               htmlLink
-              
               start {
                 dateTime
               }
@@ -112,39 +119,50 @@ export default function Submit({ payload }) {
 
   return (
     <FormGroup>
-      <FormGroup className="mt-3">
-        {
-          !invalid ?
-            <Loading>Vaildating Form...</Loading> :
-            <ListGroup>
-              {
-                invalid.map(invalid =>
-                  <ListGroup.Item variant={invalid.variant}>
-                    {invalid.text}
-                  </ListGroup.Item>
-                )
-              }
-            </ListGroup>
-        }
-      </FormGroup>
-      <FormGroup className="mt-3">
-        {
-          !conflicts ?
-            <Loading>Checking for Conflicts...</Loading> :
-            <ListGroup style={{ maxHeight: '200px', overflowY: 'scroll' }}>
-              {
-                conflicts.map(conflict =>
-                  <ListGroup.Item variant="danger">
-                    Conflict found with <a href={conflict.htmlLink}>{conflict.summary} </a>
-                    on <strong>{new Date(conflict.start.dateTime).toLocaleDateString()}</strong>
-                  </ListGroup.Item>
-                )
-              }
-            </ListGroup>
-        }
-      </FormGroup>
-      <hr />
-      <Row className="m-1">
+      {
+        !warnings || !errors ? <Loading>Checking Payload...</Loading> :
+        <div>
+          {
+            warnings.length === 0 ? null :
+            <Row>
+              <Button onClick={()=>setShowWarnings(!showWarnings)} variant={showWarnings ? "outline-warning": "warning"}>
+                {!showWarnings ? `Show` : 'Hide'} {warnings.length} Warnings
+              </Button>
+              <Collapse in={showWarnings}>
+                <ListGroup className="mt-1">
+                  {
+                    warnings.map( (warning, idx) =>
+                      <ListGroup.Item variant="warning">
+                        {warning}
+                      </ListGroup.Item>
+                    )
+                  }
+                </ListGroup>
+              </Collapse>
+            </Row>
+          }
+          {
+            errors.length === 0 ? null :
+            <Row className="mt-3">
+              <Button onClick={()=>setShowErrors(!showErrors)} variant={showErrors ? "outline-danger": "danger"}>
+                {!showErrors ? `Show` : 'Hide'} {errors.length} Errors
+              </Button>
+              <Collapse in={showErrors}>
+                <ListGroup className="mt-1">
+                  {
+                    errors.map( (error, idx) =>
+                      <ListGroup.Item variant="danger">
+                        {error}
+                      </ListGroup.Item>
+                    )
+                  }
+                </ListGroup>
+              </Collapse>
+            </Row>
+          }
+        </div>
+      }
+      <Row className="mt-3">
         <OverlayTrigger
           trigger={['focus', 'hover']}
           overlay={

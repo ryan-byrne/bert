@@ -24,8 +24,9 @@ const SearchSelect = ({name, query, queryName, columns, onSelect}) => {
 
   const handleSelect = (e, option) => {
     e.preventDefault();
-    setAdded([...added, option])
-    onSelect(option)
+    setAdded([...added, option]);
+    setSearch("");
+    onSelect(option);
   }
 
   return (
