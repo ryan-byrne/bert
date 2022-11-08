@@ -31,7 +31,7 @@ export default function Submit({ payload }) {
     if (payload.locations.length < 1) tempErrors.push(<span>You must select a <b>Location</b>. (Tools cannot leave the lab)</span>)
     if (payload.times.length === 0) tempErrors.push(<span>You have not specified any <b>times</b> for your event(s).</span>)
     payload.times.map(({ start, end }, idx) => {
-      if (new Date(start) < new Date() || end < new Date()) tempErrors.push(`Time ${idx}: Start and End Time must be after Today`)
+      if (new Date(start) < new Date() || end < new Date()) tempErrors.push(`Time ${idx}: Start and End Time must be in the future.`)
       else if (start > end) tempErrors.push(`Time ${idx}: Start Time cannot be after End Time`)
     })
     if (payload.tools.length === 0) tempWarnings.push(<span>No <b>tools</b> have been added.</span>)
@@ -151,7 +151,7 @@ export default function Submit({ payload }) {
                 <ListGroup className="mt-1">
                   {
                     errors.map( (error, idx) =>
-                      <ListGroup.Item variant="danger">
+                      <ListGroup.Item variant="danger" className="mt-1">
                         {error}
                       </ListGroup.Item>
                     )
@@ -191,11 +191,11 @@ export default function Submit({ payload }) {
           }
         >
           <Button
+            variant="success"
             disabled={
               status.text ||
-              payload.times.length === 0 ||
               !(conflicts && conflicts.length === 0) ||
-              !(invalid && invalid.filter(i => i.variant === 'danger').length === 0)
+              errors.length > 0
             }
             onClick={handleSubmit}
           >Create {payload.times.length} Event(s)</Button>

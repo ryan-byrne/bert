@@ -19,7 +19,8 @@ const Attendees = ({payload, setPayload}) => {
   }, [attendees, setPayload]);
 
   const handleUserSelect = (e, user) => {
-    e.preventDefault()
+    e.preventDefault();
+    setText("");
     setAttendees([...attendees, user])
   }
 

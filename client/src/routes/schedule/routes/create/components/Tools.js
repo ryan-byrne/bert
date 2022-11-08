@@ -1,6 +1,6 @@
 import {Row, Badge, Col, Image, Button, FormGroup, FormControl, FloatingLabel, ListGroup, Collapse, CloseButton, ButtonGroup, Alert, OverlayTrigger, Tooltip, FormText} from 'react-bootstrap'
 import {useState, useEffect} from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useParams } from 'react-router-dom';
 import Loading from '../../../../../components/Loading'
 import { Query } from '../../../../../components/GraphQL';
 import SearchSelect from '../../../../../components/SearchSelect';
@@ -41,6 +41,31 @@ export const Tools = (props) => {
   `
 
   const notAuthorized = (tool) =>  !tool.training.completed || (tool.training.demo && !tool.training.demo_completed)
+
+  const search = useLocation().search
+
+  useEffect(() => {
+    const id = new URLSearchParams(search).get('tool');
+    if (!id) return
+    Query(`
+    query GetTool($id: String!) {
+      getTool(id: $id) {
+        _id
+        training {
+          completed
+          demo
+          demo_completed
+        }
+        photo
+        name
+        brand
+        quantity
+      }
+    }
+    `, {id})
+      .then( resp => resp.json() )
+      .then( data => handleAdd(data.data.getTool) )
+  }, [search]);
 
   return (
     <FormGroup as={Row}>
