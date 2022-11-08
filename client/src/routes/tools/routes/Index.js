@@ -15,10 +15,7 @@ export const Index = ({viewer, reserve}) => {
   const [category, setCategory] = useState("Cutting");
   const [skillLevel, setSkillLevel] = useState('Advanced');
   
-
   const navigate = useNavigate();
-
-  console.log(viewer, reserve, id);
 
   useEffect(() => {
     const now = new Date();

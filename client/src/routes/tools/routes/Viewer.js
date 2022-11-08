@@ -1,8 +1,102 @@
-import { useState, useEffect } from 'react';
-import { Modal, Button, Row, Image, Table, Alert, Col, Badge, Accordion, ListGroup, FormText } from "react-bootstrap";
+import { useState, useEffect, useRef } from 'react';
+import * as PIXI from 'pixi.js'
+import { Modal, Button, Row, Image, Table, Alert, Col, Badge, Accordion, ListGroup, FormText, Collapse, FormControl } from "react-bootstrap";
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { Query } from '../../../components/GraphQL';
 import Loading from '../../../components/Loading';
+
+Date.prototype.toFormDateString = function(){
+  return this.getFullYear() + "-" + (this.getMonth() + 1).toString().padStart(2, "0") + "-" + this.getDate().toString().padStart(2, "0")
+}
+
+const Reserve = ({id}) => {
+
+  const canvasRef = useRef();
+
+  const [show, setShow] = useState(false);
+  const [date, setDate] = useState(new Date());
+  const [schedule, setSchedule] = useState();
+
+  const handleDateSelect = (e) => {
+    const d = e.target.valueAsDate;
+    d.setDate( d.getDate() + 1 );
+    setDate(d)
+  }
+
+  useEffect(() => {
+    if (!id) return
+    setSchedule();
+    const timeMin = new Date(date);
+    const timeMax = new Date(date);
+    timeMin.setHours(8,0,0,0);
+    timeMax.setHours(18,0,0,0);
+    Query(`
+    query GetCalendar($timeMin: Date!, $timeMax: Date!, $locations: [EventLocation]!, $tools: [String!]) {
+      getCalendar(timeMin: $timeMin, timeMax: $timeMax, locations: $locations, tools: $tools) {
+        date
+        events {
+          summary
+          description
+          creator {
+            email
+          }
+          start {
+            dateTime
+          }
+          end {
+            dateTime
+          }
+        }
+      }
+    }
+    `,{tools:[id], timeMin, timeMax, locations:["classroom","machineshop","powertool"]})
+      .then( resp => resp.json() )
+      .then( data => setSchedule(data.data.getCalendar) )
+  }, [date, id]);
+
+  useEffect(() => {
+    if ( !schedule || !canvasRef ) return
+    const ctx = canvasRef.current.getContext('2d');
+    ctx.fillStyle = "green";
+    ctx.fillRect(10, 10, 150, 100); 
+  }, [schedule, canvasRef]);
+
+  /*
+
+  100%
+  8 am - 6 pm
+
+  10% = 1hr 
+
+  0% ------ 100%
+
+  */
+
+  return(
+    <div>
+      <Row className="mt-3">
+        <Button variant={show?"outline-primary":"primary"} onClick={()=>setShow(!show)}>{show? 'Hide': 'Reserve'}</Button>
+      </Row>
+      <Collapse in={show}>
+        <div>
+          <Row className="mt-3 justify-content-center">
+            <Col xs={6} md={4}>
+              <FormControl type="date" value={date.toFormDateString()} onChange={handleDateSelect}/>
+            </Col>
+          </Row>
+          <Row>
+            <Col>
+            {
+              !schedule ? <Loading>Loading Tool Schedule...</Loading> :
+              <canvas ref={canvasRef}></canvas>
+            }
+            </Col>
+          </Row>
+        </div>
+      </Collapse>
+    </div>
+  )
+}
 
 const Viewer = ({id, show}) => {
 
@@ -12,15 +106,11 @@ const Viewer = ({id, show}) => {
   useEffect(() => {
     if (!id) navigate('/tools')
     else {
-      const timeMin = new Date();
-      const timeMax = new Date();
-      timeMax.setMinutes(timeMin.getMinutes() + 30)
       Query(`
-      query GetTool($id: String!, $timeMin: Date!, $timeMax: Date!) {
+      query GetTool($id: String!) {
         getTool(id: $id) {
           _id
           quantity
-          available(timeMin: $timeMin, timeMax: $timeMax)
           brand
           name
           manual
@@ -40,7 +130,7 @@ const Viewer = ({id, show}) => {
           }
         }
       }
-      `,{id, timeMin, timeMax})
+      `,{id})
         .then(resp => resp.json())
         .then( data => setTool(data.data.getTool) )
       setTool();
@@ -57,10 +147,10 @@ const Viewer = ({id, show}) => {
       {
         !tool ? <Loading>Loading Tool Data...</Loading> :
           <Modal.Body>
-            <Row>
+            <Row className="m-1">
               <Col><Image src={tool.photo} fluid/></Col>
               <Col>
-                <Row className="mt-1">
+                <Row>
                   {
                     !tool.training ||  tool.training.questions.length === 0 ? "None" :
                     <Button
@@ -77,17 +167,12 @@ const Viewer = ({id, show}) => {
                     </Button>
                   }
                 </Row>
-                <Row className="mt-1">
-                  <Button as={Link} to={`/schedule/create?tools=${JSON.stringify([{id:tool._id, quantity:1}])}`}>
-                    Reserve ({tool.available} Available)
-                  </Button>
-                </Row>
-                <Row className="mt-1">
+                <Row className="mt-3">
                   <Button href={tool.manual} variant="outline-primary" target='_blank'>View Manual</Button>
                 </Row>
-                <Row>
+                <Row className='mt-3'>
                   <FormText>Authorized Users</FormText>
-                  <ListGroup style={{maxHeight:"400px", overflowY:"scroll"}}>
+                  <ListGroup style={{maxHeight:"400px", overflowY:"auto", overflowX:"hidden"}}>
                     {
                       !tool.training.demo ? <ListGroup.Item>N/A</ListGroup.Item> :
                       tool.authorized_users.length === 0 ? <ListGroup.Item>None</ListGroup.Item> :
@@ -102,6 +187,7 @@ const Viewer = ({id, show}) => {
                 </Row>
               </Col>
             </Row>
+            <Reserve id={tool._id}/>
           </Modal.Body>
       }
     </Modal>

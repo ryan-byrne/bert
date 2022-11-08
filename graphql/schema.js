@@ -55,7 +55,7 @@ type Mutation {
       summary:String!
       description:String
       times:[TimeInput!]!
-      locations:[EventLocation]!
+      locations:[EventLocation!]!
       tools:[ToolInput]
       attendees:[Attendee]!
     ): [Event],

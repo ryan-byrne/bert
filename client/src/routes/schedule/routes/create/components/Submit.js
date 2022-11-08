@@ -15,7 +15,6 @@ export default function Submit({ payload }) {
   const [showErrors, setShowErrors] = useState(false);
   const [warnings, setWarnings] = useState([]);
   const [showWarnings, setShowWarnings] = useState(false);
-  const [invalid, setInvalid] = useState([]);
 
   useEffect(() => {
     if (status.variant === 'danger' ) setTimeout(()=>setStatus({}),3000)
@@ -47,7 +46,7 @@ export default function Submit({ payload }) {
     if ([payload.times.length, payload.locations.length].includes(0)) return
     setConflicts();
     Query(`
-        query GetConflicts($times: [TimeInput!], $locations: [EventLocation!], $tools: [ToolInput]!) {
+        query GetConflicts($times: [TimeInput!]!, $locations: [EventLocation!]!, $tools: [ToolInput]!) {
             getConflicts(times: $times, locations: $locations, tools: $tools) {
               summary
               htmlLink
@@ -85,8 +84,8 @@ export default function Submit({ payload }) {
     Query(`
     mutation Mutation(
       $summary: String!, 
-      $times: [TimeInput!], 
-      $locations: [EventLocation!], 
+      $times: [TimeInput!]!, 
+      $locations: [EventLocation!]!, 
       $tools: [ToolInput]!, 
       $description: String, 
       $attendees: [Attendee]!
