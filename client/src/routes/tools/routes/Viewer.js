@@ -1,17 +1,16 @@
 import { useState, useEffect, useRef } from 'react';
-import * as PIXI from 'pixi.js'
 import { Modal, Button, Row, Image, Table, Alert, Col, Badge, Accordion, ListGroup, FormText, Collapse, FormControl } from "react-bootstrap";
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { Query } from '../../../components/GraphQL';
 import Loading from '../../../components/Loading';
+
+import './styles/viewer.css'
 
 Date.prototype.toFormDateString = function(){
   return this.getFullYear() + "-" + (this.getMonth() + 1).toString().padStart(2, "0") + "-" + this.getDate().toString().padStart(2, "0")
 }
 
 const Reserve = ({id}) => {
-
-  const canvasRef = useRef();
 
   const [show, setShow] = useState(false);
   const [date, setDate] = useState(new Date());
@@ -54,24 +53,6 @@ const Reserve = ({id}) => {
       .then( data => setSchedule(data.data.getCalendar) )
   }, [date, id]);
 
-  useEffect(() => {
-    if ( !schedule || !canvasRef ) return
-    const ctx = canvasRef.current.getContext('2d');
-    ctx.fillStyle = "green";
-    ctx.fillRect(10, 10, 150, 100); 
-  }, [schedule, canvasRef]);
-
-  /*
-
-  100%
-  8 am - 6 pm
-
-  10% = 1hr 
-
-  0% ------ 100%
-
-  */
-
   return(
     <div>
       <Row className="mt-3">
@@ -88,7 +69,20 @@ const Reserve = ({id}) => {
             <Col>
             {
               !schedule ? <Loading>Loading Tool Schedule...</Loading> :
-              <canvas ref={canvasRef}></canvas>
+              <div className="schedule-container mt-3">
+                {/* 
+                  Background tiles
+                    * Every 15 Minutes
+                    * 10 hours in a day (8am - 6pm)
+                    * 40 tiles (100/40%)
+                    * 2.5% width, left idx*
+                */}
+                { !show ? null :
+                  new Array(40).fill(0).map((_, idx)=>
+                    <div className="schedule-tile" style={{left:`${2.5*idx}%`}}></div>
+                  )
+                }
+              </div>
             }
             </Col>
           </Row>

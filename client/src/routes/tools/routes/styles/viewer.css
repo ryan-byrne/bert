@@ -1,0 +1,11 @@
+.schedule-container {
+  height:50px
+}
+
+.schedule-tile {
+  background-color:aliceblue;
+  border: .1em solid rgba(194, 195, 207, 0.977);
+  position: absolute;
+  height:50px;
+  width:2.5%;
+}
