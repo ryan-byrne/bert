@@ -37,7 +37,7 @@ type Query {
 
     getTrainings(trainings:[String]):[Training]
 
-    getTools(keywords:[String]):[Tool]
+    getTools(keywords:[String]!, location:[EventLocation]):[Tool]
 
     getTool(id:String!):Tool
 
@@ -165,6 +165,7 @@ type Tool {
     manual:String
     training:Training
     keywords:[String]
+    location:[EventLocation]
 }
 
 type User {

@@ -1,6 +1,6 @@
 import {Table, Alert, Image, Badge, FormGroup, Button, FormControl, Row, Collapse, Col, Container, ToggleButtonGroup, ToggleButton, FormText, ButtonGroup, Form, DropdownButton} from 'react-bootstrap'
 import {useState, useEffect} from 'react';
-import {Link, useNavigate, useParams} from 'react-router-dom';
+import {Link, useLocation, useNavigate, useParams} from 'react-router-dom';
 import { Query } from '../../../components/GraphQL';
 import Loading from '../../../components/Loading';
 import DropdownItem from 'react-bootstrap/esm/DropdownItem';
@@ -11,20 +11,30 @@ export const Index = ({viewer, reserve}) => {
   const [tools, setTools] = useState();
   const id = useParams().id;
   // Keyword Filters
-  const [material, setMaterial] = useState("Wood");
-  const [category, setCategory] = useState("Cutting");
-  const [skillLevel, setSkillLevel] = useState('Advanced');
+  const [material, setMaterial] = useState();
+  const [category, setCategory] = useState();
+  const [skillLevel, setSkillLevel] = useState();
+  const [location, setLocation] = useState();
   
   const navigate = useNavigate();
+
+  const search = useLocation().search
+
+  useEffect(() => {
+    const params = new URLSearchParams(search);
+    const loc = params.get("location")
+    if ( !loc ) return
+    else setLocation(loc)
+  }, [search, setLocation]);
 
   useEffect(() => {
     const now = new Date();
     const soon = new Date();
     soon.setMinutes( soon.getMinutes() + 1 )
-    setTools()
+    setTools();
     Query(`
-    query GetCalendar($keywords: [String], $timeMax:Date!, $timeMin:Date!) {
-      getTools(keywords: $keywords) {
+    query GetCalendar($keywords: [String]!, $location: [EventLocation], $timeMax:Date!, $timeMin:Date!) {
+      getTools(keywords: $keywords, location: $location) {
         _id
         name
         brand
@@ -39,21 +49,27 @@ export const Index = ({viewer, reserve}) => {
         }
       }
     }
-    `,{keywords:[category, material, skillLevel].map(k=>k.toLowerCase()), timeMin:now, timeMax:soon})
+    `,{
+      keywords:[category, material, skillLevel].filter(k=>k).map(k=>k.toLowerCase().replace(" ", "")), 
+      location:location ? location.toLowerCase().replace(" ", "") : null, 
+      timeMin:now, 
+      timeMax:soon
+    })
       .then(resp=>resp.json())
       .then(data=>{
         if (data.errors) console.error(data.errors)
         else setTools(data.data.getTools)
       })
-  }, [category, material, skillLevel]);
+  }, [category, material, skillLevel, location]);
 
   const Filter = ({name, value, onChange, options}) =>
     <FormGroup>
       <FormText>{name}</FormText>
       <FormGroup>
-        <DropdownButton as={ButtonGroup} size="sm" variant="dark" title={`${value}`}>
+        <DropdownButton id={name} as={ButtonGroup} size="sm" variant="dark" title={value ? value : "Any"}>
+          <DropdownItem onClick={(e)=>onChange()} eventKey={0} id={`${name}-any`}>Any</DropdownItem>
           {options.map((option, idx)=>
-            <DropdownItem onClick={(e)=>onChange(e.target.id)} id={`${option}`}>
+            <DropdownItem onClick={(e)=>onChange(e.target.id)} eventKey={idx+1} id={`${option}`}>
               {option}
             </DropdownItem>
           )}
@@ -63,6 +79,7 @@ export const Index = ({viewer, reserve}) => {
 
   return (
     <div>
+      <Viewer id={id} show={viewer}/>
       <Row className="m-1 justify-content-center">
         <Col xs={4} md={2} lg={1}>
           <Filter 
@@ -78,6 +95,14 @@ export const Index = ({viewer, reserve}) => {
               value={material} 
               onChange={(v)=>setMaterial(v)} 
               options={["Wood", "Metal", "Plastic"]}
+            />
+        </Col>
+        <Col xs={4} md={2} lg={1}>
+          <Filter 
+              name="Location" 
+              value={location} 
+              onChange={(l)=>setLocation(l)} 
+              options={["Classroom", "Power Tool", "Machine Shop"]}
             />
         </Col>
         <Col xs={4} md={2} lg={1}>
@@ -134,8 +159,6 @@ export const Index = ({viewer, reserve}) => {
             }
           </Col>
       </Row>
-
-      <Viewer id={id} show={viewer}/>
 
   </div>
   )

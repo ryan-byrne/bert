@@ -1,4 +1,5 @@
 import { Col, Row, Badge, Image, Alert, Table } from "react-bootstrap";
+import { Link } from "react-router-dom";
 import Training from "../components/Training";
 import Topic from "../components/Topic";
 import Question from "../components/Question";
@@ -121,7 +122,7 @@ const Introduction = ({update}) =>
                 </Col>
             </Row>
 
-            <p><a href="/#/tools/">Click here for a complete inventory of the <b>Classroom Area</b></a></p>
+            <p><a href="/tools?location=Classroom">Click here for a complete inventory of the <b>Classroom Area</b></a></p>
 
             <h2>&#128268; Power Tool Area</h2>
             <Row md={2} xs={1}>
@@ -167,7 +168,7 @@ const Introduction = ({update}) =>
                 </Col>
             </Row>
 
-            <p><a href="/#/tools/">Click here for a complete inventory of the <b>Power Tool Area</b></a></p>
+            <p><Link to={`/tools?location=Power Tool`}>Click here for a complete inventory of the <b>Power Tool Area</b></Link></p>
 
             <h2>&#9881; Machine Shop</h2>
             <Row md={2} xs={1} className="justify-content-center">
@@ -212,7 +213,7 @@ const Introduction = ({update}) =>
                 </Col>
             </Row>
 
-            <p><a href="/#/tools/">Click here for a complete inventory of the <b>Machine Shop</b></a></p>
+            <p><a href="/tools?location=Machine Shop">Click here for a complete inventory of the <b>Machine Shop</b></a></p>
 
             <Question id="62840cca90fb3d0449fe4d20" {...{update}} choices={['Classroom Area', 'Power Tool Area', 'Machine Shop']}>Where are the rulers located?</Question>
             <Question id="62840d1a90fb3d0449fe4d21" {...{update}} choices={['Classroom Area', 'Power Tool Area', 'Machine Shop']}>If you need to work on metal, which area should you reserve?</Question>

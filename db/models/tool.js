@@ -14,6 +14,7 @@ module.exports = model('Tool', new Schema({
         min:1,
         required:true
     },
+    location:String,
     photo:String,
     manual:String,
     issues:[{ type: 'ObjectId', ref: 'Issue' }],
