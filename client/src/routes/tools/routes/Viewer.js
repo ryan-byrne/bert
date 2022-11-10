@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Modal, Button, Row, Image, Table, Alert, Col, Badge, Accordion, ListGroup, FormText, Collapse, FormControl } from "react-bootstrap";
+import { Modal, Button, Row, Image, Table, Alert, Col, Badge, Accordion, ListGroup, FormText, Collapse, FormControl, ButtonGroup } from "react-bootstrap";
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { Query } from '../../../components/GraphQL';
 import Loading from '../../../components/Loading';
@@ -10,11 +10,14 @@ Date.prototype.toFormDateString = function(){
   return this.getFullYear() + "-" + (this.getMonth() + 1).toString().padStart(2, "0") + "-" + this.getDate().toString().padStart(2, "0")
 }
 
-const Reserve = ({id}) => {
+const Reserve = ({tool}) => {
 
   const [show, setShow] = useState(false);
   const [date, setDate] = useState(new Date());
   const [schedule, setSchedule] = useState();
+  const [start, setStart] = useState();
+  const [end, setEnd] = useState();
+  const [reservation, setReservation] = useState();
 
   const handleDateSelect = (e) => {
     const d = e.target.valueAsDate;
@@ -22,8 +25,32 @@ const Reserve = ({id}) => {
     setDate(d)
   }
 
+  const handleClear = () => {
+    setStart();
+    setEnd();
+    setReservation()
+  }
+  const handleClick = (e) => setStart(e.target.id);
+  const handleHover = (e) => reservation ? null : start && (start <= e.target.id) ? setEnd(e.target.id) : setEnd()
+  const handleRelease = () => {
+    if ( (start && end) && ( start < end ) ) {
+      const startDate = new Date(date)
+      const startTime = (start * 15)/60 + 8;
+      const startMin = startTime % 1;
+      startDate.setHours( startTime-startMin, startMin*60, 0, 0 );
+      const endDate = new Date(date)
+      const endTime = (end * 15)/60 + 8;
+      const endMin = endTime % 1;
+      endDate.setHours( endTime-endMin, endMin*60, 0, 0 );
+      setReservation([startDate, endDate])
+    } else {
+      handleClear()
+    }
+    
+  }
+
   useEffect(() => {
-    if (!id) return
+    if (!tool._id) return
     setSchedule();
     const timeMin = new Date(date);
     const timeMax = new Date(date);
@@ -48,10 +75,10 @@ const Reserve = ({id}) => {
         }
       }
     }
-    `,{tools:[id], timeMin, timeMax, locations:["classroom","machineshop","powertool"]})
+    `,{tools:[tool._id], timeMin, timeMax, locations:["classroom","machineshop","powertool"]})
       .then( resp => resp.json() )
       .then( data => setSchedule(data.data.getCalendar) )
-  }, [date, id]);
+  }, [date, tool]);
 
   return(
     <div>
@@ -68,24 +95,68 @@ const Reserve = ({id}) => {
           <Row>
             <Col>
             {
+              !show ? null :
               !schedule ? <Loading>Loading Tool Schedule...</Loading> :
-              <div className="schedule-container mt-3">
-                {/* 
-                  Background tiles
-                    * Every 15 Minutes
-                    * 10 hours in a day (8am - 6pm)
-                    * 40 tiles (100/40%)
-                    * 2.5% width, left idx*
-                */}
-                { !show ? null :
-                  new Array(40).fill(0).map((_, idx)=>
-                    <div className="schedule-tile" style={{left:`${2.5*idx}%`}}></div>
-                  )
-                }
-              </div>
+                  <div className="schedule-container mt-3">
+                    {
+                      new Array(40).fill(0).map((_, idx)=>
+                        <div 
+                          className={`${idx >= start && idx <= end ? 'schedule-selected' : "null"} schedule-tile`} 
+                          style={{left:`${2.5*idx}%`}} 
+                          id={idx} 
+                          onMouseUp={handleRelease}
+                          onMouseDown={handleClick}
+                          onMouseEnter={handleHover}
+                          >
+
+                          </div>
+                    )}
+                    {
+                      new Array(10).fill(0).map((_, idx)=>
+                        <div className='schedule-label' style={{left:`${10*idx}%`}}>
+                          {idx > 4 ? idx - 4 : idx + 8} {idx < 4 ? "AM" : "PM"}
+                        </div>
+                      )
+                    }
+                    {
+                      schedule.map( (day, idx) =>
+                        day.events.map( (event, idx) => {
+                          const start = new Date(event.start.dateTime)
+                          const end = new Date(event.end.dateTime)
+                          const left = start.getHours() - 8 + start.getMinutes()/60;
+                          const right = end.getHours() - 8 + end.getMinutes()/60;
+                          return(
+                            <div 
+                              className="schedule-event" 
+                              style={{left:`${10*left}%`, width:`${10*(right-left)}%`}}
+                              onMouseEnter={handleClear}
+                              ></div>
+                          )
+                        })
+                      )
+                    }
+                  </div>
             }
             </Col>
           </Row>
+          <Collapse in={reservation}>
+            <Row className="mt-3">
+              {
+                !reservation ? null :
+                <ButtonGroup>
+                  <Button variant="outline-danger" onClick={handleClear}>Clear</Button>
+                  <Button
+                    as={Link}
+                    to={`/schedule/create?startTime=${reservation[0].toISOString()}&endTime=${reservation[1].toISOString()}&summary=${tool.name} Reservation&tool=${tool._id}`}
+                  >
+                    Reserve from: <br/>
+                    {reservation[0].toLocaleTimeString()} to {reservation[1].toLocaleTimeString()}
+
+                  </Button>
+                </ButtonGroup>
+              }
+            </Row>
+          </Collapse>
         </div>
       </Collapse>
     </div>
@@ -181,7 +252,7 @@ const Viewer = ({id, show}) => {
                 </Row>
               </Col>
             </Row>
-            <Reserve id={tool._id}/>
+            <Reserve tool={tool}/>
           </Modal.Body>
       }
     </Modal>

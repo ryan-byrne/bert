@@ -9,12 +9,12 @@ export default function Submit({ payload }) {
 
   const [status, setStatus] = useState({});
   const navigate = useNavigate();
-  // TODO
-  const [conflicts, setConflicts] = useState([]);
   const [errors, setErrors] = useState([]);
   const [showErrors, setShowErrors] = useState(false);
   const [warnings, setWarnings] = useState([]);
   const [showWarnings, setShowWarnings] = useState(false);
+  const [conflicts, setConflicts] = useState([]);
+  const [showConflicts, setShowConflicts] = useState(false);
 
   useEffect(() => {
     if (status.variant === 'danger' ) setTimeout(()=>setStatus({}),3000)
@@ -160,6 +160,27 @@ export default function Submit({ payload }) {
             </Row>
           }
         </div>
+      }
+      {
+        !conflicts ? <Loading>Checking for Conflicts...</Loading> :
+        conflicts.length === 0 ? null :
+        <Row className="mt-3">
+          <Button onClick={()=>setShowConflicts(!showConflicts)} variant={showConflicts ? "outline-danger": "danger"}>
+            {!showConflicts ? `Show` : 'Hide'} {conflicts.length} Conflicts
+          </Button>
+          <Collapse in={showConflicts}>
+            <ListGroup className="mt-1">
+              {
+                conflicts.map( (conflict, idx) =>
+                  <ListGroup.Item variant="danger" className="mt-1">
+                    <strong>{conflict.summary}</strong> <br/>
+                    <u>{new Date(conflict.start.dateTime).toLocaleDateString()}</u>, {new Date(conflict.start.dateTime).toLocaleTimeString()} - {new Date(conflict.end.dateTime).toLocaleTimeString()}
+                  </ListGroup.Item>
+                )
+              }
+            </ListGroup>
+          </Collapse>
+        </Row>
       }
       <Row className="mt-3">
         <OverlayTrigger

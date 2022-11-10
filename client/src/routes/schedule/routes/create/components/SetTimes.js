@@ -9,8 +9,6 @@ Date.prototype.toFormDateString = function(){
   return this.getFullYear() + "-" + (this.getMonth() + 1).toString().padStart(2, "0") + "-" + this.getDate().toString().padStart(2, "0")
 }
 
-//  (Math.ceil((this - )/1000/60/60/24/7))%2===1?"B":"A"
-
 const SetTimes = ({ setPayload, payload }) => {
   
   const [times, setTimes] = useState([]);

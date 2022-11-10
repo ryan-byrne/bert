@@ -1,11 +1,33 @@
 .schedule-container {
-  height:50px
+  height:50px;
+  user-select: none;
+  -webkit-user-select: none; /*Safari*/
+  -moz-user-select: none; /*Firefox*/
+}
+
+.schedule-label {
+  position: absolute;
+  width:10%;
+  height:5px;
+  font-size: xx-small;
+  cursor:default;
+  opacity: 50%;
+}
+
+.schedule-selected {
+  background-color: darkblue;
 }
 
 .schedule-tile {
-  background-color:aliceblue;
   border: .1em solid rgba(194, 195, 207, 0.977);
   position: absolute;
   height:50px;
   width:2.5%;
+}
+
+.schedule-event {
+  position: absolute;
+  height:50px;
+  border: .1em solid rgb(73, 73, 73);
+  background-color: rgb(119, 119, 119);
 }
