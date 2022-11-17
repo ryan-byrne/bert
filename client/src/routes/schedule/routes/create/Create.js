@@ -11,6 +11,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 export default function Create({ show, navigate }) {
 
+  const search = useLocation().search;
+
   const [payload, setPayload] = useState({
     summary: "",
     description: "",
@@ -29,8 +31,8 @@ export default function Create({ show, navigate }) {
       </Offcanvas.Header>
       <Offcanvas.Body>
         <Form>
-          <Describe payload={payload} setPayload={setPayload} />
-          <SetTimes payload={payload} setPayload={setPayload} />
+          <Describe payload={payload} setPayload={setPayload} search={search}/>
+          <SetTimes payload={payload} setPayload={setPayload} search={search} />
           <Attendees payload={payload} setPayload={setPayload} />
           <Tools payload={payload} setPayload={setPayload} />
           <Submit payload={payload} setPayload={setPayload} />

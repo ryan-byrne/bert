@@ -32,6 +32,7 @@ export const Index = ({viewer, reserve}) => {
     const soon = new Date();
     soon.setMinutes( soon.getMinutes() + 1 )
     setTools();
+    const keywords = [category, material, skillLevel].filter(k=>k).map(k=>k.toLowerCase())
     Query(`
     query GetCalendar($keywords: [String]!, $location: [EventLocation], $timeMax:Date!, $timeMin:Date!) {
       getTools(keywords: $keywords, location: $location) {
@@ -50,7 +51,7 @@ export const Index = ({viewer, reserve}) => {
       }
     }
     `,{
-      keywords:[category, material, skillLevel].filter(k=>k).map(k=>k.toLowerCase().replace(" ", "")), 
+      keywords, 
       location:location ? location.toLowerCase().replace(" ", "") : null, 
       timeMin:now, 
       timeMax:soon
@@ -121,9 +122,9 @@ export const Index = ({viewer, reserve}) => {
                   !tools ? <Loading>Loading Tool Data...</Loading> :
                   tools.length === 0 ? <Alert variant="warning">No tools fit your criteria.</Alert> :
                     <Table variant="dark" size="sm" hover>
-                      <thead className="text-center">
+                      <thead>
                         <tr>
-                          <th>Picture</th>
+                          <th></th>
                           <th>Name</th>
                           <th></th>
                           <th></th>

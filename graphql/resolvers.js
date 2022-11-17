@@ -130,7 +130,7 @@ module.exports = {
         getTools: async(_,{keywords, location}) => {
           let query = {}
           if ( location ) { query['location'] = location }
-          if ( keywords > 0 ) { query['keywords'] = {$all:keywords} }
+          if ( keywords.length > 0 ) { query['keywords'] = {$all:keywords} }
           return await tool.find(query)
         },
 

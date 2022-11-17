@@ -85,10 +85,6 @@ export default function Index() {
       icon:"https://cdn-icons-png.flaticon.com/512/1973/1973728.png",
       submodules:['hand-saws', 'sanding', 'hammering']
     },{
-      name:"Maplewoodshop",
-      icon:"https://static1.squarespace.com/static/58b83ae51b10e3d34485ce4c/t/597b5c06ff7c50c9e4d1da1c/1662475500748/",
-      submodules:['hand-saws', 'sanding', 'hammering', 'maplewoodshop']
-    },{
       name:"Power Tools (Handheld)",
       icon:"https://cdn0.iconfinder.com/data/icons/elasto-power-tools/26/04-ELASTOFONT-POWER-TOOLS-READY_drill-512.png",
       submodules:['power-drills', 'power-sanders', 'jig-saws', 'nail-guns']

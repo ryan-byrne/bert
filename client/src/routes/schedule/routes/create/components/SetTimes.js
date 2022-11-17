@@ -9,11 +9,10 @@ Date.prototype.toFormDateString = function(){
   return this.getFullYear() + "-" + (this.getMonth() + 1).toString().padStart(2, "0") + "-" + this.getDate().toString().padStart(2, "0")
 }
 
-const SetTimes = ({ setPayload, payload }) => {
+const SetTimes = ({ setPayload, payload, search }) => {
   
   const [times, setTimes] = useState([]);
   const [show, setShow] = useState(false);
-  const search = useLocation().search;
 
   // Parse Query parameters and change payload
   useEffect(() => {
