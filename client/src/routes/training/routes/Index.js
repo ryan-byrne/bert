@@ -8,7 +8,6 @@ export default function Index() {
 
   const [trainings, setTrainings] = useState();
 
-
   useEffect(() => {
     Query(`
         query AllTrainings {
@@ -79,7 +78,7 @@ export default function Index() {
     {
       name:"Safety",
       icon:"https://cdn-icons-png.flaticon.com/512/2345/2345547.png",
-      submodules:['introduction','fire-extinguisher']
+      submodules:['introduction','fire-extinguisher', 'supervisor']
     },{
       name:"Basic Woodworking",
       icon:"https://cdn-icons-png.flaticon.com/512/1973/1973728.png",
@@ -110,7 +109,6 @@ export default function Index() {
       submodules:['chop-saws', 'horizontal-band-saws', 'grinders', 'soldering', 'welding']
     }
   ]
-
 
   return (!trainings ? <Loading>Loading Trainings...</Loading> :
     <Container className="mt-3">

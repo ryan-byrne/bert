@@ -49,6 +49,12 @@ module.exports = {
 
     Query:{
 
+        getUser: async (_,{email, id}, ctx) => await user.findOne(
+          email ? {email} :
+          id ? {id} : 
+          {email:ctx.user.email}
+        ), 
+
         getBlocks: async (_, {division, day, week}) => await block.find({division, day, week}),
 
         getConflicts: async (_,{times, locations, tools}, {user}) => {
@@ -465,7 +471,13 @@ module.exports = {
         }
     },
 
-    User:{},
+    User:{
+      student: (_, __, {user}) => {
+        const userName = user.email.split("@")[0];
+        const year = userName.substring(userName.length - 4, userName.length)
+        return year == parseInt(year)
+      } 
+    },
 
     ToolReservation:{
       tool: async (toolRes) => await tool.findOne({_id:toolRes.tool})

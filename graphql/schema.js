@@ -11,6 +11,8 @@ schema {
 
 type Query {
 
+    getUser(email:String, id:String):User
+
     getCalendar(
         timeMin:Date!
         timeMax:Date!
@@ -177,7 +179,7 @@ type User {
     picture:String
     locale:String
     hd:String
-    trainings:[Training]
+    student:Boolean
 }
 
 # EVENTS
