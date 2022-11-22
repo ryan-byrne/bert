@@ -317,7 +317,7 @@ module.exports = {
         },
     
         completeDemo: async (_,{user, training}) =>{
-          const d = await demo.create({user, training});
+          const d = await demo.create({user, training, completed:new Date()});
           return d._id
         }
     },
@@ -403,7 +403,9 @@ module.exports = {
           return resp[0] ? resp[0].completed : false
         },
 
-        demo_completed: async ({id}, {user}, ctx) => await demo.findOne({training:id, user:user}) ? true : false,
+        demo_completed: async ({id}, {user}, ctx) => await demo.findOne({
+          training:id, user:user ? user : ctx.user.id
+        }) ? true : false,
 
         tools: async (doc) => await tool.find({training:doc.id}),
 
@@ -474,6 +476,7 @@ module.exports = {
     },
 
     User:{
+
       student: (_, __, {user}) => {
         const userName = user.email.split("@")[0];
         const year = userName.substring(userName.length - 4, userName.length)

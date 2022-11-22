@@ -166,6 +166,7 @@ const Reserve = ({tool}) => {
 const Viewer = ({id, show}) => {
 
   const navigate = useNavigate();
+  const [supervisor, setSupervisor] = useState(false);
   const [showAuthUsers, setShowAuthUsers] = useState(false);
   const [tool, setTool] = useState();
 
@@ -173,7 +174,7 @@ const Viewer = ({id, show}) => {
     if (!id) navigate('/tools')
     else {
       Query(`
-      query GetTool($id: String!) {
+      query GetTool($id: String!, $sid:String!) {
         getTool(id: $id) {
           _id
           quantity
@@ -195,10 +196,16 @@ const Viewer = ({id, show}) => {
             name
           }
         }
+        supervisor : getTraining(id:$sid){
+          completed
+        }
       }
-      `,{id})
+      `,{id, sid:"supervisor"})
         .then(resp => resp.json())
-        .then( data => setTool(data.data.getTool) )
+        .then( data => {
+          setTool(data.data.getTool);
+          setSupervisor(data.data.supervisor.completed)
+        } )
       setTool();
     }
   }, [id]);
@@ -261,9 +268,12 @@ const Viewer = ({id, show}) => {
                     </Collapse>
                   </Row>
                 }
-                <Row className="mt-3">
-                  <Button as={Link} to={`/tools/demo/${tool.training.id}`}>Perform In-Person Demo</Button>
-                </Row>
+                {
+                  !supervisor ? null :
+                  <Row className="mt-3">
+                    <Button as={Link} to={`/tools/demo/${tool.training.id}`}>Perform In-Person Demo</Button>
+                  </Row>
+                }
               </Col>
             </Row>
             <Reserve tool={tool}/>

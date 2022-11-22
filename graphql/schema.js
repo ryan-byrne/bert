@@ -127,6 +127,8 @@ type Block {
 # TRAININGS 
 
 type Training {
+    authorized_supervisor:Boolean
+    authorized_user:Boolean
     id:String!
     name:String!
     checklist:[String]

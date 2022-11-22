@@ -8,6 +8,10 @@ import { Query } from "../../../components/GraphQL";
 import { Link } from "react-router-dom";
 
 import authorizedUsers from '../img/supervisor/authorizedUsers.png'
+import startDemo from '../img/supervisor/startDemo.png'
+import selectUser from '../img/supervisor/selectUser.png'
+import completeTasks from '../img/supervisor/completeTasks.png'
+
 
 export default function Supervisor({ update }) {
 
@@ -242,7 +246,37 @@ export default function Supervisor({ update }) {
           Once you are an <strong>Authorized Supervisor</strong> and an <strong>Authorized User</strong> of
           a tool, you will be able to access the <strong>Demo Checklist</strong> from the <strong>Tool Dashboard.</strong>
         </p>
-        <Question id="" {...{ update }}>Test Question</Question>
+        <div className="text-center m-3">
+          <Image fluid src={startDemo}/>
+        </div>
+        <p>
+          Start by entering the student's name into the search bar at the top
+          of the screen and selecting it from the dropdown menu.
+        </p>
+        <div className="text-center m-3">
+          <Image fluid src={selectUser}/>
+        </div>
+        <p>
+          Have the student perform each item listed, checking off when a task
+          is completed. Once each task has been completed, press <strong>Submit</strong>.
+        </p>
+        <div className="text-center m-3">
+          <Image fluid src={completeTasks}/>
+        </div>
+        <p>
+          The <strong>demo</strong> is now complete, and the student is now
+          an <strong>Authorized User</strong> of the tool!
+        </p>
+        <Question id="637c2b3f280ffc912800fd59" choices={['More Trainings', 'Demo Checklist', 'Other User Data']} {...{ update }}>
+          Once you become an Authorized Supervisor of a tool, what will you be able to access from the Tool Dashboard?
+        </Question>
+        <Question id="637c2af5d99b380f5e318237" choices={["True", "False"]} {...{ update }}>
+          You will be able to submit a demo before all checklist items have
+          been marked as "Complete".
+        </Question>
+        <Question id="637c2becd98f7bf45eec414b" choices={["Student's Name", 'Training ID', 'Your Name', 'All of the Above']} {...{ update }}>
+          What must be entered before completing checklist items?
+        </Question>
       </Topic>
 
     </Training>
