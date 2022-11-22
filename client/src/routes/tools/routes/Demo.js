@@ -14,6 +14,7 @@ export const Demo = ({id, show, onHide}) => {
   const [user, setUser] = useState();
 
   useEffect(() => {
+    if (!id) return
     setTraining();
     Query(`
     query GetTool($id: String!, $sid: String!) {

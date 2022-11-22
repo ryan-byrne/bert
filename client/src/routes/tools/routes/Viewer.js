@@ -171,7 +171,7 @@ const Viewer = ({id, show}) => {
   const [tool, setTool] = useState();
 
   useEffect(() => {
-    if (!id) navigate('/tools')
+    if (!id) return
     else {
       Query(`
       query GetTool($id: String!, $sid:String!) {
@@ -269,7 +269,7 @@ const Viewer = ({id, show}) => {
                   </Row>
                 }
                 {
-                  !supervisor ? null :
+                  !supervisor || !authorized ? null :
                   <Row className="mt-3">
                     <Button as={Link} to={`/tools/demo/${tool.training.id}`}>Perform In-Person Demo</Button>
                   </Row>

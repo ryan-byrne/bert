@@ -66,11 +66,11 @@ export default function Supervisor({ update }) {
           Where can you look if you are unsure whether someone is an 
           <strong> Authorized User</strong> of the <strong>band saw</strong>?
         </Question>
-        <Question id="637b860c4c7fb0e890c635e3" choices={['True', 'False']}>
+        <Question id="637b860c4c7fb0e890c635e3" choices={['True', 'False']} {...{ update }}>
           You can use the <strong>Power Drill</strong> if you are an <strong>Authorized User </strong>
           but the person supervising you is <u>not</u> an <strong>Authorized User.</strong>
         </Question>
-        <Question id="637b86a3d929018edcd68643" choices={['True','False']}>
+        <Question id="637b86a3d929018edcd68643" choices={['True','False']} {...{ update }}>
           You may <u>not</u> supervise a student using a tool you are not an <strong>Authorized User</strong> for,
           even if you have completed this training, and they are an <strong>Authorized User.</strong>
         </Question>
