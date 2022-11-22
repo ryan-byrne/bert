@@ -10,35 +10,36 @@ export default function Materials({payload, setPayload}){
   const [show, setShow] = useState(false);
   const [materials, setMaterials] = useState([]);
 
-  const handleSelect = () => {};
+  const handleSelect = (m) => setMaterials([...materials, m]);
 
-  const materialsOptions = [
-    {
-      id:"15483",
-      vendor:"Lowes",
-      material:"MDF",
-      link:"https://www.lowes.com/pd/47-75-in-x-7-98-ft-Smooth-Brown-Wall-Panel/3014304",
-      unit_price:"$14.98",
-      description:"Smooth Brown Wall Panel",
-      size:"0.115-in thick, 48-in x 96-in"
+  const materialQuery = `
+  query Query($text: String!) {
+    materialSearch(text: $text) {
+      description
+      material
     }
-  ]
+  }
+  `
 
   return(
     <FormGroup>
-      <hr/>
-      <Collapse in={show}>
-        <FormGroup>
-          <SearchSelect name="Materials" query queryName columns onSelect/>
-        </FormGroup>
-      </Collapse>
       <Row>
         <Button
           variant={show ? 'outline-primary' : 'primary'}
           onClick={()=>setShow(!show)}>
-            {!show ? 'Add' : 'Hide'} Material(s) {materials.length > 0 ? `(${materials.length} Added)` : null}
+            {!show ? 'Show' : 'Hide'} Materials {`(${materials.length} Added)`}
         </Button>
       </Row>
+      <Collapse in={show}>
+        <FormGroup>
+          <SearchSelect 
+            name="Material" 
+            query={materialQuery} 
+            queryName="materialSearch" 
+            columns={['description']} onSelect={handleSelect}/>
+        </FormGroup>
+      </Collapse>
+      <hr/>
     </FormGroup>
   )
 }

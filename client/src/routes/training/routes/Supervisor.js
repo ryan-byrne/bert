@@ -191,8 +191,8 @@ export default function Supervisor({ update }) {
         </p>
         <p>
           The answer is: <strong>1</strong>. Once one student uses a <Badge bg="danger">high</Badge> danger tool,
-          you may only supervise <strong>one</strong> other student, even if they are using a <Badge bg="success">low</Badge> low tool,
-          the reason being that the complexity and danger presented by the <Badge bg="danger">high</Badge> danger requires
+          you may only supervise <strong>one</strong> other student, even if they are using a <Badge bg="success">low</Badge> danger tool,
+          the reason being that the complexity and danger presented by the <Badge bg="danger">high</Badge> danger tool requires
           close supervision, which is not possible if there are too many other students working.
         </p>
         <h1>Seeking Help</h1>

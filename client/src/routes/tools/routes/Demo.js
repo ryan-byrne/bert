@@ -35,13 +35,14 @@ export const Demo = ({id, show, onHide}) => {
         setSupervisor(data.data.supervisor.completed)
       })
       .catch(err=>console.error(err))
-  }, [id, show]);
+  }, [id]);
 
   const userQuery = `
   query GetUser($text: String!) {
     userSearch(text: $text) {
       email
       name
+      id
     }
   }
   `
@@ -58,10 +59,10 @@ export const Demo = ({id, show, onHide}) => {
     mutation Mutation($user: String!, $training: String!) {
       completeDemo(user: $user, training: $training)
     }
-    `,{user:user.id, training:training.id})
+    `,{user:user.id, training:id})
       .then( resp => {
-        console.log(resp);
-        onHide();
+        if (!resp) setSubmitting('error')
+        else onHide()
       } )
       .catch( err => {
         console.error(err);
@@ -73,6 +74,7 @@ export const Demo = ({id, show, onHide}) => {
     <Modal show={show} centered onHide={onHide}>
       {
         !training ? <Loading>Loading Training Checklist...</Loading> :
+        !training.completed ? <Alert className="m-3" variant="danger"><CloseButton onClick={onHide}/> You have not completed <Link to={`/training/${id}`}> {training.name}</Link></Alert> :
         !supervisor ? <Alert className="m-3" variant="danger"><CloseButton onClick={onHide}/> You have not completed the <Link to="/training/supervisor">Lab Supervisor Training </Link></Alert> :
         submitting === true ? <Loading>Submitting Demo...</Loading> :
         submitting ==='error' ? <Alert className="m-3" variant="danger">Something went wrong...</Alert> :
@@ -105,7 +107,7 @@ export const Demo = ({id, show, onHide}) => {
             <Button variant="secondary" onClick={onHide}>Close</Button>
             <Button
               onClick={handleSubmit}
-              disabled={checklist.filter(l=>l).length < training.checklist.length}
+              disabled={ !supervisor || checklist.filter(l=>l).length < training.checklist.length}
             >
               Submit
             </Button>

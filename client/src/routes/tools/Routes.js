@@ -6,7 +6,7 @@ export default function ToolsPage() {
 
   return (
     <Routes>
-      <Route index element={<Index/>}/>
+      <Route index element={<Index view={false} demo={false}/>}/>
       <Route path='view/:id' element={<Index view={true}/>}/>
       <Route path='demo/:id' element={<Index demo={true}/>}/>
     </Routes>

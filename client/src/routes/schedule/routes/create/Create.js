@@ -7,7 +7,7 @@ import Attendees from './components/Attendees';
 import Tools from './components/Tools';
 import Submit from './components/Submit';
 import { useLocation, useNavigate } from "react-router-dom";
-//import Materials from './components/Materials';
+import Materials from './components/Materials';
 
 export default function Create({ show, navigate }) {
 
@@ -19,7 +19,8 @@ export default function Create({ show, navigate }) {
     times: [],
     locations: [],
     tools: [],
-    attendees: []
+    attendees: [],
+    materials:[]
   });
 
   return (
@@ -35,6 +36,7 @@ export default function Create({ show, navigate }) {
           <SetTimes payload={payload} setPayload={setPayload} search={search} />
           <Attendees payload={payload} setPayload={setPayload} />
           <Tools payload={payload} setPayload={setPayload} />
+          <Materials payload={payload} setPayload={setPayload} />
           <Submit payload={payload} setPayload={setPayload} />
         </Form>
       </Offcanvas.Body>

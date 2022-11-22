@@ -8,6 +8,7 @@ const question = require('../db/models/question');
 const tool = require('../db/models/tool');
 const guess = require('../db/models/guess');
 const demo = require('../db/models/demo');
+const material = require('../db/models/material');
 
 const isProduction = process.env.NODE_ENV === 'production' 
 
@@ -194,6 +195,24 @@ module.exports = {
           }
         ]),
 
+        materialSearch: async (_, {text}, ctx) => await material.aggregate([
+          {
+            '$addFields': {
+              'longName': {
+                '$concat': [
+                  '$vendor','$material','description'
+                ]
+              }
+            }
+          }, {
+            '$match': {
+              'longName': {
+                '$regex': new RegExp(text, 'i')
+              }
+            }
+          }
+        ]),
+
         trainingSearch: async (_, {text}, ctx) => await training.aggregate([
             {
               '$addFields': {
@@ -316,10 +335,22 @@ module.exports = {
           return correct
         },
     
-        completeDemo: async (_,{user, training}) =>{
-          const d = await demo.create({user, training, completed:new Date()});
-          return d._id
-        }
+        completeDemo: async (_,{user, training}, ctx) => {
+          const resp = await demo.findOne({user, training});
+          if (resp) {
+            return null
+          } else {
+            const d = await demo.create({
+              user, 
+              training, 
+              completed:new Date(),
+              trained_by:ctx.user.id
+            });
+            return d._id
+          }
+        },
+
+        addMaterial: async (_, payload) => await material.create(payload)
     },
 
     Training:{

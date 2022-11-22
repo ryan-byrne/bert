@@ -29,6 +29,8 @@ type Query {
       tools:[ToolInput]
     ):[Event]
 
+    materialSearch(text:String!):[Material]
+
     toolSearch(text:String!):[Tool]
 
     userSearch(text:String!):[User]
@@ -53,6 +55,19 @@ type Query {
 
 }
 
+enum MaterialType {
+  sheet
+  board
+  dimensional
+  other
+}
+
+input MaterialDimension {
+  dimension:String
+  value:Float
+  unit:String
+}
+
 type Mutation {
 
     createEvent(
@@ -62,12 +77,33 @@ type Mutation {
       locations:[EventLocation!]!
       tools:[ToolInput]
       attendees:[Attendee]!
-    ): [Event],
+    ): [Event]
 
     submitGuess(text:String, questionId:String):Boolean
 
     completeDemo(user:String!, training:String!):String
 
+    addMaterial(
+      id:String
+      vendor:String
+      material:String!
+      link:String
+      unit_price:Float
+      description:String!
+      dimensions:[MaterialDimension]!
+    ):Material
+
+}
+
+type Material {
+  _id:String
+  id:String
+  vendor:String
+  material:String
+  link:String
+  unit_price:Float
+  description:String
+  dimensions:[[String]]!
 }
 
 type Course {
