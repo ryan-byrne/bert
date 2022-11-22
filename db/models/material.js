@@ -1,4 +1,4 @@
-const {Schema, model} = require('mongoose');
+const { Schema, model } = require('mongoose');
 
 /*
     {
@@ -17,18 +17,20 @@ const {Schema, model} = require('mongoose');
 */
 
 const Dimension = new Schema({
-    dimension:String,
-    value:Number,
-    unit:String
+  dimension: String,
+  value: Number,
+  unit: String
 })
 
 module.exports = model('Material', new Schema({
-    id:String,
-    vendor:String,
-    material:String,
-    link:String,
-    unit_price:Number,
-    description:String,
-    dimensions:[Dimension],
-    completed:Schema.Types.Date
+  available:Number,
+  photo:String,
+  id: String,
+  vendor: String,
+  material: String,
+  link: String,
+  unit_price: Number,
+  description: String,
+  dimensions: [Dimension],
+  completed: Schema.Types.Date
 }))

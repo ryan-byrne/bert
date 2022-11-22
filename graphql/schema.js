@@ -85,17 +85,26 @@ type Mutation {
 
     addMaterial(
       id:String
+      photo:String
       vendor:String
       material:String!
       link:String
       unit_price:Float
       description:String!
-      dimensions:[MaterialDimension]!
+      dimensions:[MaterialDimension!]!
     ):Material
 
 }
 
+type Dimension {
+  dimension:String!
+  value:Float!
+  unit:String!
+}
+
 type Material {
+  photo:String
+  available:Int
   _id:String
   id:String
   vendor:String
@@ -103,7 +112,7 @@ type Material {
   link:String
   unit_price:Float
   description:String
-  dimensions:[[String]]!
+  dimensions:[Dimension!]!
 }
 
 type Course {
