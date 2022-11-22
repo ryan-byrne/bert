@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Modal, Button, Row, Image, Table, Alert, Col, Badge, Accordion, ListGroup, FormText, Collapse, FormControl, ButtonGroup } from "react-bootstrap";
+import { Modal, Button, Row, Image, Table, Alert, Col, Badge, Accordion, ListGroup, FormText, Collapse, FormControl, ButtonGroup, Form } from "react-bootstrap";
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { Query } from '../../../components/GraphQL';
 import Loading from '../../../components/Loading';
@@ -166,6 +166,7 @@ const Reserve = ({tool}) => {
 const Viewer = ({id, show}) => {
 
   const navigate = useNavigate();
+  const [showAuthUsers, setShowAuthUsers] = useState(false);
   const [tool, setTool] = useState();
 
   useEffect(() => {
@@ -213,42 +214,55 @@ const Viewer = ({id, show}) => {
         !tool ? <Loading>Loading Tool Data...</Loading> :
           <Modal.Body>
             <Row className="m-1">
-              <Col><Image src={tool.photo} fluid/></Col>
+              <Col className="mt-auto mb-auto"><Image src={tool.photo} fluid/></Col>
               <Col>
                 <Row>
                   {
                     !tool.training ||  tool.training.questions.length === 0 ? "None" :
-                    <Button
-                      as={Link}
-                      to={`/training/${tool.training.id}`}
-                      variant={authorized ? "success" : "warning"}
-                    >
-                      {tool.training.name} ({
-                        !tool.training.completed ?
-                        `${Math.floor(100*tool.training.questions.filter(q=>q.completed).length / tool.training.questions.length)}% Complete`:
-                        tool.training.demo && !tool.training.demo_completed ? "Demo Not Completed" :
-                        "Completed"
-                      })
-                    </Button>
+                    <Form.Group>
+                      <Button
+                        as={Link}
+                        to={`/training/${tool.training.id}`}
+                        variant={authorized ? "success" : "warning"}
+                      >
+                        Training: {tool.training.name} ({
+                          !tool.training.completed ?
+                          `${Math.floor(100*tool.training.questions.filter(q=>q.completed).length / tool.training.questions.length)}% Complete`:
+                          tool.training.demo && !tool.training.demo_completed ? "Demo Not Completed" :
+                          "Completed"
+                        })
+                      </Button>
+                    </Form.Group>
                   }
                 </Row>
                 <Row className="mt-3">
                   <Button href={tool.manual} variant="outline-primary" target='_blank'>View Manual</Button>
                 </Row>
-                <Row className='mt-3'>
-                  <FormText>Authorized Users</FormText>
-                  <ListGroup style={{maxHeight:"400px", overflowY:"auto", overflowX:"hidden"}}>
-                    {
-                      !tool.training.demo ? <ListGroup.Item>N/A</ListGroup.Item> :
-                      tool.authorized_users.length === 0 ? <ListGroup.Item>None</ListGroup.Item> :
-                      tool.authorized_users.map(user=>
-                        <ListGroup.Item>
-                          <div>{user.name}</div>
-                          <div><FormText>{user.email}</FormText> </div>
-                        </ListGroup.Item>  
-                      )
-                    }
-                  </ListGroup>
+                {
+                  <Row className='mt-3'>
+                    <Button
+                      variant={showAuthUsers ? 'primary' : 'outline-primary'}
+                      onClick={()=>setShowAuthUsers(!showAuthUsers)}>
+                        {showAuthUsers ? 'Hide' : `Show`} Authorized Users
+                    </Button>
+                    <Collapse in={showAuthUsers}>
+                    <ListGroup style={{maxHeight:"400px", overflowY:"auto", overflowX:"hidden"}}>
+                      {
+                        !tool.training.demo ? <ListGroup.Item>N/A</ListGroup.Item> :
+                        tool.authorized_users.length === 0 ? <ListGroup.Item>None</ListGroup.Item> :
+                        tool.authorized_users.map(user=>
+                          <ListGroup.Item>
+                            <div>{user.name}</div>
+                            <div><FormText>{user.email}</FormText> </div>
+                          </ListGroup.Item>  
+                        )
+                      }
+                    </ListGroup>
+                    </Collapse>
+                  </Row>
+                }
+                <Row className="mt-3">
+                  <Button as={Link} to={`/tools/demo/${tool.training.id}`}>Perform In-Person Demo</Button>
                 </Row>
               </Col>
             </Row>

@@ -6,6 +6,7 @@ module.exports = model('Training', new Schema({
         index:true,
         required:true
     },
+    checklist:[String],
     name:String,
     description:String,
     demo:Boolean,

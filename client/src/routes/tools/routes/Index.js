@@ -5,11 +5,13 @@ import { Query } from '../../../components/GraphQL';
 import Loading from '../../../components/Loading';
 import DropdownItem from 'react-bootstrap/esm/DropdownItem';
 import Viewer from './Viewer';
+import { Demo } from './Demo';
 
-export const Index = ({viewer, reserve}) => {
+export const Index = ({view, demo}) => {
+
+  const id = useParams().id
 
   const [tools, setTools] = useState();
-  const id = useParams().id;
   // Keyword Filters
   const [material, setMaterial] = useState();
   const [category, setCategory] = useState();
@@ -80,7 +82,8 @@ export const Index = ({viewer, reserve}) => {
 
   return (
     <div>
-      <Viewer id={id} show={viewer}/>
+      <Viewer id={id} show={view}/>
+      <Demo id={id} show={demo} onHide={()=>navigate("/tools")}/>
       <Row className="m-1 justify-content-center">
         <Col xs={4} md={2} lg={1}>
           <Filter 

@@ -39,6 +39,8 @@ type Query {
 
     getTrainings(trainings:[String]):[Training]
 
+    getTraining(id:String!):Training
+
     getTools(keywords:[String]!, location:[EventLocation]):[Tool]
 
     getTool(id:String!):Tool
@@ -127,6 +129,7 @@ type Block {
 type Training {
     id:String!
     name:String!
+    checklist:[String]
     questions:[Question]
     completed(user:String):Boolean
     demo_completed(user:String):Boolean

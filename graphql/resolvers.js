@@ -127,6 +127,8 @@ module.exports = {
           
         },
 
+        getTraining: async (_,{id}) => await training.findOne({id}),
+
         getTrainings: async (_, {trainings}) => await training.find( trainings ? {id:trainings} : null ).sort({name:1}),
 
         getQuestions: async (_,{questions}) => await question.find( questions ? {_id:questions} : null ),
@@ -476,7 +478,8 @@ module.exports = {
         const userName = user.email.split("@")[0];
         const year = userName.substring(userName.length - 4, userName.length)
         return year == parseInt(year)
-      } 
+      },
+
     },
 
     ToolReservation:{
