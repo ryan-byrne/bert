@@ -45,54 +45,52 @@ export default function Schedule({ create }) {
     setFrom(d)
   }, [interval, setFrom]);
 
-  // Query for Schedule
-  /*
   useEffect(() => {
-
     if (from.toString() === 'Invalid Date') return
-
-    const to = new Date(from);
-
-    if (interval === 'm') to.setMonth(from.getMonth() + 1)
-    else to.setDate(from.getDate() + (interval === 'w' ? 5 : 1))
+    const timeMin = new Date(from);
+    const timeMax = new Date(from);
+    if (interval === 'm') timeMax.setMonth(timeMax.getMonth() + 1)
+    else timeMax.setDate(timeMax.getDate() + (interval === 'w' ? 5 : 1))
 
     setEvents();
     Query(`
-        query GetCalendar($timeMin: Date!, $timeMax: Date!, $locations: [EventLocation]!) {
-          getCalendar(timeMin: $timeMin, timeMax: $timeMax, locations: $locations) {
-            date
-            events {
-              summary
-              id
-              location
-              start {
-                dateTime
-              }
-              end {
-                dateTime
-              }
-            }
-          }
+    query GetCalendar($timeMin: Date!, $timeMax: Date!) {
+      getEvents(timeMin: $timeMin, timeMax: $timeMax) {
+        start {
+          dateTime
         }
-        `, {
-      locations: ['classroom', 'powertool', 'machineshop'],
-      timeMin: from,
-      timeMax: to
-    })
-      .then(resp => resp.json()
-        .then(data => {
-          if (data.errors || !data.data) console.error(data)
-          setEvents(data.data.getCalendar)
-        }))
-      .catch(err => console.error(err))
-    return () => setEvents()
-  }, [from, setEvents, create, interval]);
-  */
-
-  useEffect(() => {
-    Query(`
-      
-    `,{})
+        id
+        locations
+        summary
+        end {
+          dateTime
+        }
+      }
+    }
+    `,{timeMin, timeMax})
+      .then(resp=>resp.json())
+      .then(data=>{
+        if (data.errors || !data.data) throw data
+        else {
+          let days = [];
+          while ( timeMin < timeMax ) {
+            const today = new Date(timeMin);
+            today.setHours(0,0,0,0);
+            const todaysEvents = data.data.getEvents.filter(event => {
+              const d = new Date(event.start.dateTime)
+              d.setHours(0,0,0,0)
+              return d.toISOString() === today.toISOString()
+            })
+            days.push({
+              date:today,
+              events:todaysEvents
+            })
+            timeMin.setDate( timeMin.getDate() + 1 )
+          }
+          setEvents(days)
+        }
+      })
+      .catch(err=>console.error(err))
   }, [from, interval]);
 
   return (

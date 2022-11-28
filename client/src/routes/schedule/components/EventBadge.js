@@ -14,14 +14,14 @@ export default function EventBadge({ event }) {
     "machineshop": "secondary"
   }
 
-  return (
-    <OverlayTrigger
+  return ( event.locations.map( location =>
+      <OverlayTrigger
       trigger={['hover', 'focus']}
       placement="left"
       overlay={<Tooltip>View Details</Tooltip>}>
         <Link
           to={`/schedule/view/${event.id}`}
-          className={`event-badge bg-${areaColors[event.location]} event-badge-${event.location}`}
+          className={`event-badge bg-${areaColors[location]} event-badge-${location}`}
           style={{ top: `${startHour * 30}px`, height: `${30 * (endHour - startHour)}px`}}
         >
           <div  className="event-text">
@@ -31,5 +31,6 @@ export default function EventBadge({ event }) {
         </Link>
         
     </OverlayTrigger>
+  )
   )
 }
