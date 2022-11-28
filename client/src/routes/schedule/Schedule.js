@@ -47,6 +47,7 @@ export default function Schedule({ create }) {
 
   // Query for Schedule
   useEffect(() => {
+
     if (from.toString() === 'Invalid Date') return
 
     const to = new Date(from);

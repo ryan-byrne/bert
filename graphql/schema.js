@@ -9,9 +9,22 @@ schema {
   mutation: Mutation
 }
 
+input UserInput {
+  id:String
+  email:String
+}
+
 type Query {
 
     getUser(email:String, id:String):User
+
+    getEvents(
+      timeMin:Date!
+      timeMax:Date!
+      tools:[String]
+      materials:[String]
+      locations:[EventLocation]
+    ):[Event]
 
     getCalendar(
         timeMin:Date!
@@ -64,8 +77,13 @@ enum MaterialType {
 
 input MaterialDimension {
   dimension:String
-  value:Float
+  value:String
   unit:String
+}
+
+input MaterialInput {
+  id:String
+  quantity:Int
 }
 
 type Mutation {
@@ -76,6 +94,7 @@ type Mutation {
       times:[TimeInput!]!
       locations:[EventLocation!]!
       tools:[ToolInput]
+      materials:[MaterialInput]
       attendees:[Attendee]!
     ): [Event]
 
@@ -84,7 +103,7 @@ type Mutation {
     completeDemo(user:String!, training:String!):String
 
     addMaterial(
-      id:String
+      id:String!
       photo:String
       vendor:String
       material:String!
@@ -208,6 +227,7 @@ type Guess {
 
 type Tool {
     _id:String
+    stationary:Boolean
     brand:String!
     name:String!
     available(timeMin:Date!, timeMax:Date!):Int
@@ -217,7 +237,7 @@ type Tool {
     manual:String
     training:Training
     keywords:[String]
-    location:[EventLocation]
+    location:EventLocation
 }
 
 type User {

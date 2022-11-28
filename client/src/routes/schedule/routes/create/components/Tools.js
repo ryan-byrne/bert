@@ -39,7 +39,6 @@ export const Tools = (props) => {
       }
     }
   `
-
   const notAuthorized = (tool) =>  !tool.training.completed || (tool.training.demo && !tool.training.demo_completed)
 
   const search = useLocation().search

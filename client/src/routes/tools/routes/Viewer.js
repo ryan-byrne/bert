@@ -147,7 +147,7 @@ const Reserve = ({tool}) => {
                   <Button variant="outline-danger" onClick={handleClear}>Clear</Button>
                   <Button
                     as={Link}
-                    to={`/schedule/create?startTime=${reservation[0].toISOString()}&endTime=${reservation[1].toISOString()}&summary=${tool.name} Reservation&tool=${tool._id}${tool.staionary?`&locations=["${tool.location}"]`:""}`}
+                    to={`/schedule/create?startTime=${reservation[0].toISOString()}&endTime=${reservation[1].toISOString()}&summary=${tool.name} Reservation&tool=${tool._id}${tool.stationary?`&locations=["${tool.location}"]`:""}`}
                   >
                     Reserve from: <br/>
                     {reservation[0].toLocaleTimeString()} to {reservation[1].toLocaleTimeString()}
@@ -178,6 +178,8 @@ const Viewer = ({id, show}) => {
         getTool(id: $id) {
           _id
           quantity
+          stationary
+          location
           brand
           name
           manual

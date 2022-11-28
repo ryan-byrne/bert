@@ -1,8 +1,20 @@
 const {Schema, model} = require('mongoose');
 
 module.exports = model('Demo', new Schema({
-    user:String,
-    training:String,
-    completed:Schema.Types.Date,
-    trained_by:String
+    user:{
+        type:String,
+        required:true
+    },
+    training:{
+        type:String,
+        required:true
+    },
+    completed:{
+        type:Schema.Types.Date,
+        required:true
+    },
+    trained_by:{
+        type:String,
+        required:true
+    }
 }))

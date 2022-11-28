@@ -23,14 +23,29 @@ const Dimension = new Schema({
 })
 
 module.exports = model('Material', new Schema({
-  available:Number,
+  available:{
+    type:Number,
+    required:true
+  },
   photo:String,
-  id: String,
+  id: {
+    type:String,
+    required:true,
+    unique:true
+  },
   vendor: String,
-  material: String,
+  material: {
+    type:String,
+    required:true
+  },
   link: String,
   unit_price: Number,
-  description: String,
-  dimensions: [Dimension],
-  completed: Schema.Types.Date
+  description: {
+    type:String,
+    required:true
+  },
+  dimensions: {
+    required:true,
+    type:[Dimension]
+  }
 }))

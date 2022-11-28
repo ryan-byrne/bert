@@ -88,14 +88,16 @@ export default function Submit({ payload }) {
       $locations: [EventLocation!]!, 
       $tools: [ToolInput]!, 
       $description: String, 
-      $attendees: [Attendee]!
+      $attendees: [Attendee]!,
+      $materials:[MaterialInput]
       ){
         createEvent(
           description: $description,
           summary: $summary, 
-          times: $times, 
+          times: $times,
           locations: $locations,
           attendees: $attendees,
+          materials: $materials,
           tools: $tools) {
             id
         }

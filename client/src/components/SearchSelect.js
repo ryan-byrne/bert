@@ -50,7 +50,7 @@ const SearchSelect = ({name, query, queryName, columns, onSelect}) => {
                   {columns.map( column =>
                     <Col className="mt-auto mb-auto">{
                       column === 'photo' ?
-                      <Image src={option[column]} width="50"/> :
+                      <Image src={option[column]} height="50" style={{maxWidth:"50px"}}/> :
                       option[column]
                     }</Col>  
                   )}

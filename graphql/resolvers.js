@@ -50,6 +50,34 @@ module.exports = {
 
     Query:{
 
+      getEvents: async (_,{
+        timeMin,
+        timeMax,
+        tools,
+        locations,
+        materials
+      },{user}) => {
+        
+        oauth2Client.setCredentials({...user.tokens});
+
+        const eventTools = tools || [];
+        const eventMaterials = materials || [];
+        let events = [];
+        const eventLocations = locations || Object.keys(calendars);
+        for (const location of eventLocations) {
+          const resp = await google.calendar({version:"v3"}).events.list({
+            calendarId:calendars[location],
+            sharedExtendedProperty:[...eventTools, ...eventMaterials].map(id=>`${id}=true`),
+            timeMin,
+            timeMax,
+            singleEvents:true
+          });
+          events.push(resp.data.items);
+        }
+        return events.flat().filter(e=>e);
+
+      },
+
         getUser: async (_,{email, id}, ctx) => await user.findOne(
           email ? {email} :
           id ? {id} : 
@@ -60,7 +88,7 @@ module.exports = {
 
         getConflicts: async (_,{times, locations, tools}, {user}) => {
 
-          oauth2Client.setCredentials({...user.tokens})
+          oauth2Client.setCredentials({...user.tokens});
 
           // RRULE:FREQ=WEEKLY;UNTIL=20221031;INTERVAL=1
           let conflicts = [];
@@ -91,7 +119,6 @@ module.exports = {
         },
 
         getCalendar: async (_, {timeMin, timeMax, locations, tools}, {user}) => {
-
 
           oauth2Client.setCredentials({...user.tokens});
 
@@ -274,14 +301,14 @@ module.exports = {
           locations,
           times,
           tools,
-          attendees
+          attendees,
+          materials
         }, {user}) => {
           
           oauth2Client.setCredentials(user.tokens);
 
           const events = []
-          var toolData = {};
-
+          var sharedData = {};
           /*
           sharedExtendedProperties:{
             60e6469458e61d0b3d60fe34:true,
@@ -290,9 +317,15 @@ module.exports = {
           */
 
           for ( const tool of tools ){
-            toolData[tool.id] = true
-            toolData[`${tool.id}_qty`] = tool.quantity
+            sharedData[tool.id] = true
+            sharedData[`${tool.id}_qty`] = tool.quantity
           }
+
+          for ( const material of materials ){
+            sharedData[material.id] = true
+            sharedData[`${material.id}_qty`] = material.quantity
+          }
+
           for (let time of times){
             const resp = await google.calendar({version:"v3"}).events.insert({
               calendarId:user.email,
@@ -307,7 +340,7 @@ module.exports = {
                 },
                 organizer:true,
                 extendedProperties:{
-                  shared:toolData
+                  shared:sharedData
                 },
                 status:"tentative",
                 summary,
@@ -350,7 +383,7 @@ module.exports = {
           }
         },
 
-        addMaterial: async (_, payload) => await material.create(payload)
+        addMaterial: async (_, payload) => await material.create({...payload, available:0})
     },
 
     Training:{
