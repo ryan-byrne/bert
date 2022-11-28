@@ -46,6 +46,7 @@ export default function Schedule({ create }) {
   }, [interval, setFrom]);
 
   // Query for Schedule
+  /*
   useEffect(() => {
 
     if (from.toString() === 'Invalid Date') return
@@ -86,6 +87,13 @@ export default function Schedule({ create }) {
       .catch(err => console.error(err))
     return () => setEvents()
   }, [from, setEvents, create, interval]);
+  */
+
+  useEffect(() => {
+    Query(`
+      
+    `,{})
+  }, [from, interval]);
 
   return (
     <Container>
