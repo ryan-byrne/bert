@@ -302,29 +302,36 @@ module.exports = {
           times,
           tools,
           attendees,
-          materials
+          materials,
+          storage
         }, {user}) => {
           
           oauth2Client.setCredentials(user.tokens);
 
           const events = []
           var sharedData = {};
-          /*
-          sharedExtendedProperties:{
-            60e6469458e61d0b3d60fe34:true,
-            60e6469458e61d0b3d60fe34_qty:4
-          }
-          */
 
-          for ( const tool of tools ){
-            sharedData[tool.id] = true
-            sharedData[`${tool.id}_qty`] = tool.quantity
+          if (tools) {
+            for ( const tool of tools ){
+              sharedData[tool.id] = true
+              sharedData[`${tool.id}_qty`] = tool.quantity
+            }
           }
 
-          for ( const material of materials ){
-            sharedData[material.id] = true
-            sharedData[`${material.id}_qty`] = material.quantity
+          if (materials){
+            for ( const material of materials ){
+              sharedData[material.id] = true
+              sharedData[`${material.id}_qty`] = material.quantity
+            }
           }
+
+          if (storage){
+            for (const store of storage) {
+              sharedData[store] = true
+            }
+          }
+
+          const eventAttendees = attendees ? attendees : []
 
           for (let time of times){
             const resp = await google.calendar({version:"v3"}).events.insert({
@@ -346,7 +353,7 @@ module.exports = {
                 summary,
                 description,
                 recurrence:time.recurrence,
-                attendees:[...attendees, ...locations.map(l=>({resource:true, email:calendars[l]}))]
+                attendees:[...eventAttendees, ...locations.map(l=>({resource:true, email:calendars[l]}))]
               }
             });
             events.push(resp.data)
@@ -549,10 +556,6 @@ module.exports = {
 
     },
 
-    ToolReservation:{
-      tool: async (toolRes) => await tool.findOne({_id:toolRes.tool})
-    },
-
     Tool:{
       training: async (toolDoc) => await training.findOne({id:toolDoc.training}),
       authorized_users: async (toolDoc) => await tool.aggregate([
@@ -605,6 +608,7 @@ module.exports = {
           }
         }
       ]),
+
       available: async (toolDoc, {timeMin, timeMax}, {user}) => {
         let available = toolDoc.quantity;
         oauth2Client.setCredentials({...user.tokens});
@@ -623,4 +627,58 @@ module.exports = {
         return available
       }
     },
+
+    Event:{
+
+      storage: (eventDoc) => {
+        if (eventDoc.extendedProperties){
+          const props = eventDoc.extendedProperties.shared;
+          const options = ['purple','blue','green','yellow','orange','red','pink'].map(color=>
+            new Array(12).fill(0).map((_,idx)=>`${color}-${idx}`)  
+          ).flat();
+          return Object.keys(props).filter(k=>options.includes(k))
+        } else return null
+      },
+
+      tools: async (eventDoc) => {
+        if (eventDoc.extendedProperties){
+          const props = eventDoc.extendedProperties.shared;
+          const sortedProps = Object.entries(props)
+            .filter(([k,v])=>v==='true')
+            .map(([id, _])=>({id, quantity:props[`${id}_qty`]}));
+          let tools = [];
+          for (const prop of sortedProps){
+            try {
+              let resp = await tool.findOne({_id:prop.id});
+              resp.reserved = prop.quantity;
+              tools.push(resp)
+            } catch {
+              continue
+            } 
+          }
+          return tools
+        } else return null
+
+      },
+
+      materials: async (eventDoc) => {
+        if (eventDoc.extendedProperties){
+          const props = eventDoc.extendedProperties.shared;
+          const sortedProps = Object.entries(props)
+            .filter(([k,v])=>v==='true')
+            .map(([id, _])=>({id, quantity:props[`${id}_qty`]}));
+          let materials = [];
+          for (const prop of sortedProps){
+            try {
+              let resp = await material.findOne({id:prop.id});
+              resp.reserved = prop.quantity;
+              materials.push(resp)
+            } catch {
+              continue
+            } 
+          }
+          return materials
+        } else return null
+      }
+    }
 }

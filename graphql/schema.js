@@ -95,7 +95,8 @@ type Mutation {
       locations:[EventLocation!]!
       tools:[ToolInput]
       materials:[MaterialInput]
-      attendees:[Attendee]!
+      attendees:[Attendee]
+      storage:[String]
     ): [Event]
 
     submitGuess(text:String, questionId:String):Boolean
@@ -119,6 +120,11 @@ type Dimension {
   dimension:String!
   value:Float!
   unit:String!
+}
+
+type MaterialReservation {
+  quantity:Int
+  material:Material
 }
 
 type Material {
@@ -231,6 +237,7 @@ type Tool {
     brand:String!
     name:String!
     available(timeMin:Date!, timeMax:Date!):Int
+    reserved:Int
     quantity:Int
     authorized_users:[User]
     photo:String
@@ -350,14 +357,16 @@ type Event {
     """
     List of Tool Reservations
     """
-    tools:[ToolReservation]!
+    tools:[Tool]
+    """
+    List of reserved storage
+    """
+    storage:[String]
+    """
+    List of materials
+    """
+    materials:[Material]
 }
-
-type ToolReservation {
-    tool:Tool!
-    quantity:Int
-}
-
 
 
 `

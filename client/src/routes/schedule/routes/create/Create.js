@@ -8,6 +8,7 @@ import Tools from './components/Tools';
 import Submit from './components/Submit';
 import { useLocation, useNavigate } from "react-router-dom";
 import Materials from './components/Materials';
+import Storage from "./components/Storage";
 
 export default function Create({ show, navigate }) {
 
@@ -20,7 +21,8 @@ export default function Create({ show, navigate }) {
     locations: [],
     tools: [],
     attendees: [],
-    materials:[]
+    materials:[],
+    storage:[]
   });
 
   return (
@@ -37,6 +39,7 @@ export default function Create({ show, navigate }) {
           <Attendees payload={payload} setPayload={setPayload} />
           <Tools payload={payload} setPayload={setPayload} />
           <Materials payload={payload} setPayload={setPayload} />
+          <Storage payload={payload} setPayload={setPayload} />
           <Submit payload={payload} setPayload={setPayload} />
         </Form>
       </Offcanvas.Body>

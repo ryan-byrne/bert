@@ -4,7 +4,7 @@ const Loading = ({children}) => {
   return (
     <Row className="h-100">
       <Col className="mt-auto mb-auto">
-        <Alert className="m-5 text-center">
+        <Alert className="m-3 text-center">
           <Spinner animation="border" size="sm"/>
           <span className="p-3">
             <strong>{children}</strong>
