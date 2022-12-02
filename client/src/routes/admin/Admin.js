@@ -1,8 +1,9 @@
 import {useState, useEffect} from 'react'
-import { Accordion, Button, ButtonGroup, CloseButton, Col, Container, FloatingLabel, FormControl, FormGroup, FormText, ListGroup, Row, Tab, Table, Tabs } from "react-bootstrap"
+import { Accordion, Button, ButtonGroup, CloseButton, Col, Collapse, Container, FloatingLabel, Form, FormControl, FormGroup, FormText, ListGroup, Row, Tab, Table, Tabs } from "react-bootstrap"
 import { Link } from 'react-router-dom';
 import { Query } from '../../components/GraphQL';
 import Loading from '../../components/Loading';
+import SearchSelect from '../../components/SearchSelect'
 
 const SearchList = ({query, queryName, label}) => {
 
@@ -266,6 +267,42 @@ const Trainings = () => {
   )
 }
 
+const Users = () => {
+
+  const [selectedUser, setSelectedUser] = useState();
+
+  const userQuery= `
+  query UserSearch($text: String!) {
+    userSearch(text: $text) {
+      email
+      name
+      id
+    }
+  }
+  `
+
+  const handleSelect = (u) => setSelectedUser(u);
+
+  return(
+    <Container>
+      <Row className="justify-content-center text-dark">
+        <Col xs={12} md={6}>
+          <SearchSelect name="User" query={userQuery} queryName="userSearch" columns={['name','email']} onSelect={handleSelect}/>
+        </Col>
+      </Row>
+      <Collapse in={selectedUser}>
+        <div>
+          <Row>
+            <Form.Group>
+              
+            </Form.Group>
+          </Row>
+        </div>
+      </Collapse>
+    </Container>
+  )
+}
+
 const Admin = () => {
 
   const [key, setKey] = useState('home');
@@ -276,8 +313,8 @@ const Admin = () => {
         <Tab eventKey="home" title="Home">
           <Home/>
         </Tab>
-        <Tab eventKey="trainings" title="Trainings">
-          <Trainings/>
+        <Tab eventKey="users" title="User Info">
+          <Users/>
         </Tab>
       </Tabs>
     </Container>
