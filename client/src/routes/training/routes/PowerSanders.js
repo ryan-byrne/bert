@@ -84,11 +84,11 @@ export default function PowerSanders({ update }) {
             <Image src={benchDirection} fluid />
           </Col>
         </Row>
-        <Question id="62a87cf693df89fff24da2da" {...{ update }}>
+        <Question id="62a87cf693df89fff24da2da" {...{ update }} choices={["Sheet Sander", "Orbital Sander"]}>
           Because it can use any type of sandpaper, which type of <b>sander</b> is
           considered the most flexible?
         </Question>
-        <Question id="62a87dfa5b764f65020357cf" {...{ update }}>
+        <Question id="62a87dfa5b764f65020357cf" {...{ update }} choices={["Vibrate", "Spin Occasionally", "Move up and Down"]}>
           <b>Sheet</b> and <b>orbital</b> sanders ____________, whereas bench sanders
           spin continuously.
         </Question>
@@ -188,18 +188,18 @@ export default function PowerSanders({ update }) {
         </Row>
         <p>
           If the belt is slipping off the rollers, adjust the <b>tilt</b> of the top roller by turning
-          the know shown below.
+          the knob shown below.
         </p>
         <Row md={2} sm={1} className="m-3 justify-content-center">
           <Col>
             <Image src={tiltKnob} fluid />
           </Col>
         </Row>
-        <Question id="62a87e63690dd456e0193639" {...{ update }}>
+        <Question id="62a87e63690dd456e0193639" {...{ update }} choices={["Ventilation Holes", "Edges", "Velcro"]}>
           When attaching sandpaper to the orbital sander, what do you have to ensure
           are aligned?
         </Question>
-        <Question id="62a8855257c92404c356efa9" {...{ update }}>
+        <Question id="62a8855257c92404c356efa9" {...{ update }} choices={["Tilt", "Speed", "Size"]}>
           If the belt of the bench sander is slipping off, you must adjust the __________
           of the top roller.
         </Question>
@@ -221,8 +221,8 @@ export default function PowerSanders({ update }) {
             <Image src={powerBench} fluid />
           </Col>
         </Row>
-        <Question id="62a886ca6d9fab90decc263c" {...{ update }}>
-          <b>(True/False)</b> Sanders should be turned on before being plugged in.
+        <Question id="62a886ca6d9fab90decc263c" {...{ update }} choices={['True', "False"]}>
+          Sanders should be turned on before being plugged in.
         </Question>
       </Topic>
 
@@ -237,7 +237,7 @@ export default function PowerSanders({ update }) {
             <Image src={leftSide} fluid />
           </Col>
         </Row>
-        <Question id="62aa2b98d85f9a4d3edc56a5" {...{ update }}>
+        <Question id="62aa2b98d85f9a4d3edc56a5" {...{ update }} choices={["Left", "Right"]}>
           While using the disc on the bench sander, which side of the disc should you press your work piece against?
         </Question>
       </Topic>
@@ -245,8 +245,8 @@ export default function PowerSanders({ update }) {
       <Topic name="After Sanding" topicKey={4} >
         <h1>&#9940; &#8635; Switch the tool off and wait for it to stop moving</h1>
         <h1>Never lay down the portable tool until the sanding pad or belt has come to a complete stop.</h1>
-        <Question id="62aa2bf9567936cc17fda73d" {...{ update }}>
-          <b>(True/False)</b> Before moving on to your next task, you must wait for the sander to come to a complete stop.
+        <Question id="62aa2bf9567936cc17fda73d" {...{ update }} choices={["True", "False"]}>
+          Before moving on to your next task, you must wait for the sander to come to a complete stop.
         </Question>
       </Topic>
 

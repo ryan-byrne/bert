@@ -28,7 +28,7 @@ const LaserCutting = ({ update }) =>
         <b> through</b> the given material.
       </p>
       <p className="text-center">
-        <Image src={cutting} />
+        <Image fluid src="https://thumbs.gfycat.com/LividBonyCony-size_restricted.gif" />
       </p>
       <h2>Scoring</h2>
       <p>
@@ -37,7 +37,7 @@ const LaserCutting = ({ update }) =>
         and only removes material from the surface.
       </p>
       <p className="text-center">
-        <Image src={scoring} />
+        <Image src="https://i.pinimg.com/originals/7e/f8/ba/7ef8bace76cdef6c91395a3eb152a26e.gif" />
       </p>
       <h2>Engraving</h2>
       <p>
@@ -47,7 +47,7 @@ const LaserCutting = ({ update }) =>
         for more complex patterns.
       </p>
       <p className="text-center">
-        <Image src={engraving} />
+        <Image src="http://nickbaker.org/portfolio/wp-content/uploads/2017/12/laser-woodcut.gif" />
       </p>
 
       <Question id="631cb54b1ed0b236fbaef15c" {...{ update }} choices={['Cutting', 'Scoring', 'Engraving']}>
@@ -107,7 +107,7 @@ const LaserCutting = ({ update }) =>
       <Question id="632201991849c9f508be87e5" {...{ update }} choices={['True', 'False']}>
         All types of plastic are able to be laser cut.
       </Question>
-      <Question id="632201f4c0ab105a1a0ca4ee" {...{ update }}>
+      <Question id="632201f4c0ab105a1a0ca4ee" {...{ update }} choices={['Rotary Table', ""]}>
         What attachment is needed if you would like to laser engrave a baseball bat?
       </Question>
     </Topic>
@@ -176,6 +176,15 @@ const LaserCutting = ({ update }) =>
       <Question id="6322211e06bc47f755bf69ae" {...{ update }} choices={["Chemical", "Fire", "UV"]}>
         Cleaning the print bed after use prevents what type of hazard for the next person who uses it?
       </Question>
+    </Topic>
+
+    <Topic name="Sources and Additional Resources" topickey={6}>
+      <p>
+
+      </p>
+      <p>
+        
+      </p>
     </Topic>
 
   </Training>

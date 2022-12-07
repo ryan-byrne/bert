@@ -5,7 +5,7 @@ import Question from "../components/Question";
 import Note from '../components/Note';
 
 import directionOfFeed from '../img/routers/directionOfFeed.png'
-import bitTypes from '../img/routers/bitTypes.jpeg'
+import bitTypes from '../img/routers/bitTypes.jpg'
 import tableVsHandheld from '../img/routers/tableVsHandheld.jpg'
 import dovetailJoint from '../img/routers/dovetailJoint.jpg'
 import removeCover from '../img/routers/removeCover-01.png'
@@ -42,7 +42,7 @@ export default function Routers({ update }) {
           common examples.
         </p>
         <Row>
-          <Col>
+          <Col className="text-center">
             <Image src={bitTypes} fluid />
           </Col>
         </Row>
@@ -72,23 +72,22 @@ export default function Routers({ update }) {
           <li>Safety</li>
         </ul>
 
-        <Question id="62aca9ea5ee1db2c6876eeaf" {...{ update }}>
-          <b>(Table/Handheld)</b> routing should be used to add an edge to an 8 ft board.
+        <Question id="62aca9ea5ee1db2c6876eeaf" {...{ update }} choices={['Table', "Handheld"]}>
+          Whic type of routing should be used to add an edge to an 8 ft board.
         </Question>
 
-        <Question id="62acaa7f5ee1db2c6876eeb0" {...{ update }}>
-          <b>(Table/Handheld)</b> routing should be used if the desired bit is 2" in diameter.
+        <Question id="62acaa7f5ee1db2c6876eeb0" {...{ update }} choices={['Table', "Handheld"]}>
+          Which type of routing should be used if the desired bit is 2" in diameter.
         </Question>
 
-        <Question id="62acbe325ee1db2c6876eeb7" {...{ update }}>
+        <Question id="62acbe325ee1db2c6876eeb7" {...{ update }} choices={['Rabbet', "Dovetail", "Ogee"]}>
           What is the name of the <b>bit</b> that creates the shape shown below?
-        </Question>
-
-        <Row>
+          <Row className="mt-3">
           <Col>
             <Image src={dovetailJoint} fluid />
           </Col>
         </Row>
+        </Question>
 
       </Topic>
 
@@ -205,15 +204,15 @@ export default function Routers({ update }) {
             <Image src={attachVaccum} fluid />
           </Col>
         </Row>
-        <Question id="62acbc655ee1db2c6876eeb1" {...{ update }}>
-          <b>(True/False)</b> You can use any wrench to change the bit,
+        <Question id="62acbc655ee1db2c6876eeb1" {...{ update }} choices={['True', 'False']}>
+          You can use any wrench to change the bit,
           so long as it fits.
         </Question>
-        <Question id="62acbc905ee1db2c6876eeb2" {...{ update }}>
+        <Question id="62acbc905ee1db2c6876eeb2" {...{ update }} choices={['Tape', 'A Broom','Vaccum']}>
           What can be attached to the back of the router to make
           cleanup easier?
         </Question>
-        <Question id="62acbcd05ee1db2c6876eeb3" {...{ update }}>
+        <Question id="62acbcd05ee1db2c6876eeb3" {...{ update }} choices={['Height', "Speed", "Temperature"]}>
           What setting of the router bit <b>must</b> be adjusted in order
           for the tool to work properly?
         </Question>
@@ -230,7 +229,7 @@ export default function Routers({ update }) {
           enables a more secure grip on the tool and may prevent slipping leading to potential injury</p>
         <h1>&#9989; Keep the Workpiece Clear</h1>
         <p>Never start the tool when the bit is touching the workpiece.</p>
-        <Question id="62acbd1b5ee1db2c6876eeb4" {...{ update }}>
+        <Question id="62acbd1b5ee1db2c6876eeb4" {...{ update }} choices={['Chuck', "Collet Nut", 'Clamp']}>
           What is the name of the piece that holds the router bit inside of the router itself?
         </Question>
       </Topic>
@@ -273,8 +272,8 @@ export default function Routers({ update }) {
           and may result in loss of control and injury
         </Note>
 
-        <Question id="62acbd945ee1db2c6876eeb5" {...{ update }}>
-          While routing, the workpiece must move in the <b>(Same/Opposite)</b> direction
+        <Question id="62acbd945ee1db2c6876eeb5" {...{ update }} choices={['Same', 'Opposite']}>
+          While routing, the workpiece must move in the __________ direction
           the bit is spinning.
         </Question>
 

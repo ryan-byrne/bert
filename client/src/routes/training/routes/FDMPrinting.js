@@ -149,7 +149,7 @@ export default function FDMPrinting({ update }) {
           <b> stereolithography (STL)</b> files, which are easily read by <b>slicing</b> software,
           which we will touch on in the next section.
         </p>
-        <Question id="62b0ad3efbfeea5d554dec78" {...{ update }}>
+        <Question id="62b0ad3efbfeea5d554dec78" {...{ update }} choices={["PDF", "F3M", "STL", "OBJ"]}>
           What extension should you always export your 3D CAD files as?
         </Question>
       </Topic>

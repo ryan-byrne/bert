@@ -9,8 +9,11 @@ import drillPressLocation2 from '../img/drill-press/location2.png'
 import powerDrillLocation3 from '../img/power-drills/location3.png'
 import insertBit from '../img/drill-press/insertBit.png'
 import chuckKey from '../img/drill-press/chuckKey.png'
-import pressBelts from '../img/drill-press/belts.png'
-import speedTable from '../img/drill-press/speedTable.png'
+import chuckKey2 from '../img/drill-press/chuckKey2.png'
+import pressBelts from '../img/drill-press/pressBelts.png'
+import pressBelts2 from '../img/drill-press/pressBelts2.png'
+import beltSpeed2 from '../img/drill-press/beltSpeed2.png'
+import speedTables from '../img/drill-press/speedTables.png'
 import drillLimit from '../img/drill-press/drillLimit.png'
 import startDrill from '../img/drill-press/startDrill.png'
 import lowerDrill from '../img/drill-press/lowerDrill.png'
@@ -55,15 +58,16 @@ const PowerDrills = ({update}) =>
             Loosen the <b>chuck</b> by turning the metal piece shown below, then insert
             your bit and tighten the chuck by turning it in the opposite direction.
         </p>
-        <Row xs={1} className="justify-content-center p-3">
-            <Col><Image src={insertBit} fluid/></Col>
-        </Row>
+        <div className="text-center p-3">
+            <Image src={insertBit}/>
+        </div>
         <p>
             Finish tightening the chuck by using the <b>chuck key</b> to
             further tighten all three teeth.
         </p>
-        <Row xs={1} className="justify-content-center p-3">
+        <Row xs={2} className="justify-content-center p-3">
             <Col><Image src={chuckKey} fluid/></Col>
+            <Col><Image src={chuckKey2} fluid/></Col>
         </Row>
 
         <h2>Set Drill Press Speed</h2>
@@ -71,8 +75,9 @@ const PowerDrills = ({update}) =>
             Adjusting the speed of the press is done by reconfiguring the drive belts,
             which can be accessed by opening the lid.
         </p>
-        <Row xs={1} className="justify-content-center p-3">
+        <Row xs={2} className="justify-content-center p-3">
             <Col><Image src={pressBelts} fluid/></Col>
+            <Col><Image src={pressBelts2} fluid/></Col>
         </Row>
         <p>
             Given your <b>drill bit size</b> and <b>material</b>,
@@ -80,7 +85,8 @@ const PowerDrills = ({update}) =>
             the table below for reference.
         </p>
         <Row xs={1} className="justify-content-center p-3">
-            <Col><Image src={speedTable} fluid/></Col>
+            <Col><Image src={speedTables} fluid/></Col>
+            <Col><Image src={beltSpeed2} fluid/></Col>
         </Row>
 
         <h2>(Optional) Set Drill Limit</h2>
@@ -97,15 +103,15 @@ const PowerDrills = ({update}) =>
         <p>
             Additionally, you can reposition the table by first loosening it, then using the crank lever to raise or lower it.
         </p>
-        <Row xs={1} className="justify-content-center p-3">
-            <Col><Image src={raiseTable} fluid/></Col>
-        </Row>
+        <div className="text-center">
+            <Image src={raiseTable} fluid/>
+        </div>
 
-        <Question id="629134817752370324f53c4f" {...{update}}>
+        <Question id="629134817752370324f53c4f" {...{update}} choices={["1150", "260", "2260"]}>
             Using the provided table, what <b>RPM</b> should you set the drill press to for a <b>1/2" hole</b> in <b>acryllic</b> using a <b>forstener bit</b>?
         </Question>
 
-        <Question id="629134c87752370324f53c50" {...{update}}>
+        <Question id="629134c87752370324f53c50" {...{update}} choices={["Wrench", "Screwdriver", "Chuck Key"]}>
             What tool do you use to finish tightening the drill bit?
         </Question>
 
@@ -137,7 +143,7 @@ const PowerDrills = ({update}) =>
             You should never grab the _________ to stop the drill.
         </Question>
 
-        <Question id="62913f947752370324f53c56" {...{update}}>
+        <Question id="62913f947752370324f53c56" {...{update}} choices={["Vice", "Your Hand", "Another Piece", "All of the Above"]}>
             Always secure your piece with a clamp or ___________.
         </Question>
 
@@ -155,7 +161,7 @@ const PowerDrills = ({update}) =>
         <p>
             Once cooled, put away the drill bit and clean the table.
         </p>
-        <Question id="629140c27752370324f53c57" {...{update}}>
+        <Question id="629140c27752370324f53c57" {...{update}} choices={["Fragile", "Loose", "Hot", "All of the Above"]}>
             You shouldn't touch the drill bit immediatly after drilling because it is ______________.
         </Question>
     </Topic>

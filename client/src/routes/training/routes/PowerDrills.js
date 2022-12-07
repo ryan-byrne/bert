@@ -47,10 +47,10 @@ export default function PowerDrills({ update }) {
             <li>Ensure it is hanging in the correct orientation</li>
           </ol>
         </p>
-        <Question {...{ update }} id="628f91ddb9b607c258dd75b6">
+        <Question {...{ update }} id="628f91ddb9b607c258dd75b6" choices={["Classroom Area", "Power Tool Area", "Machine Shop"]}>
           Power drills are hanging on the wall in which area?
         </Question>
-        <Question {...{ update }} id="628f96f4b9b607c258dd75bb">
+        <Question {...{ update }} id="628f96f4b9b607c258dd75bb" choices={["Cardboard Box", "Cart", "Tool Chest"]}>
           Screws and bits are located in the __________ below where the drills are hanging.
         </Question>
       </Topic>
@@ -110,15 +110,15 @@ export default function PowerDrills({ update }) {
           </Col>
         </Row>
 
-        <Question id="628fae6cb9b607c258dd75bc" {...{ update }}>
+        <Question id="628fae6cb9b607c258dd75bc" {...{ update }} choices={["Batteries", "Light", "Shear Force of Will"]}>
           Instead of plugging into the wall, power drills get their electricity from ______________.
         </Question>
 
-        <Question id="628fae80b9b607c258dd75bd" {...{ update }}>
+        <Question id="628fae80b9b607c258dd75bd" {...{ update }} choices={["Speed", "Size", "Torque"]}>
           If you are afraid to drill too far into a piece, what setting can you lower?
         </Question>
 
-        <Question id="628faec4b9b607c258dd75be" {...{ update }}>
+        <Question id="628faec4b9b607c258dd75be" {...{ update }} choices={["Set Screw", "Chuck", "Case", "All of the Above"]}>
           Removing a bit is done by first loosening the drill's ___________.
         </Question>
 
@@ -166,26 +166,83 @@ export default function PowerDrills({ update }) {
 
           </tbody>
         </Table>
-        <h1>Before Drilling</h1>
-        <h2>&#9989; Secure your piece with a vice or clamp</h2>
-        <h2>&#9989; Chuck is tightly secured to the bit</h2>
-        <h2>&#9989; Trigger turns the drill to the "right" when it is pulled and “off” when it is released</h2>
         <Note>
           Instead of drawing the circle of your hole on the piece, mark the center with an <b>X</b>. This will allow you to center the drill in the desired spot.
         </Note>
+        <h1>Before Drilling</h1>
+        <Row className="p-3">
+          <Col>
+            <p>
+              Before working, make sure the tool and its accessories
+              are in proper working order. Failure to do so may increase your risk of injury and may result in binding, stalling, and loss of control. These situations may cause the
+              tool to twist or an accessory to break, causing an injury.
+            </p>
+          </Col>
+          <Col>
+            <Image height="200" src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Drill_chucks.jpg/640px-Drill_chucks.jpg" />
+          </Col>
+        </Row>
+        <ul>
+          <li>
+            &#9211; Be sure the trigger turns the tool “on” when it
+            is pulled and “off” when it is released. A trigger
+            “lock-on” and lock release must also work correctly.</li>
+          <li>&#128274; Be sure the chuck is
+            tightly secured to the spindle. This is especially
+            important on reversible type drills. The chuck
+            could loosen and come off the drill.</li>
+          <li>&#128260; Tighten the bit securely in the chuck.</li>
+        </ul>
         <Note>
           Be sure that you secure your piece so that you will not drill into the table or another surface.
         </Note>
+
         <h1>While Drilling</h1>
-        <h2>&#9989; Firmly grasp the trigger handle</h2>
-        <h2>&#9989; Hold or brace the tool securely</h2>
-        <h2>&#9989; Keep a firm footing</h2>
-        <h2>&#9989; Don’t force the tool</h2>
-        <h2>&#9989; As you get close to breaking through the workpiece, reduce pressure</h2>
-        <h1>After Drilling</h1>
-        <h2>&#9989; Remove bit and battery</h2>
-        <h2>&#9989; Return drill and supplies to storage</h2>
-        <h2>&#9989; Clean your work area</h2>
+        <ul>
+          <li>&#128074; Firmly grasp the trigger handle and auxiliary
+            handle (if provided) to maintain control.</li>
+          <li>
+            &#128274; Always hold or brace the tool
+            securely. Brace against stationary things for maximum
+            control.
+          </li>
+          <li>
+            &#128260; In a binding situation, the tool
+            will react in the
+            opposite direction of
+            the turning bit. When drilling
+            into the workpiece (clockwise), the tool will try to spin
+            counterclockwise.
+          </li>
+          <li>
+          &#128556; Don’t force the tool – apply enough pressure to keep the bit cutting or chipping smoothly. If the
+            motor slows down, relieve the pressure. Too
+            much pressure can damage the bit and cause
+            you to lose control of the tool.
+          </li>
+          <li>
+          If the bit binds in the workpiece, release the trigger immediately. Unplug the tool, and then free
+          the bit from the workpiece. Do not use a lock-on
+          button when drilling in warped, pitched, knotty,
+          or imbedded materials (e.g., reinforcing bars in
+          concrete) where binding may be more common.
+          Do not try to free a jammed bit by starting and
+          stopping the tool.
+          </li>
+          <li>
+          As you get close to breaking through the work-
+          piece, reduce pressure and allow the bit to pass
+          through the hole easily.
+          </li>
+          <li>
+          &#129462; Always keep a firm footing when using power
+          tools. Be sure you have balance and control
+          before you start the job.
+          </li>
+          <li>
+          Remove material or debris from the area, especially if it could be ignited by hot chips or friction.
+          </li>
+        </ul>
 
         <Question id="628fc324b9b607c258dd75bf" {...{ update }}>
           Which bit would be best for a 3/4" hole through a hard piece of plywood?
@@ -236,7 +293,11 @@ export default function PowerDrills({ update }) {
 
       </Topic>
 
-      <Topic name="Additional Resources" topicKey={4}>
+      <Topic name="Sources and Additional Resources" topicKey={4}>
+        <h1>Sources</h1>
+        <ul>
+          <li><a href="https://www.powertoolinstitute.com/pti-includes/pdfs/Tool-Specific-Files/Drills-Hammer-Drills-Rotary-Hammers-Hammers.pdf">Power Tool Institute</a></li>
+        </ul>
         <h1>Videos</h1>
         <iframe className="w-100" height="315" src="https://www.youtube.com/embed/IUkj5pzjgNk" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
         <iframe className="w-100" height="315" src="https://www.youtube.com/embed/7p5qZ74KVqc" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>

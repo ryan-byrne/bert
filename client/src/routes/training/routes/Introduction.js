@@ -28,7 +28,7 @@ const Introduction = ({update}) =>
                 Each <b>Topic</b> contains a series of <b>Questions </b> 
                 which must all be answered before a training is considered <b>completed.</b>
             </p>
-            <Question id="6282b4eb90fb3d0449fe4d1c" {...{update}}>Type <i>answer</i> into the box below and press <b>Submit</b></Question>
+            <Question id="6282b4eb90fb3d0449fe4d1c" {...{update}}>Type the word "<i>answer</i>" into the box below and press <b>Submit</b></Question>
             <p>
                 Your progress in a given <b>Topic</b> can be tracked by the <b>Progress Tiles </b>
                 above.
@@ -350,11 +350,11 @@ const Introduction = ({update}) =>
                 for a set of coveralls, which you will be able to borrow for the period/day.
             </p>
 
-            <Question id="6284173d90fb3d0449fe4d24" {...{update}}>
-                What is the one area of the lab where <b>Safety Glasses</b> are not required (unless using a <b>power tool</b>)?
+            <Question id="6284173d90fb3d0449fe4d24" {...{update}} choices={["Classroom Area", "Power Tool Area", "Machine Shop"]}>
+                What is the one area of the lab where <b>Safety Glasses</b> are <u>not</u> required (unless using a <b>power tool</b>)?
             </Question>
 
-            <Question id="62841ee590fb3d0449fe4d25" {...{update}}>
+            <Question id="62841ee590fb3d0449fe4d25" {...{update}} className={["A Smock", "Coveralls", "A Lab Coat"]}>
                 If you show up to work in the lab wearing your favorite sweatshirt and don't want to get it dirty, what can you ask <b>Mr. Byrne </b>
                 to borrow?
             </Question>

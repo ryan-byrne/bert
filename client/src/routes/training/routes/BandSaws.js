@@ -111,11 +111,11 @@ export default function BandSaws({ update }) {
         <p>
           You are now ready to cut!
         </p>
-        <Question id="62a0ca415eb5095e80b60c2a" {...{ update }}>
+        <Question id="62a0ca415eb5095e80b60c2a" {...{ update }} choices={["Material", "Length", "Tension", "All of the Above"]}>
           When you change the width of the blade being used, you must also adjust the blade
           __________.
         </Question>
-        <Question id="62a0ca8191f47950a83bd985" {...{ update }}>
+        <Question id="62a0ca8191f47950a83bd985" {...{ update }} choices={["1 cm", "1 in", "6 in"]}>
           How far above the piece should the blade guard be?
         </Question>
       </Topic>
@@ -142,7 +142,7 @@ export default function BandSaws({ update }) {
 
         <h1>&#8661; Adjust the Blade Guard</h1>
         <h1>&#128274; Secure All Guards and Doors</h1>
-        <Question id="62aa2ca02cb91af05cfde8cf" {...{ update }}>
+        <Question id="62aa2ca02cb91af05cfde8cf" {...{ update }} choices={['Curved Cuts', "Relief Cuts", "Square Cuts"]}>
           Instead of sharp turns, what type of cuts should you make instead?
         </Question>
       </Topic>
@@ -163,8 +163,8 @@ export default function BandSaws({ update }) {
         </ul>
         <h1>&#128064; Remain ready for kickback or sudden movements</h1>
         <h1>&#128683; Don't reach for pieces. Use a <b>push stick</b> to clear away material.</h1>
-        <Question id="62aa2d0c3258e2a549fe199a" {...{ update }}>
-          The saw must reach <b>(Half Speed/Full Speed)</b> before beginning your cut.
+        <Question id="62aa2d0c3258e2a549fe199a" {...{ update }} choices={["Half Speed", "Full Speed"]}>
+          The saw must reach _________ before beginning your cut.
         </Question>
       </Topic>
 
@@ -177,7 +177,7 @@ export default function BandSaws({ update }) {
         </Row>
         <h1>&#8986; Wait for the saw to come to a complete stop</h1>
         <h1>&#129529; Clean the tool area</h1>
-        <Question id="62a0d763454f562bcef11c12" {...{ update }}>
+        <Question id="62a0d763454f562bcef11c12" {...{ update }} choices={['True', "False"]}>
           <b>(True/False)</b> The color of the button to turn off the
           <b> band saw</b> is red.
         </Question>
