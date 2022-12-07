@@ -338,17 +338,17 @@ module.exports = {
       return correct
     },
 
-    completeDemo: async (_, { user, training }, ctx) => {
+    completeDemo: async (_, { users, training }, ctx) => {
       const resp = await demo.findOne({ user, training });
       if (resp) {
         return null
       } else {
-        const d = await demo.create({
+        const d = await demo.create(users.map(user=>({
           user,
           training,
           completed: new Date(),
           trained_by: ctx.user.id
-        });
+        })));
         return d._id
       }
     },

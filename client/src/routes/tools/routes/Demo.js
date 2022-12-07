@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Button, Col, Form, Modal, Row, Alert, CloseButton } from "react-bootstrap"
+import { Button, Col, Form, Modal, Row, Alert, CloseButton, Badge, Collapse } from "react-bootstrap"
 import { Link, useNavigate } from "react-router-dom";
 import { Query } from "../../../components/GraphQL";
 import SearchSelect from "../../../components/SearchSelect";
@@ -11,7 +11,9 @@ export const Demo = ({id, show, onHide}) => {
   const [checklist, setChecklist] = useState([]);
   const [supervisor, setSupervisor] = useState();
   const [submitting, setSubmitting] = useState(false);
-  const [user, setUser] = useState();
+  const [users, setUsers] = useState();
+
+  console.log(users);
 
   useEffect(() => {
     if (!id) return
@@ -57,10 +59,10 @@ export const Demo = ({id, show, onHide}) => {
   const handleSubmit = () => {
     setSubmitting(true);
     Query(`
-    mutation Mutation($user: String!, $training: String!) {
-      completeDemo(user: $user, training: $training)
+    mutation Mutation($users: [String!]!, $training: String!) {
+      completeDemo(users: $users, training: $training)
     }
-    `,{user:user.id, training:id})
+    `,{users:users.map(u=>u.id), training:id})
       .then( resp => {
         if (!resp) setSubmitting('error')
         else onHide()
@@ -84,15 +86,17 @@ export const Demo = ({id, show, onHide}) => {
             <Modal.Title>{training ? `Demo Checklist: ${training.name}` : null}</Modal.Title>
           </Modal.Header>
           <Modal.Body>
+            <SearchSelect columns={['name','email']} name="User" query={userQuery} queryName="userSearch" onSelect={(u)=>setUsers(!users ? [u] : [...users, u])}/>
+            
             {
-              !user ? <SearchSelect columns={['name','email']} name="User" query={userQuery} queryName="userSearch" onSelect={(u)=>setUser(u)}/>:
+              !users ? null :
               <Form.Text>
-                Completing Demo for {user.name}
+                Completing Demo for {users.map(user=><Badge>{user.name}</Badge>)}
               </Form.Text>
             }
-            {
-              !user ? null :
-              training.checklist.map( (item, idx) =>
+            <Collapse in={users}>
+              <div>
+                {training.checklist.map( (item, idx) =>
                 <Row key={idx} className="mt-3">
                   <Col xs={9}>{idx+1}. {item}</Col>
                   <Col xs={3}>
@@ -100,9 +104,10 @@ export const Demo = ({id, show, onHide}) => {
                     <Form.Check inline type="switch" id={idx} onChange={(e)=>handleChange(idx, e)} className="m-1 text-center"/>
                     <Form.Text>Yes</Form.Text>
                   </Col>
-                </Row>
-              )
-            }
+                </Row>)}
+              </div>
+            </Collapse>
+
           </Modal.Body>
           <Modal.Footer>
             <Button variant="secondary" onClick={onHide}>Close</Button>

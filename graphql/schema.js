@@ -93,7 +93,7 @@ type Mutation {
 
     submitGuess(text:String, questionId:String):Boolean
 
-    completeDemo(user:String!, training:String!):String
+    completeDemo(users:[String!]!, training:String!):[String]
 
     addMaterial(
       id:String!
