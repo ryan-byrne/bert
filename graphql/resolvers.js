@@ -593,9 +593,10 @@ module.exports = {
 
   Event: {
 
-    locations: (eventDoc) => !eventDoc.attendees ? null : Object.keys(calendars).filter(
-      location=>eventDoc.attendees.map(a=>a.email).includes(calendars[location])
-    ),
+    locations: (eventDoc) => !eventDoc.attendees ? [] :
+      Object.keys(calendars).filter(
+        location=>eventDoc.attendees.map(a=>a.email).includes(calendars[location])
+      ),
 
     storage: (eventDoc) => {
       if (eventDoc.extendedProperties) {
