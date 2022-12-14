@@ -189,15 +189,17 @@ type Block {
 # TRAININGS 
 
 type Training {
-    authorized_supervisor:Boolean
-    authorized_user:Boolean
+    completed_by:[User]
+    demo_completed_by:[User]
+    completed(user:String):Boolean
+    demo_completed(user:String):Boolean
+
+    authorized_users:[User]
+    authorized_supervisors:[User]
     id:String!
     name:String!
     checklist:[String]
     questions:[Question]
-    completed(user:String):Boolean
-    demo_completed(user:String):Boolean
-    completed_by:[User]
     tools:[Tool]
     required_by:[Training]
     description:String!

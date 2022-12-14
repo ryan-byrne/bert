@@ -343,7 +343,7 @@ module.exports = {
       if (resp) {
         return null
       } else {
-        const d = await demo.create(users.map(user=>({
+        const d = await demo.create(users.map(user => ({
           user,
           training,
           completed: new Date(),
@@ -362,84 +362,229 @@ module.exports = {
 
     questions: async ({ _id }) => await question.find({ training: _id }),
 
-    completed: async ({ _doc }, { user }, ctx) => {
+    completed_by: async (doc) => await training.aggregate([
+      {
+          '$match': {
+              'id': doc.id
+          }
+      }, {
+          '$lookup': {
+              'from': 'questions', 
+              'localField': '_id', 
+              'foreignField': 'training', 
+              'as': 'question'
+          }
+      }, {
+          '$unwind': {
+              'path': '$question'
+          }
+      }, {
+          '$replaceRoot': {
+              'newRoot': '$question'
+          }
+      }, {
+          '$lookup': {
+              'from': 'guesses', 
+              'localField': '_id', 
+              'foreignField': 'question', 
+              'as': 'guesses'
+          }
+      }, {
+          '$unwind': {
+              'path': '$guesses'
+          }
+      }, {
+          '$group': {
+              '_id': {
+                  'question': '$guesses.question', 
+                  'user': '$guesses.user'
+              }, 
+              'guesses': {
+                  '$push': '$guesses.correct'
+              }
+          }
+      }, {
+          '$project': {
+              'correct': {
+                  '$anyElementTrue': '$guesses'
+              }
+          }
+      }, {
+          '$group': {
+              '_id': '$_id.user', 
+              'questions': {
+                  '$push': '$correct'
+              }
+          }
+      }, {
+          '$project': {
+              'completed': {
+                  '$cond': {
+                      'if': {
+                          '$and': '$questions'
+                      }, 
+                      'then': true, 
+                      'else': false
+                  }
+              }
+          }
+      }, {
+          '$match': {
+              'completed': true
+          }
+      }, {
+          '$lookup': {
+              'from': 'users', 
+              'localField': '_id', 
+              'foreignField': 'id', 
+              'as': 'user'
+          }
+      }, {
+          '$unwind': {
+              'path': '$user'
+          }
+      }, {
+          '$replaceRoot': {
+              'newRoot': '$user'
+          }
+      }
+    ]),
+
+    demo_completed_by: async (doc) => await training.aggregate([
+      {
+        '$match': {
+          'id': doc.id
+        }
+      }, {
+        '$lookup': {
+          'from': 'demos',
+          'localField': 'id',
+          'foreignField': 'training',
+          'as': 'demos'
+        }
+      }, {
+        '$lookup': {
+          'from': 'users',
+          'localField': 'demos.user',
+          'foreignField': 'id',
+          'as': 'users'
+        }
+      }, {
+        '$project': {
+          'users': 1
+        }
+      }, {
+        '$unwind': {
+          'path': '$users'
+        }
+      }, {
+        '$replaceRoot': {
+          'newRoot': '$users'
+        }
+      }
+    ]),
+
+    completed: async (doc, vars, ctx) => {
       const resp = await training.aggregate([
         {
-          '$match': {
-            '_id': _doc._id
-          }
+            '$match': {
+                'id': doc.id
+            }
         }, {
-          '$lookup': {
-            'from': 'questions',
-            'localField': '_id',
-            'foreignField': 'training',
-            'as': 'question'
-          }
+            '$lookup': {
+                'from': 'questions', 
+                'localField': '_id', 
+                'foreignField': 'training', 
+                'as': 'question'
+            }
         }, {
-          '$unwind': {
-            'path': '$question'
-          }
+            '$unwind': {
+                'path': '$question'
+            }
         }, {
-          '$lookup': {
-            'from': 'guesses',
-            'localField': 'question._id',
-            'foreignField': 'question',
-            'as': 'guesses'
-          }
+            '$replaceRoot': {
+                'newRoot': '$question'
+            }
         }, {
-          '$project': {
-            '_id': 1,
-            'guesses': {
-              '$map': {
-                'input': '$guesses',
-                'as': 'guess',
-                'in': {
-                  '$cond': {
-                    'if': {
-                      '$and': [
-                        {
-                          '$eq': [
-                            user ? user : ctx.user.id, '$$guess.user'
-                          ]
-                        }, '$$guess.correct'
-                      ]
-                    },
-                    'then': true,
-                    'else': false
-                  }
+            '$lookup': {
+                'from': 'guesses', 
+                'localField': '_id', 
+                'foreignField': 'question', 
+                'as': 'guesses'
+            }
+        }, {
+            '$unwind': {
+                'path': '$guesses'
+            }
+        }, {
+            '$group': {
+                '_id': {
+                    'question': '$guesses.question', 
+                    'user': '$guesses.user'
+                }, 
+                'guesses': {
+                    '$push': '$guesses.correct'
                 }
-              }
             }
-          }
         }, {
-          '$project': {
-            'completed': {
-              '$anyElementTrue': '$guesses'
+            '$project': {
+                'correct': {
+                    '$anyElementTrue': '$guesses'
+                }
             }
-          }
         }, {
-          '$group': {
-            '_id': '$_id',
-            'questions': {
-              '$push': '$completed'
+            '$group': {
+                '_id': '$_id.user', 
+                'questions': {
+                    '$push': '$correct'
+                }
             }
-          }
         }, {
-          '$project': {
-            '_id': 0,
-            'completed': {
-              '$allElementsTrue': '$questions'
+            '$project': {
+                'completed': {
+                    '$cond': {
+                        'if': {
+                            '$and': '$questions'
+                        }, 
+                        'then': true, 
+                        'else': false
+                    }
+                }
             }
-          }
+        }, {
+            '$match': {
+                'completed': true
+            }
         }
-      ])
-
-      return resp[0] ? resp[0].completed : false
+      ]);
+      return resp.map(u=>u._id).includes(vars.user ? vars.user : ctx.user.id)
     },
 
-    demo_completed: async ({ id }, { user }, ctx) => await demo.findOne({
-      training: id, user: user ? user : ctx.user.id
-    }) ? true : false,
+    demo_completed: async (doc, vars, ctx) => {
+      const resp = await training.aggregate([
+        {
+            '$match': {
+                'id': doc.id
+            }
+        }, {
+            '$lookup': {
+                'from': 'demos', 
+                'localField': 'id', 
+                'foreignField': 'training', 
+                'as': 'demos'
+            }
+        }, {
+            '$unwind': {
+                'path': '$demos'
+            }
+        }, {
+            '$project': {
+                'id': '$demos.user'
+            }
+        }
+      ]);
+      return resp.map(u=>u.id).includes(vars.user ? vars.user : ctx.user.id)
+    },
 
     tools: async (doc) => await tool.find({ training: doc.id }),
 
@@ -595,7 +740,7 @@ module.exports = {
 
     locations: (eventDoc) => !eventDoc.attendees ? [] :
       Object.keys(calendars).filter(
-        location=>eventDoc.attendees.map(a=>a.email).includes(calendars[location])
+        location => eventDoc.attendees.map(a => a.email).includes(calendars[location])
       ),
 
     storage: (eventDoc) => {

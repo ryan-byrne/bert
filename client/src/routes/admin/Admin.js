@@ -3,7 +3,7 @@ import { Accordion, Button, ButtonGroup, CloseButton, Col, Collapse, Container, 
 import { Link } from 'react-router-dom';
 import { Query } from '../../components/GraphQL';
 import Loading from '../../components/Loading';
-import SearchSelect from '../../components/SearchSelect'
+import {Users} from './components/Users';
 
 const SearchList = ({query, queryName, label}) => {
 
@@ -264,42 +264,6 @@ const Trainings = () => {
           </Accordion>
         }
       </div>
-  )
-}
-
-const Users = () => {
-
-  const [selectedUser, setSelectedUser] = useState();
-
-  const userQuery= `
-  query UserSearch($text: String!) {
-    userSearch(text: $text) {
-      email
-      name
-      id
-    }
-  }
-  `
-
-  const handleSelect = (u) => setSelectedUser(u);
-
-  return(
-    <Container>
-      <Row className="justify-content-center text-dark">
-        <Col xs={12} md={6}>
-          <SearchSelect name="User" query={userQuery} queryName="userSearch" columns={['name','email']} onSelect={handleSelect}/>
-        </Col>
-      </Row>
-      <Collapse in={selectedUser}>
-        <div>
-          <Row>
-            <Form.Group>
-              
-            </Form.Group>
-          </Row>
-        </div>
-      </Collapse>
-    </Container>
   )
 }
 

@@ -13,8 +13,6 @@ export const Demo = ({id, show, onHide}) => {
   const [submitting, setSubmitting] = useState(false);
   const [users, setUsers] = useState();
 
-  console.log(users);
-
   useEffect(() => {
     if (!id) return
     setTraining();
