@@ -244,15 +244,15 @@ export default function PowerDrills({ update }) {
           </li>
         </ul>
 
-        <Question id="628fc324b9b607c258dd75bf" {...{ update }}>
+        <Question id="628fc324b9b607c258dd75bf" {...{ update }} choices={['Regular', 'Spade', 'Forstener', 'Hole Saw']}>
           Which bit would be best for a 3/4" hole through a hard piece of plywood?
         </Question>
 
-        <Question id="628fc333b9b607c258dd75c0" {...{ update }}>
+        <Question id="628fc333b9b607c258dd75c0" {...{ update }} choices={['Regular', 'Spade', 'Forstener', 'Hole Saw']}>
           If you only need to make a hole half way through a piece, which type of bit should you use?
         </Question>
 
-        <Question id="628fc343b9b607c258dd75c1" {...{ update }}>
+        <Question id="628fc343b9b607c258dd75c1" {...{ update }} choices={['Increase Pressure', 'Reduce Pressure', 'Stop Applying Pressure']}>
           While drilling, what should you do as you approach the end of the piece?
         </Question>
 
@@ -283,11 +283,11 @@ export default function PowerDrills({ update }) {
         <h2>&#9989; Return drill and supplies to storage</h2>
         <h2>&#9989; Clean your work area</h2>
 
-        <Question id="628fc826b9b607c258dd75c2" {...{ update }}>
+        <Question id="628fc826b9b607c258dd75c2" {...{ update }} choices={['Pressure', 'Torque', 'No Pressure']}>
           What should you always apply while screwing, even if you are removing a screw?
         </Question>
 
-        <Question id="628fc835b9b607c258dd75c3" {...{ update }}>
+        <Question id="628fc835b9b607c258dd75c3" {...{ update }} choices={['Guide', 'Starter', 'Pilot']}>
           Before screwing pieces together, you should first drill what type of hole in each?
         </Question>
 

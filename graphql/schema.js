@@ -14,6 +14,11 @@ input UserInput {
   email:String
 }
 
+enum Division {
+  upper
+  middle
+}
+
 type Query {
 
     getUser(email:String, id:String):User
@@ -25,8 +30,8 @@ type Query {
       materials:[String]
       locations:[EventLocation]
     ):[Event]
-        
-    getBlocks(division:String,day:String,week:String):[Block]
+    
+    getBlocks(division:Division,day:String,week:String):[Block]
     
     getConflicts(
       times:[TimeInput!], 

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Scheduling on Bert Documentation</title>
+    <link>https://bert.thebetalab.org/docs/features/scheduling/</link>
+    <description>Recent content in Scheduling on Bert Documentation</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language><atom:link href="https://bert.thebetalab.org/docs/features/scheduling/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Booking the Lab</title>
+      <link>https://bert.thebetalab.org/docs/features/scheduling/booking-the-lab/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://bert.thebetalab.org/docs/features/scheduling/booking-the-lab/</guid>
+      <description>Booking the Lab # Learn how to reserve space in the Beta Lab.
+IMPORTANT: If you plan to reserve tools, materials or storage you must reserve through Bert.
+Book Through Google Calendar # There are three distinct Google Calendars for each area of the lab:
+Classroom Area Power Tool Area Machine Shop Clicking the links above will add them to your Google Calendar where you can view their upcoming and past events.</description>
+    </item>
+    
+  </channel>
+</rss>
