@@ -6,7 +6,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 // Routes
 import Index from './routes/Index';
 import Navigation from './components/Navigation';
-import Schedule from './routes/schedule/Schedule';
+import Schedule from './routes/schedule/Routes';
 import TrainingRoutes from './routes/training/Routes';
 import ToolRoutes from './routes/tools/Routes';
 import Logout from './routes/logout/Logout';
@@ -38,6 +38,8 @@ function App() {
       .catch( err => console.error(err))
   },[])
 
+  // TODO Better organization of routes
+
   return ( !user ? <Loading>Contacting Bert Server...</Loading> :
     <div className='app-container'>
         <BrowserRouter>
@@ -46,6 +48,7 @@ function App() {
             <Route index element={<Index/>}/>
             <Route path="schedule" element={<Schedule create={false}/>}/>
             <Route path="schedule/create" element={<Schedule create={true}/>}/>
+            <Route path="schedule/view/:id" element={<Schedule view={true}/>}/>
             <Route path="training/*" element={<TrainingRoutes user={user}/>}/>
             <Route path="tools/*" element={<ToolRoutes/>}/>
             <Route path="bugs" element={<Feedback subject="I Found a Bug in Bert" body="Describe the bug below (include screenshots!):"/>}/>

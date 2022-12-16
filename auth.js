@@ -14,6 +14,8 @@ google.options({ auth: oauth2Client });
 
 const authMiddleware = async (req, res, next) => {
 
+  console.log(req.session.user);
+
   // Ignore Callback
   if ('/auth/callback' === req._parsedUrl.pathname) next()
   // No Session User, Redirect
@@ -33,7 +35,8 @@ const authMiddleware = async (req, res, next) => {
       include_granted_scopes: true
     });
     return isProduction ? res.redirect(authorizationUrl) : res.json({ authorizationUrl })
-  } else next()
+  }
+  else next()
 }
 
 auth.get('/logout', async (req, res, err) => {

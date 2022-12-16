@@ -19,7 +19,7 @@ const getMonday = (date) => {
   return day
 }
 
-export default function Schedule({ create }) {
+export default function Schedule({ create, view }) {
 
   const [interval, setInterval] = useState('w');
   const [from, setFrom] = useState(getMonday(new Date()));
@@ -96,7 +96,7 @@ export default function Schedule({ create }) {
   return (
     <Container>
 
-      <Create show={create} navigate={navigate} />
+      <Create show={create} navigate={navigate}/>
 
       <Row className="mt-3">
         <ButtonGroup>
