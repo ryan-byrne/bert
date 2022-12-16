@@ -23,25 +23,27 @@ const corsOptions = {
   origin:[process.env.SERVER_URL, "https://studio.apollographql.com"]
 }
 
-app.use(cors(corsOptions));
-app.use(json());
-app.use(session({
-  proxy:isProduction,
-  name:"bert_session",
-  secret:process.env.SESSION_SECRET,
-  resave:false,
-  saveUninitialized:false,
-  store:MongoStore.create({
-    mongoUrl:`mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASS}@${process.env.MONGO_URL}/${process.env.MONGO_DB}`
+app.use(
+  cors(corsOptions),
+  json(),
+  session({
+    proxy:isProduction,
+    name:"bert_session",
+    secret:process.env.SESSION_SECRET,
+    resave:false,
+    saveUninitialized:false,
+    store:MongoStore.create({
+      mongoUrl:`mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASS}@${process.env.MONGO_URL}/${process.env.MONGO_DB}`
+    }),
+    cookie:{
+      secure: isProduction,
+      httpOnly: true,
+      maxAge: 1000 * 60 * 60 * 24 * 29
+    }
   }),
-  cookie:{
-    secure: isProduction,
-    httpOnly: true,
-    maxAge: 1000 * 60 * 60 * 24 * 29
-  }
-}));
-app.use(authMiddleware);
+  authMiddleware,
 
+);
 // Auth Route
 app.use('/auth', auth);
 
