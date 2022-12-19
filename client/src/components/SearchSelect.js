@@ -34,7 +34,7 @@ const SearchSelect = ({name, query, queryName, columns, onSelect}) => {
       <FloatingLabel label={`Search for ${name}`}>
         <FormControl value={search} onChange={(e)=>setSearch(e.target.value)} placeholder={`Search for ${name}`}/>
       </FloatingLabel>
-      <ListGroup style={{maxHeight:"200px", overflowY:"scroll", position:"absolute", zIndex:"1"}}>
+      <ListGroup style={{maxHeight:"200px", overflowY:"scroll", position:"relative", zIndex:"1"}}>
           {
             !options ? null :
             options === true ? <ListGroup.Item variant="info">Loading {name}...</ListGroup.Item> :

@@ -14,8 +14,6 @@ google.options({ auth: oauth2Client });
 
 const authMiddleware = async (req, res, next) => {
 
-  console.log(req.session.user);
-
   // Ignore Callback
   if ('/auth/callback' === req._parsedUrl.pathname) next()
   // No Session User, Redirect

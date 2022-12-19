@@ -6,7 +6,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 // Routes
 import Index from './routes/Index';
 import Navigation from './components/Navigation';
-import Schedule from './routes/schedule/Routes';
+import Schedule from './routes/schedule/Schedule';
 import TrainingRoutes from './routes/training/Routes';
 import ToolRoutes from './routes/tools/Routes';
 import Logout from './routes/logout/Logout';

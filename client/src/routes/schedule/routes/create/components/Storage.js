@@ -1,9 +1,7 @@
 import {Row, Col, Button, FormGroup, Alert, Collapse} from 'react-bootstrap'
 import {useState, useEffect} from 'react';
-import { Link, useLocation, useParams } from 'react-router-dom';
 import Loading from '../../../../../components/Loading'
 import { Query } from '../../../../../components/GraphQL';
-import SearchSelect from '../../../../../components/SearchSelect';
 
 import './style/storage.css'
 
@@ -12,8 +10,14 @@ export const Storage = ({payload, setPayload}) => {
   const [show, setShow] = useState(false);
   const [inUse, setInUse] = useState();
 
+  const handleRemove = (id) => {
+    let storage = [...payload.storage];
+    storage.splice( storage.indexOf(id) , 1);
+    setPayload({...payload, storage})
+  }
+
   const handleClick = (e) => 
-    inUse.includes(e.target.id) || payload.storage.includes(e.target.id) ? null : 
+    payload.storage.includes(e.target.id) ? handleRemove(e.target.id) :
     setPayload({...payload, storage:[...payload.storage, e.target.id]})
 
   useEffect(() => {
@@ -44,7 +48,6 @@ export const Storage = ({payload, setPayload}) => {
       .catch(err=>console.error(err))
   }, [payload.times]);
 
-
   return (
     <FormGroup as={Row}>
       <Button
@@ -54,6 +57,10 @@ export const Storage = ({payload, setPayload}) => {
       </Button>
       <Collapse in={show}>
         <div className="text-center mt-3">
+          <Row className="m-3">
+            <Button variant="outline-secondary" onClick={()=>setPayload({...payload, storage:[]})}>Clear</Button>
+          </Row>
+          
           {
             payload.times.length === 0 ? <Alert variant="warning" className="mt-3">You must add times...</Alert> :
             !inUse ? <Loading>Checking Availability...</Loading> :

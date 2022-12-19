@@ -9,6 +9,8 @@ export const Tools = (props) => {
 
   const [show, setShow] = useState(false);
   const [tools, setTools] = useState([]);
+  const search = useLocation().search
+  const id = new URLSearchParams(search).get('tool');
 
   const handleQuantity = (idx, amount) => {
     let prevTools = [...tools];
@@ -23,28 +25,9 @@ export const Tools = (props) => {
 
   const handleAdd = (tool) => setTools([...tools, {...tool, requesting:1}])
 
-  const toolQuery = `
-    query ToolSearch($text: String!) {
-      toolSearch(text: $text) {
-        _id
-        brand
-        name
-        quantity
-        photo
-        training {
-          completed
-          demo
-          demo_completed
-        }
-      }
-    }
-  `
   const notAuthorized = (tool) =>  !tool.training.completed || (tool.training.demo && !tool.training.demo_completed)
 
-  const search = useLocation().search
-
   useEffect(() => {
-    const id = new URLSearchParams(search).get('tool');
     if (!id) return
     Query(`
     query GetTool($id: String!) {
@@ -64,7 +47,24 @@ export const Tools = (props) => {
     `, {id})
       .then( resp => resp.json() )
       .then( data => handleAdd(data.data.getTool) )
-  }, [search]);
+  }, [id]);
+
+  const toolQuery = `
+    query ToolSearch($text: String!) {
+      toolSearch(text: $text) {
+        _id
+        brand
+        name
+        quantity
+        photo
+        training {
+          completed
+          demo
+          demo_completed
+        }
+      }
+    }
+  `
 
   return (
     <FormGroup as={Row}>
