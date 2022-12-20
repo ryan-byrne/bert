@@ -1,7 +1,8 @@
+const { ApolloError } = require('apollo-server-express');
 const { Router } = require('express');
 const auth = Router();
 const { google } = require("googleapis");
-const user = require("./db/models/user")
+const user = require("./db/models/user");
 
 const oauth2Client = new google.auth.OAuth2(
   process.env.GOOGLE_CLIENT_ID,
@@ -10,12 +11,24 @@ const oauth2Client = new google.auth.OAuth2(
 );
 
 const isProduction = process.env.NODE_ENV === 'production'
+
 google.options({ auth: oauth2Client });
 
 const authMiddleware = async (req, res, next) => {
 
   // Ignore Callback
   if ('/auth/callback' === req._parsedUrl.pathname) next()
+  // Authorization Header Provided
+  else if ( req.headers.authorization ) {
+    const auth_token = req.headers.authorization.split(" ")[1];
+    const resp = await user.findOne({auth_token});
+    if (!resp) throw new ApolloError("Invalid authentication token...")
+    else {
+      req.session.user = JSON.parse( JSON.stringify(resp) );
+      oauth2Client.setCredentials({...req.session.user.tokens});
+      next()
+    }
+  }
   // No Session User, Redirect
   else if (!req.session.user) {
     const authorizationUrl = oauth2Client.generateAuthUrl({
@@ -32,9 +45,12 @@ const authMiddleware = async (req, res, next) => {
       ],
       include_granted_scopes: true
     });
-    return isProduction ? res.redirect(authorizationUrl) : res.json({ authorizationUrl })
+    return isProduction ? res.redirect(authorizationUrl) : res.json({authorizationUrl})
   }
-  else next()
+  else {
+    oauth2Client.setCredentials({...req.session.user.tokens})
+    next()
+  }
 }
 
 auth.get('/logout', async (req, res, err) => {
@@ -56,24 +72,15 @@ auth.get('/logout', async (req, res, err) => {
 })
 
 auth.get('/user', async (req, res, err) => {
-  try {
-    const { tokens, ...resp } = req.session.user;
-    const userData = await user.findOne({email:resp.email});
-    if ( userData ) {
-      await user.updateOne({id:userData.id},{"$set":{last_login:new Date().toISOString()}});
-      return res.json({...resp, admin:userData._doc.admin})
-    } else {
-      await user.create({
-        ...resp,
-        first_login: new Date().toISOString(),
-        last_login: new Date().toISOString()
-      })
-      console.log(`Created a new user ${userData.id}`);
-      return res.json({...resp})
-    }
-  } catch (e) {
-    res.status(403).send("No user session found...")
+
+  if (!req.session || !req.session.user) throw Error("No user session found...")
+  else if ( !req.session.user.tokens ) throw Error("No user session tokens found...")
+  else {
+    const { tokens, auth_token, ...sessionUser } = req.session.user;
+    const updatedUser = await user.updateOne({id:sessionUser.id},{"$set":{last_login:new Date().toISOString()}});
+    return res.json({...sessionUser})
   }
+
 })
 
 auth.get("/callback", async (req, res, err) => {
@@ -81,18 +88,20 @@ auth.get("/callback", async (req, res, err) => {
   const { error, code } = req.query;
 
   if (error) return res.status(403).json(error);
-
-  try {
-    const { tokens } = await oauth2Client.getToken(code);
+  else {
+    const {tokens} = await oauth2Client.getToken(code);
     oauth2Client.setCredentials(tokens);
     const userInfo = await google.oauth2({ version: "v2" }).userinfo.get();
-    console.log(`New login from ${userInfo.data.id}`);
-    req.session.user = { ...userInfo.data, tokens };
+    const mongoUser = await user.findOneAndUpdate(
+      {id:userInfo.data.id},
+      {...userInfo.data, tokens, last_login:new Date().toISOString()},
+      {upsert: true, new: true, setDefaultsOnInsert: true}
+    );
+    req.session.user = mongoUser;
+    console.log(`${req.session.user.id} Just Logged in.`);
     return res.redirect(process.env.CLIENT_URL)
-  } catch (e) {
-    console.error(e);
-    return res.status(500).json(e);
   }
+
 });
 
 module.exports = { auth, google, oauth2Client, authMiddleware }

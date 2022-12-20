@@ -21,47 +21,45 @@ enum Division {
 
 type Query {
 
-    getUser(email:String, id:String):User
+  users(
+    id:String, 
+    email:String, 
+    search:String
+  ):[User]
 
-    getEvents(
-      timeMin:Date!
-      timeMax:Date!
-      tools:[String]
-      materials:[String]
-      locations:[EventLocation]
-    ):[Event]
-    
-    getBlocks(division:Division,day:String,week:String):[Block]
-    
+  events(
+    timeMin:Date!
+    timeMax:Date!
+    tools:[String]
+    materials:[String]
+    locations:[EventLocation]
+  ):[Event]
+
+  blocks(division:Division!, day:String!, week:String!):[Block]
+
+  trainings(
+    id:[String],
+    search:String
+  ):[Training]
+
+  tools(
+    search:String
+    keywords:[String!],
+    locations:[EventLocation!],
+    id:[String!]
+  ):[Tool]
+
+  questions(
+    id:[String]
+  ):[Question]
+
+  courses:[Course]
+        
     getConflicts(
       times:[TimeInput!], 
       locations:[EventLocation!], 
       tools:[ToolInput]
     ):[Event]
-
-    materialSearch(text:String!):[Material]
-
-    toolSearch(text:String!):[Tool]
-
-    userSearch(text:String!):[User]
-
-    trainingSearch(text:String!):[Training]
-
-    getQuestions(questions:[String]):[Question]
-
-    getTrainings(trainings:[String]):[Training]
-
-    getTraining(id:String!):Training
-
-    getTools(keywords:[String]!, location:[EventLocation]):[Tool]
-
-    getTool(id:String!):Tool
-
-    getBlockTimes(blocks:[String]!, start:Date!, end:Date!):[Time]
-
-    getCourses:[Course]
-
-    getClassRoster(courseId:String!):[User]
 
 }
 
@@ -124,6 +122,9 @@ type MaterialReservation {
   material:Material
 }
 
+"""
+Materials
+"""
 type Material {
   photo:String
   available:Int
@@ -144,6 +145,7 @@ type Course {
     section:String
     room:String
     ownerId:String
+    roster:[User]
 }
 
 # SCHEDULING INPUTS
@@ -198,7 +200,6 @@ type Training {
     demo_completed_by:[User]
     completed(user:String):Boolean
     demo_completed(user:String):Boolean
-
     authorized_users:[User]
     authorized_supervisors:[User]
     id:String!
@@ -228,33 +229,100 @@ type Guess {
     correct:Boolean!
 }
 
-# COLLECTIONS
-
+"""
+Tool Data
+"""
 type Tool {
+    """
+    Tool ID
+    """
     _id:String
+    """
+    Whether the tool is Stationary or not.
+    """
     stationary:Boolean
+    """
+    Brand of the tool.
+    """
     brand:String!
+    """
+    Name of the tool.
+    """
     name:String!
+    """
+    Number of tools currently available
+    """
     available(timeMin:Date!, timeMax:Date!):Int
+    """
+    
+    """
     reserved:Int
+    """
+    Total number of tools in the lab.
+    """
     quantity:Int
+    """
+    List of Authorized Users of the tool
+    """
     authorized_users:[User]
+    """
+    URL link to a photo of the tool
+    """
     photo:String
+    """
+    URL link to the Tool's manual
+    """
     manual:String
+    """
+    Training for the tool
+    """
     training:Training
+    """
+    List of Tool Keywords
+    """
     keywords:[String]
+    """
+    Location where the tool is stored
+    """
     location:EventLocation
 }
 
+"""
+User Data pulled from Google when a User first logs into Bert.
+"""
 type User {
+    """
+    User's Google ID
+    """
     id:String!
+    """
+    User's Berkeley Carroll Email Address
+    """
     email:String!
+    """
+    User's Name
+    """
     name:String
+    """
+    User's Given Name
+    """
     given_name:String
+    """
+    User's Name
+    """
     family_name:String
+    """
+    User's Google Account Picture URL
+    """
     picture:String
+    """
+    User's Locale
+    """
     locale:String
     hd:String
+    """
+    Whether User is a student or not
+    """
     student:Boolean
 }
 
@@ -284,6 +352,9 @@ enum EventStatus {
     cancelled
 }
 
+"""
+Locations 
+"""
 enum EventLocation {
     classroom
     powertool

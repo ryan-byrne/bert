@@ -55,7 +55,7 @@ export default function Schedule({ create, view }) {
     setEvents();
     Query(`
     query GetCalendar($timeMin: Date!, $timeMax: Date!) {
-      getEvents(timeMin: $timeMin, timeMax: $timeMax) {
+      events(timeMin: $timeMin, timeMax: $timeMax) {
         start {
           dateTime
         }
@@ -76,7 +76,7 @@ export default function Schedule({ create, view }) {
           while ( timeMin < timeMax ) {
             const today = new Date(timeMin);
             today.setHours(0,0,0,0);
-            const todaysEvents = data.data.getEvents.filter(event => {
+            const todaysEvents = data.data.events.filter(event => {
               const d = new Date(event.start.dateTime)
               d.setHours(0,0,0,0)
               return d.toISOString() === today.toISOString()

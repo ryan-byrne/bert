@@ -17,12 +17,13 @@ const app = express();
 // Is Production
 const isProduction = process.env.NODE_ENV === 'production'
 
-// Middleware
+// CORS
 const corsOptions = {
   credentials:true,
   origin:[process.env.SERVER_URL, "https://studio.apollographql.com"]
 }
 
+// Middleware
 app.use(
   cors(corsOptions),
   json(),
@@ -36,14 +37,14 @@ app.use(
       mongoUrl:`mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASS}@${process.env.MONGO_URL}/${process.env.MONGO_DB}`
     }),
     cookie:{
+      httpOnly:true,
       secure: isProduction,
-      httpOnly: true,
       maxAge: 1000 * 60 * 60 * 24 * 29
     }
   }),
-  authMiddleware,
-
+  authMiddleware
 );
+
 // Auth Route
 app.use('/auth', auth);
 

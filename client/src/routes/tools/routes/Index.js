@@ -36,8 +36,8 @@ export const Index = ({view, demo}) => {
     setTools();
     const keywords = [category, material, skillLevel].filter(k=>k).map(k=>k.toLowerCase())
     Query(`
-    query GetCalendar($keywords: [String]!, $location: [EventLocation], $timeMax:Date!, $timeMin:Date!) {
-      getTools(keywords: $keywords, location: $location) {
+    query getTools($keywords: [String!], $locations: [EventLocation!], $timeMax:Date!, $timeMin:Date!) {
+      tools(keywords: $keywords, locations: $locations) {
         _id
         name
         brand
@@ -53,15 +53,15 @@ export const Index = ({view, demo}) => {
       }
     }
     `,{
-      keywords, 
-      location:location ? location.toLowerCase().replace(" ", "") : null, 
+      keywords: keywords.length === 0 ? null : keywords, 
+      locations:location ? location.toLowerCase().replace(" ", "") : null, 
       timeMin:now, 
       timeMax:soon
     })
       .then(resp=>resp.json())
-      .then(data=>{
-        if (data.errors) console.error(data.errors)
-        else setTools(data.data.getTools)
+      .then(query=>{
+        if (query.errors) console.error(query.errors)
+        else setTools(query.data.tools)
       })
   }, [category, material, skillLevel, location]);
 

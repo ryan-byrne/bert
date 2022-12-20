@@ -1,20 +1,14 @@
-const { ApolloServer } = require("apollo-server-express");
-
-const graphqlUser = {
-  id: process.env.GRAPHQL_USER,
-  email: "bert@berkeleycarroll.org",
-  name: "Bert GraphQL User",
-  tokens: {
-    refresh_token: process.env.REFRESH_TOKEN
-  }
-}
+const {ApolloServer, ApolloError} = require("apollo-server-express");
+const user = require('../db/models/user');
 
 module.exports = new ApolloServer({
   typeDefs: require('./schema'),
   resolvers: require('./resolvers'),
   csrfPrevention: true,
   cache: 'bounded',
-  context: ({ req }) => ({
-    user: req.session.user ? req.session.user : process.env.NODE_ENV === 'development' ? graphqlUser : null
-  })
+  context: async ({req}) => {
+    const resp = await user.findOne({id: req.session.user.id })
+    if (!resp) throw new ApolloError("Unable to validate request...")
+    else return ({user:resp})
+  }
 });

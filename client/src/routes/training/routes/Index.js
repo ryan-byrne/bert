@@ -11,7 +11,7 @@ export default function Index() {
   useEffect(() => {
     Query(`
         query AllTrainings {
-            getTrainings {
+            trainings {
               name
               id
               completed
@@ -31,8 +31,9 @@ export default function Index() {
         `)
       .then(resp => resp.json()
         .then(data => {
+          console.log(data);
           if (data.error || !data.data) console.error(data)
-          else setTrainings(data.data.getTrainings)
+          else setTrainings(data.data.trainings)
         }))
       .catch(err => console.error(err))
   }, []);

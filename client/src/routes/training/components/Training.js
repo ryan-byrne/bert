@@ -12,8 +12,8 @@ export default function Training({ id, children }) {
 
   useEffect(() => {
     Query(`
-        query GetTrainings($trainings: [String]){
-            getTrainings(trainings: $trainings) {
+        query GetTrainings($id: [String]){
+            trainings(id: $id) {
               name
               description
               required_by {
@@ -40,11 +40,11 @@ export default function Training({ id, children }) {
               demo
             }
           }
-        `, { trainings: [id] })
+        `, { id: [id] })
       .then(resp => resp.json()
         .then(data => {
-          setTraining(data.data.getTrainings[0]);
-          const qu = data.data.getTrainings[0].questions;
+          setTraining(data.data.trainings[0]);
+          const qu = data.data.trainings[0].questions;
           setProgress(Math.floor(100 * qu.filter(q => q.completed).length / qu.length))
         }))
       .catch(err => console.error(err))

@@ -10,16 +10,16 @@ export default function Topics({children, name, topicKey}) {
     useEffect(()=>{
         const questionIds = children.filter( child => child.props.id ).map(c => c.props.id)
         Query(`
-        query GetQuestions($questions: [String]) {
-            getQuestions(questions: $questions) {
+        query GetQuestions($id: [String]) {
+            questions(id: $id) {
               completed
             }
           }
-        `,{questions:questionIds})
+        `,{id:questionIds})
             .then( resp => resp.json()
             .then( data => {
                 if (data.error || !data.data) console.error(data)
-                else setProgress(data.data.getQuestions.map(q=>q.completed))
+                else setProgress(data.data.questions.map(q=>q.completed))
             }))
             .catch( err => console.error(err) )
     },[children])

@@ -45,21 +45,21 @@ export default function Question({ id, children, update, choices }) {
   useEffect(() => {
     setStatus('loading')
     Query(`
-        query GetQuestions($questions: [String]) {
-            getQuestions(questions: $questions) {
+        query GetQuestions($id: [String]) {
+            questions(id: $id) {
               completed
               answer
             }
           }
-        `, { questions: [id] })
+        `, { id:[id] })
       .then(resp => resp.json()
-        .then(data => {
-          if (data.error || !data.data) console.error(data)
-          else {
-            setQuestion(data.data.getQuestions[0])
-            setStatus(data.data.getQuestions[0].completed ? 'completed' : 'waiting')
-          }
-        }))
+      .then(query => {
+        if (query.error || !query.data) console.error(query)
+        else {
+          setQuestion(query.data.questions[0])
+          setStatus(query.data.questions[0].completed ? 'completed' : 'waiting')
+        }
+      }))
       .catch(err => console.error(err))
   }, [id])
 

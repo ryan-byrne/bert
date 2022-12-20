@@ -29,110 +29,7 @@ const getGoogleEvents = async (location, timeMin, timeMax) => await google.calen
   singleEvents: true
 });
 
-const getWeek = (date) => {
-  // TODO Change first day each year
-  const firstDay = new Date(date.getFullYear(), 0, 1);
-  const milliseconds = date - firstDay; // How many milliseconds have passed
-  return Math.ceil(milliseconds / 1000 / 60 / 60 / 24 / 7) % 2 === 1 ? 'B' : 'A'
-}
-
-module.exports = {
-
-  Date: new GraphQLScalarType({
-    name: 'Date',
-    parseValue(value) {
-      return new Date(value);
-    },
-    serialize(value) {
-      return new Date(value).toISOString()
-    }
-  }),
-
-  Query: {
-
-    getEvents: async (_, {
-      timeMin,
-      timeMax,
-      tools,
-      locations,
-      materials
-    }, { user }) => {
-
-      oauth2Client.setCredentials({ ...user.tokens });
-
-      const eventTools = tools || [];
-      const eventMaterials = materials || [];
-      let events = [];
-      const eventLocations = locations || Object.keys(calendars);
-      for (const location of eventLocations) {
-        const resp = await google.calendar({ version: "v3" }).events.list({
-          calendarId: calendars[location],
-          sharedExtendedProperty: [...eventTools, ...eventMaterials].map(id => `${id}=true`),
-          timeMin,
-          timeMax,
-          singleEvents: true
-        });
-        events.push(resp.data.items);
-      }
-      return events.flat().filter(e => e);
-
-    },
-
-    getUser: async (_, { email, id }, ctx) => await user.findOne(
-      email ? { email } :
-        id ? { id } :
-          { email: ctx.user.email }
-    ),
-
-    getBlocks: async (_, { division, day, week }) => await block.find({ division, day, week }),
-
-    getConflicts: async (_, { times, locations, tools }, { user }) => {
-
-      oauth2Client.setCredentials({ ...user.tokens });
-
-      // RRULE:FREQ=WEEKLY;UNTIL=20221031;INTERVAL=1
-      let conflicts = [];
-      for (const time of times) {
-        for (const location of locations) {
-          const { recurrence, start, end } = time;
-          if (recurrence) {
-            const [freq, until, interval] = recurrence[0].split(':')[1].split(';').map(i => i.split('=')[1])
-            const untilDate = new Date(until.substring(0, 4), until.substring(4, 6), until.substring(6, 8));
-            const startDate = new Date(start);
-            startDate.setHours(startDate.getHours(), startDate.getMinutes() + 1, 0, 0)
-            const endDate = new Date(end);
-            endDate.setHours(endDate.getHours(), endDate.getMinutes() - 1, 0, 0)
-            while (startDate < untilDate) {
-              const resp = await getGoogleEvents(location, startDate, endDate);
-              conflicts.push(resp.data.items)
-              startDate.setDate(startDate.getDate() + interval * 7)
-              endDate.setDate(endDate.getDate() + interval * 7)
-            }
-          } else {
-            const resp = await getGoogleEvents(location, start, end);
-            conflicts.push(resp.data.items)
-          }
-        }
-
-        return conflicts.flat().filter(c => c.id);
-      }
-    },
-
-    getTraining: async (_, { id }) => await training.findOne({ id }),
-
-    getTrainings: async (_, { trainings }) => await training.find(trainings ? { id: trainings } : null).sort({ name: 1 }),
-
-    getQuestions: async (_, { questions }) => await question.find(questions ? { _id: questions } : null),
-
-    getTool: async (_, { id }) => await tool.findOne({ _id: id }),
-
-    getTools: async (_, { keywords, location }) => {
-      let query = {}
-      if (location) { query['location'] = location }
-      if (keywords.length > 0) { query['keywords'] = { $all: keywords } }
-      return await tool.find(query)
-    },
-
+/*
     getBlockTimes: async (_, { blocks, start, end }) => {
 
       const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
@@ -166,93 +63,135 @@ module.exports = {
       }
       return dates
     },
+    */
 
-    toolSearch: async (_, { text }, ctx) => await tool.aggregate([
+const getWeek = (date) => {
+  // TODO Change first day each year
+  const firstDay = new Date(date.getFullYear(), 0, 1);
+  const milliseconds = date - firstDay; // How many milliseconds have passed
+  return Math.ceil(milliseconds / 1000 / 60 / 60 / 24 / 7) % 2 === 1 ? 'B' : 'A'
+}
+
+module.exports = {
+
+  Date: new GraphQLScalarType({
+    name: 'Date',
+    parseValue(value) {
+      return new Date(value);
+    },
+    serialize(value) {
+      return new Date(value).toISOString()
+    }
+  }),
+
+  Query: {
+
+    users: async (_, {id, email, search}, ctx) => user.find(
+      id ? ({id}) :
+      email ? ({email}) :
+      search ? ({name:{
+        $regex:search,
+        $options:`i`
+      }}) : 
+      ({id:ctx.user.id})
+    ),
+
+    events: async (_, {
+      timeMin,
+      timeMax,
+      tools,
+      locations,
+      materials,
+      storage
+    }, { user }) => {
+
+      const eventTools = tools || [];
+      const eventMaterials = materials || [];
+      const eventStorage = storage || [];
+      const eventLocations = locations || Object.keys(calendars);
+
+      let events = [];
+      for (const location of eventLocations) {
+        const resp = await google.calendar({ version: "v3" }).events.list({
+          calendarId: calendars[location],
+          sharedExtendedProperty: [...eventTools, ...eventMaterials, ...eventStorage].map(id => `${id}=true`),
+          timeMin,
+          timeMax,
+          singleEvents: true
+        });
+        events.push(resp.data.items);
+      }
+      return events.flat().filter(e => e);
+    },
+
+    blocks: async (_, { division, day, week }) => await block.find({ division, day, week }),
+
+    trainings: async (_, { search, id }) => training.find(
+      search ? ({name:{$regex:search,$options:'i'}}) :
+      id ? ({id}) : ({})
+    ),
+
+    tools: async (_, {search, keywords, locations, id}) => await tool.aggregate([
       {
-        '$addFields': {
-          'longName': {
-            '$concat': [
-              '$brand', ' ', '$name'
+        $addFields:{
+          fullName: {
+            $concat:[
+              "$brand", " ", "$name"
             ]
           }
         }
-      }, {
-        '$match': {
-          'longName': {
-            '$regex': new RegExp(text, 'i')
-          }
+      },
+      {
+        $match:{
+          fullName:{
+            $regex:search || '',
+            $options:'i'
+          },
+          keywords: keywords ? {$all:keywords} : {$exists:[]},
+          location: locations ? {$in:locations} : {$exists:[]},
+          _id: id ? {$in:id.map(i=>Types.ObjectId(i))} : {$exists:[]}
         }
       }
     ]),
 
-    materialSearch: async (_, { text }, ctx) => await material.aggregate([
-      {
-        '$addFields': {
-          'longName': {
-            '$concat': [
-              '$vendor', '$material', 'description'
-            ]
-          }
-        }
-      }, {
-        '$match': {
-          'longName': {
-            '$regex': new RegExp(text, 'i')
-          }
-        }
-      }
-    ]),
+    getConflicts: async (_, { times, locations }, { user }) => {
 
-    trainingSearch: async (_, { text }, ctx) => await training.aggregate([
-      {
-        '$addFields': {
-          'fields': {
-            '$concat': [
-              '$name', ' ', '$id'
-            ]
-          }
-        }
-      }, {
-        '$match': {
-          'fields': {
-            '$regex': new RegExp(text, 'i')
-          }
-        }
-      }
-    ]),
+      oauth2Client.setCredentials({ ...user.tokens });
 
-    userSearch: async (_, { text }, ctx) => await user.aggregate([
-      {
-        '$addFields': {
-          'fields': {
-            '$concat': [
-              '$name', ' ', '$email'
-            ]
+      // RRULE:FREQ=WEEKLY;UNTIL=20221031;INTERVAL=1
+      let conflicts = [];
+      for (const time of times) {
+        for (const location of locations) {
+          const { recurrence, start, end } = time;
+          if (recurrence) {
+            const [freq, until, interval] = recurrence[0].split(':')[1].split(';').map(i => i.split('=')[1])
+            const untilDate = new Date(until.substring(0, 4), until.substring(4, 6), until.substring(6, 8));
+            const startDate = new Date(start);
+            startDate.setHours(startDate.getHours(), startDate.getMinutes() + 1, 0, 0)
+            const endDate = new Date(end);
+            endDate.setHours(endDate.getHours(), endDate.getMinutes() - 1, 0, 0)
+            while (startDate < untilDate) {
+              const resp = await getGoogleEvents(location, startDate, endDate);
+              conflicts.push(resp.data.items)
+              startDate.setDate(startDate.getDate() + interval * 7)
+              endDate.setDate(endDate.getDate() + interval * 7)
+            }
+          } else {
+            const resp = await getGoogleEvents(location, start, end);
+            conflicts.push(resp.data.items)
           }
         }
-      }, {
-        '$match': {
-          'fields': {
-            '$regex': new RegExp(text, 'i')
-          }
-        }
-      }, {
-        '$sort': {
-          'family_name': 1
-        }
-      }
-    ]),
 
-    getCourses: async (_, { }, { user }) => {
+        return conflicts.flat().filter(c => c.id);
+      }
+    },
+
+    questions: async (_, { id }) => await question.find(id ? { _id: id } : {}),
+
+    courses: async (_, __, { user }) => {
       oauth2Client.setCredentials({ ...user.tokens });
       const resp = await google.classroom({ version: "v1" }).courses.list({ courseStates: "ACTIVE" })
       return resp.data.courses
-    },
-
-    getClassRoster: async (_, { courseId }, { user }) => {
-      oauth2Client.setCredentials({ ...user.tokens });
-      const resp = await google.classroom({ version: "v1" }).courses.students.list({ courseId });
-      return resp.data.students.map(s => ({ id: s.profile.id, name: s.profile.name.fullName, email: s.profile.emailAddress }))
     }
   },
 
@@ -665,7 +604,9 @@ module.exports = {
   },
 
   Tool: {
+    
     training: async (toolDoc) => await training.findOne({ id: toolDoc.training }),
+    
     authorized_users: async (toolDoc) => await tool.aggregate([
       {
         '$match': {
@@ -741,7 +682,7 @@ module.exports = {
     locations: (eventDoc) => !eventDoc.attendees ? [] :
       Object.keys(calendars).filter(
         location => eventDoc.attendees.map(a => a.email).includes(calendars[location])
-      ),
+    ),
 
     storage: (eventDoc) => {
       if (eventDoc.extendedProperties) {
@@ -792,6 +733,14 @@ module.exports = {
         }
         return materials
       } else return null
+    }
+  },
+
+  Course: {
+    roster: async (course, vars, ctx) => {
+      oauth2Client.setCredentials({ ...ctx.user.tokens });
+      const resp = await google.classroom({ version: "v1" }).courses.students.list({ courseId });
+      return resp.data.students.map(s => ({ id: s.profile.id, name: s.profile.name.fullName, email: s.profile.emailAddress }))
     }
   }
 }

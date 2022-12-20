@@ -57,27 +57,29 @@ const Reserve = ({ tool }) => {
     timeMin.setHours(8, 0, 0, 0);
     timeMax.setHours(18, 0, 0, 0);
     Query(`
-    query GetCalendar($timeMin: Date!, $timeMax: Date!, $locations: [EventLocation]!, $tools: [String!]) {
-      getCalendar(timeMin: $timeMin, timeMax: $timeMax, locations: $locations, tools: $tools) {
-        date
-        events {
-          summary
-          description
-          creator {
-            email
-          }
-          start {
-            dateTime
-          }
-          end {
-            dateTime
-          }
+    query ToolEvents($timeMin: Date!, $timeMax: Date!, $tools: [String]) {
+      events(timeMin: $timeMin, timeMax: $timeMax, tools: $tools) {
+        summary
+        description
+        id
+        creator {
+          email
+        }
+        start {
+          dateTime
+        }
+        end {
+          dateTime
         }
       }
     }
-    `, { tools: [tool._id], timeMin, timeMax, locations: ["classroom", "machineshop", "powertool"] })
+    `, { tools: [tool._id], timeMin, timeMax})
       .then(resp => resp.json())
-      .then(data => setSchedule(data.data.getCalendar))
+      .then(data => {
+        console.log(data);
+        setSchedule(data.data.getCalendar)
+      })
+      .catch(err=>console.error(err))
   }, [date, tool]);
 
   return (
@@ -176,8 +178,8 @@ const Viewer = ({ id, show }) => {
     if (!id) return
     else {
       Query(`
-      query GetTool($id: String!, $sid:String!) {
-        getTool(id: $id) {
+      query GetToolStatus($id: String!, $sid:String!) {
+        tools(id: $id) {
           _id
           quantity
           stationary
@@ -209,11 +211,11 @@ const Viewer = ({ id, show }) => {
           }
         }
       }
-      `, { id, sid: "supervisor" })
+      `, { id:[id], sid: "supervisor" })
         .then(resp => resp.json())
-        .then(data => {
-          setTool(data.data.getTool);
-          setSupervisor(data.data.supervisor)
+        .then(query => {
+          setTool(query.data.tools[0]);
+          setSupervisor(query.data.supervisor)
         })
       setTool();
     }
