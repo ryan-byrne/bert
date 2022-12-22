@@ -15,7 +15,6 @@ const isProduction = process.env.NODE_ENV === 'production'
 google.options({ auth: oauth2Client });
 
 const authMiddleware = async (req, res, next) => {
-
   // Ignore Callback
   if ('/auth/callback' === req._parsedUrl.pathname) next()
   // Authorization Header Provided
@@ -48,8 +47,8 @@ const authMiddleware = async (req, res, next) => {
     return isProduction ? res.redirect(authorizationUrl) : res.json({authorizationUrl})
   }
   else {
-    oauth2Client.setCredentials({...req.session.user.tokens})
-    next()
+    oauth2Client.setCredentials({...req.session.user.tokens});
+    next();
   }
 }
 

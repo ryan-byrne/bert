@@ -9,6 +9,13 @@ Date.prototype.toFormDateString = function(){
   return this.getFullYear() + "-" + (this.getMonth() + 1).toString().padStart(2, "0") + "-" + this.getDate().toString().padStart(2, "0")
 }
 
+const getWeek = (date) => {
+  // TODO Change first day each year
+  const firstDay = new Date(date.getFullYear(), 0, 1);
+  const milliseconds = date - firstDay; // How many milliseconds have passed
+  return Math.ceil(milliseconds / 1000 / 60 / 60 / 24 / 7) % 2 === 1 ? 'B' : 'A'
+}
+
 const SetTimes = ({ setPayload, payload, search }) => {
   
   const [times, setTimes] = useState([]);
@@ -48,7 +55,7 @@ const SetTimes = ({ setPayload, payload, search }) => {
       ]
     }
 
-    setPayload((payload)=>({...payload, times:[]}));
+    setPayload({...payload, times:[]});
 
     for ( const time of times) {
 
@@ -87,19 +94,59 @@ const SetTimes = ({ setPayload, payload, search }) => {
         } 
         
         else if ( time.division === 'upper' ) {
+
+          const {blocks, date, recurringUntil} = time;
+
           Query(`
-          query GetCalendar($blocks: [String]!, $start: Date!, $end: Date!) {
-            getBlockTimes(blocks: $blocks, start: $start, end: $end) {
+          query Blocks($division: [Division!], $day: [String!], $week: [String!], $name: [String!]) {
+            blocks(division: $division, day: $day, week: $week, name: $name) {
+              name
               start
               end
+              week
+              day
             }
           }
-          `,{ blocks:time.blocks, start: time.date, end:time.recurringUntil })
-            .then( resp => resp.json()
-            .then( data => {
-              const newTimes = data.data.getBlockTimes.map( t => ({...t, recurrence:getRecurrence(time)}) )
-              setPayload((payload)=>({...payload, times:[...payload.times, ...newTimes]}))
-            }))
+          `,{
+            division:['upper'],
+            name:blocks
+          })
+            .then(resp => resp.json())
+            .then(result => {
+              const foundBlocks = result.data.blocks;
+              const start = new Date(date);
+              const end = new Date(recurringUntil);
+              let times = [];
+              if (start > end) return
+              else while (start < end) {
+
+                const todaysBlocks = foundBlocks.filter(b=>
+                  b.week===getWeek(start) && 
+                  b.day===['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'][start.getDay()]
+                );
+                
+                for (const block of todaysBlocks){
+
+                  const blockStart = new Date(start);
+                  const [shr, smin] = block.start.split(":");
+                  blockStart.setHours(shr, smin, 0, 0);
+
+                  const blockEnd = new Date(start);
+                  const [hr, min] = block.end.split(":");
+                  blockEnd.setHours(hr, min, 0, 0);
+
+                  times.push({
+                    start:new Date(blockStart),
+                    end:new Date(blockEnd),
+                    recurrence:getRecurrence(time)
+                  })
+                }
+
+                start.setDate( start.getDate() + 1 )
+              }
+              setPayload({...payload, times})
+            })
+            .catch(err=>console.error(err))
         }
 
       }

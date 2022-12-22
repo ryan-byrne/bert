@@ -17,36 +17,42 @@ export const Demo = ({id, show, onHide}) => {
     if (!id) return
     setTraining();
     Query(`
-    query GetTool($id: String!, $sid: String!) {
-      toolTraining : getTraining(id: $id) {
+    query GetTool($id: [String], $sid: [String]) {
+      training : trainings(id:$id) {
         checklist
         demo
         demo_completed
         completed
         name
       }
-      supervisor : getTraining(id: $sid) {
+      supervisor : trainings(id: $sid) {
         completed
       }
     }
-    `, {id, sid:"supervisor"})
+    `, {id:[id], sid:["supervisor"]})
       .then(resp => resp.json())
-      .then( data => {
-        setTraining(data.data.toolTraining);
-        setSupervisor(data.data.supervisor.completed)
+      .then( query => {
+        setTraining(query.data.training[0]);
+        setSupervisor(query.data.supervisor[0].completed)
       })
       .catch(err=>console.error(err))
   }, [id]);
 
   const userQuery = `
-  query GetUser($text: String!) {
-    userSearch(text: $text) {
+  query GetUser($search: String) {
+    users(search: $search) {
       email
       name
       id
     }
   }
   `
+
+  const handleClose = () => {
+    setTraining();
+    setUsers();
+    onHide()
+  }
 
   const handleChange = (idx, e) => {
     let newCheck = [...checklist]
@@ -72,7 +78,7 @@ export const Demo = ({id, show, onHide}) => {
   }
 
   return(
-    <Modal show={show} centered onHide={onHide}>
+    <Modal show={show} centered onHide={()=>handleClose()}>
       {
         !training ? <Loading>Loading Training Checklist...</Loading> :
         !training.completed ? <Alert className="m-3" variant="danger"><CloseButton onClick={onHide}/> You have not completed <Link to={`/training/${id}`}> {training.name}</Link></Alert> :
@@ -84,7 +90,7 @@ export const Demo = ({id, show, onHide}) => {
             <Modal.Title>{training ? `Demo Checklist: ${training.name}` : null}</Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            <SearchSelect columns={['name','email']} name="User" query={userQuery} queryName="userSearch" onSelect={(u)=>setUsers(!users ? [u] : [...users, u])}/>
+            <SearchSelect columns={['name','email']} name="User" query={userQuery} queryName="users" onSelect={(u)=>setUsers(!users ? [u] : [...users, u])}/>
             
             {
               !users ? null :
@@ -108,7 +114,7 @@ export const Demo = ({id, show, onHide}) => {
 
           </Modal.Body>
           <Modal.Footer>
-            <Button variant="secondary" onClick={onHide}>Close</Button>
+            <Button variant="secondary" onClick={()=>handleClose()}>Close</Button>
             <Button
               onClick={handleSubmit}
               disabled={ !supervisor || checklist.filter(l=>l).length < training.checklist.length}

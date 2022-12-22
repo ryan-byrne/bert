@@ -36,38 +36,26 @@ const Attendees = ({payload, setPayload}) => {
     setAttendees([]);
   }
 
-  const handleClassSelect = (e, courseId) => {
-    e.preventDefault()
-    setImportedClassIds([...importedClassIds, courseId])
-    Query(`query Query($courseId: String!) {
-      getClassRoster(courseId: $courseId) {
-        id
-        name
-        email
-      }
-    }`,{courseId})
-    .then(resp => resp.json()
-    .then( data => {
-      if (data.errors) console.error(data.errors)
-      else setAttendees([...attendees, ...data.data.getClassRoster])
-    }))
-    .catch( err => console.error(err) )
+  const handleClassSelect = (e, id) => {
+    e.preventDefault();
+    setImportedClassIds([...importedClassIds, id]);
+    setAttendees([...attendees, ...classOptions.filter(c=>c.id===id)[0].roster.map(u=>({name:u.name, email:u.email}))]);
   }
 
   useEffect(() => {
     if (text.length === 0 || !search) return
     Query(`
-    query Query($text: String!) {
-      userSearch(text: $text) {
+    query Query($search: String!) {
+      users(search: $search) {
         name
         email
       }
     }   
-    `,{text})
+    `,{search:text})
       .then(resp => resp.json()
       .then( data => {
         if (data.errors) console.error(data.errors)
-        else setUserOptions(data.data.userSearch)
+        else setUserOptions(data.data.users)
       }))
       .catch( err => console.error(err))
   }, [text, search]);
@@ -75,16 +63,20 @@ const Attendees = ({payload, setPayload}) => {
   useEffect(() => {
     if (search) return
     Query(`query Query {
-      getCourses {
+      courses {
         name
         description
         id
+        roster {
+          name
+          email
+        }
       }
     }`)
     .then(resp => resp.json()
-    .then( data => {
-      if (data.errors) console.error(data.errors)
-      else setClassOptions(data.data.getCourses)
+    .then( query => {
+      if (query.errors) console.error(query.errors)
+      else setClassOptions(query.data.courses)
     }))
     .catch( err => console.log(err) )
   }, [search]);
@@ -133,7 +125,7 @@ const Attendees = ({payload, setPayload}) => {
                     !userOptions ? <ListGroup.Item variant="info">Searching for Users...</ListGroup.Item> :
                     userOptions.length === 0 ? <ListGroup.Item variant="warning">No users found...</ListGroup.Item> :
                     userOptions.map( user =>
-                      <ListGroup.Item action disabled={payload.attendees.map(u=>u.email).includes(user.email)} onClick={(e)=>handleUserSelect(e, user)}>
+                      <ListGroup.Item action disabled={payload.attendees.map(u=>u.email).includes(user.email)} onClick={handleUserSelect}>
                         <div><strong>{user.name}</strong></div>
                         <div><FormText muted>{user.email}</FormText></div>
                       </ListGroup.Item>
@@ -149,7 +141,7 @@ const Attendees = ({payload, setPayload}) => {
                 !classOptions ? <ListGroup.Item variant="info">Loading Classes...</ListGroup.Item> :
                 classOptions.length === 0 ? <ListGroup.Item variant="warning">No Classes found...</ListGroup.Item> :
                 classOptions.map( classOption =>
-                  <ListGroup.Item action disabled={importedClassIds.includes(classOption.id)} onClick={(e)=>handleClassSelect(e, classOption.id)}>
+                  <ListGroup.Item action id={classOption.id}  disabled={importedClassIds.includes(classOption.id)} onClick={(e)=>handleClassSelect(e, classOption.id)}>
                     <div><strong>{classOption.name}</strong></div>
                     <div><FormText>{classOption.description}</FormText></div>
                   </ListGroup.Item>

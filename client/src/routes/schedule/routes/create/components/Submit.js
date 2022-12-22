@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from 'react-router-dom';
-import { Alert, Button, FormGroup, ListGroup, OverlayTrigger, Popover, Row, Col, Table, Collapse } from "react-bootstrap";
+import { Link, useNavigate } from 'react-router-dom';
+import { Alert, Button, FormGroup, ListGroup, OverlayTrigger, Popover, Row, Col, Form, Table, Collapse } from "react-bootstrap";
 
 import { Query } from "../../../../../components/GraphQL";
 import Loading from "../../../../../components/Loading";
@@ -46,37 +46,62 @@ export default function Submit({ payload }) {
     if ([payload.times.length, payload.locations.length].includes(0)) return
     setConflicts();
     Query(`
-        query GetConflicts($times: [TimeInput!]!, $locations: [EventLocation!]!, $tools: [ToolInput]!) {
-            getConflicts(times: $times, locations: $locations, tools: $tools) {
-              summary
-              htmlLink
-              start {
-                dateTime
-              }
-              end {
-                dateTime
-              }
-            }
-          }
-        `, {
+    query CheckForConflicts($times: [TimeInput!]!, $locations: [EventLocation!], $storage: [String!], $attendees: [Attendee], $tools: [ToolInput!], $materials: [MaterialInput!]) {
+      locations:events(times: $times, locations: $locations) {
+        id
+        summary
+        locations
+      }
+      tools:events(times:$times, tools: $tools){
+        id
+        summary
+        tools {
+          brand
+          name
+        }
+      }
+      materials:events(times:$times, materials: $materials){
+        id
+        summary
+        materials {
+          vendor
+          description
+        }
+      }
+      storage:events(times:$times, storage: $storage){
+        id
+        summary
+        storage
+      }
+      attendees:events(times: $times, attendees: $attendees) {
+        id
+        summary
+        attendees {
+          email
+        }
+      }
+    }
+    `, {
       times: payload.times,
       locations: payload.locations,
       tools: payload.tools,
+      storage:payload.storage,
+      materials:payload.materials,
       attendees:payload.attendees
     })
       .then(resp => resp.json()
-        .then(data => {
-          if (data.error || !data.data) console.error(data)
-          else setConflicts(data.data.getConflicts)
-        }
-        ))
+      .then(query => {
+        if (query.error) console.error(query.error)
+        else setConflicts(query.data)
+      }))
       .catch(err => console.error(err))
   }, [
+    payload.storage,
+    payload.materials,
     payload.times,
     payload.locations,
     payload.tools,
-    payload.attendees,
-    setConflicts,
+    payload.attendees
   ]);
 
   const handleSubmit = () => {
@@ -85,7 +110,8 @@ export default function Submit({ payload }) {
     mutation Mutation(
       $summary: String!, 
       $times: [TimeInput!]!, 
-      $locations: [EventLocation!]!, 
+      $locations: [EventLocation!]!,
+      $storage: [String],
       $tools: [ToolInput]!, 
       $description: String, 
       $attendees: [Attendee]!,
@@ -95,10 +121,12 @@ export default function Submit({ payload }) {
           description: $description,
           summary: $summary, 
           times: $times,
+          storage: $storage,
           locations: $locations,
           attendees: $attendees,
           materials: $materials,
-          tools: $tools) {
+          tools: $tools
+        ) {
             id
         }
       }
@@ -165,21 +193,20 @@ export default function Submit({ payload }) {
       }
       {
         !conflicts ? <Loading>Checking for Conflicts...</Loading> :
-        conflicts.length === 0 ? null :
+        Object.values(conflicts).flat().length === 0 ? null :
         <Row className="mt-3">
-          <Button onClick={()=>setShowConflicts(!showConflicts)} variant={showConflicts ? "outline-danger": "danger"}>
-            {!showConflicts ? `Show` : 'Hide'} {conflicts.length} Conflicts
+          <Button variant={showConflicts ? "outline-danger" : "danger"} onClick={()=>setShowConflicts(!showConflicts)}>
+            {showConflicts?"Hide":"Show"} {Object.values(conflicts).flat().length} Conflicts
           </Button>
           <Collapse in={showConflicts}>
-            <ListGroup className="mt-1">
-              {
-                conflicts.map( (conflict, idx) =>
-                  <ListGroup.Item variant="danger" className="mt-1">
-                    <strong>{conflict.summary}</strong> <br/>
-                    <u>{new Date(conflict.start.dateTime).toLocaleDateString()}</u>, {new Date(conflict.start.dateTime).toLocaleTimeString()} - {new Date(conflict.end.dateTime).toLocaleTimeString()}
+            <ListGroup>
+              {Object.entries(conflicts).map( ([cat, catConflicts], idx) =>
+                catConflicts.map( (conflict, cidx) =>
+                  <ListGroup.Item variant="danger" key={`${idx}-${cidx}`}>
+                    <strong>{cat.slice(0,1).toUpperCase()}{cat.slice(1,cat.length)} Conflict</strong> with <Link to={`/schedule/view/${conflict.id}`}>{conflict.summary}</Link>
                   </ListGroup.Item>
-                )
-              }
+                ).flat()
+              )}
             </ListGroup>
           </Collapse>
         </Row>
@@ -216,7 +243,7 @@ export default function Submit({ payload }) {
             variant="success"
             disabled={
               status.text ||
-              !(conflicts && conflicts.length === 0) ||
+              !(conflicts && Object.values(conflicts).flat().length === 0) ||
               errors.length > 0
             }
             onClick={handleSubmit}

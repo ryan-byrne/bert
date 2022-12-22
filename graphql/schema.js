@@ -19,55 +19,162 @@ enum Division {
   middle
 }
 
+enum ToolKeyword {
+  basic
+  advanced
+  expert
+  cutting
+  sanding
+  fastening
+  drilling
+  clamping
+  welding
+  hand
+  powered
+  cordless
+  corded
+  stationary
+  wood
+  plastic
+  metal
+  fdm
+  sla
+  lasercutting
+}
+
 type Query {
 
+  materials(
+    search:String
+  ):[Material]
+
+  """
+  Query Users. If no arguments are provided, the user querying will be returned.
+  """
   users(
+    """
+    User ID
+    """
     id:String, 
+    """
+    User Email
+    """
     email:String, 
+    """
+    Search text to query names
+    """
     search:String
   ):[User]
 
+  """
+  Query for all events between two dates
+  """
   events(
-    timeMin:Date!
-    timeMax:Date!
-    tools:[String]
-    materials:[String]
-    locations:[EventLocation]
+    """
+    List of time ranges to find events between
+    """
+    times:[TimeInput!]!,
+    """
+    Tool IDs included in the event
+    """
+    tools:[ToolInput!]
+    """
+    Material IDs included in the event
+    """
+    materials:[MaterialInput!]
+    """
+    Locations in the lab where the events are taking place
+    """
+    locations:[EventLocation!]
+    """
+    Storage IDs included in the event
+    """
+    storage:[String!]
+    """
+    Users included in the event
+    """
+    attendees:[Attendee]
   ):[Event]
-
-  blocks(division:Division!, day:String!, week:String!):[Block]
-
+  
+  """
+  Query for block times given a divsion, day, and week
+  """
+  blocks(
+    """
+    School Division
+    """
+    division:[Division!],
+    """
+    Day of the Week
+    """
+    day:[String!],
+    name:[String!],
+    """
+    
+    """
+    week:[String!]
+  ):[Block]
+  
+  """
+  Query Trainings
+  """
   trainings(
+    """
+    Training IDs to Include
+    """
     id:[String],
+    """
+    Search text
+    """
     search:String
   ):[Training]
 
+  """
+  Query Tools
+  """
   tools(
+    """
+    Search text
+    """
     search:String
-    keywords:[String!],
+    """
+    Keywords to include
+    """
+    keywords:[ToolKeyword!],
+    """
+    Location of the tool
+    """
     locations:[EventLocation!],
+    """
+    Tool IDs to include
+    """ 
     id:[String!]
   ):[Tool]
 
+  """
+  Query Questions
+  """
   questions(
+    """
+    Question ID
+    """
     id:[String]
   ):[Question]
 
+  """
+  Get the Google Classroom Courses for the Authorized User
+  """
   courses:[Course]
-        
-    getConflicts(
-      times:[TimeInput!], 
-      locations:[EventLocation!], 
-      tools:[ToolInput]
-    ):[Event]
 
-}
+  """
+  Check for conflicts
+  """
+  conflicts(
+    times:[TimeInput!]!,
+    locations:[EventLocation],
+    tools:[ToolInput]
+  ):[Event]
 
-enum MaterialType {
-  sheet
-  board
-  dimensional
-  other
 }
 
 input MaterialDimension {
@@ -77,8 +184,8 @@ input MaterialDimension {
 }
 
 input MaterialInput {
-  id:String
-  quantity:Int
+  id:String!
+  quantity:Int!
 }
 
 type Mutation {
@@ -138,14 +245,42 @@ type Material {
   dimensions:[Dimension!]!
 }
 
+"""
+A Course in Google Classroom. Descriptions taken from https://googleapis.dev/nodejs/googleapis/latest/classroom/interfaces/Schema$Course.html
+"""
 type Course {
-    description:String
-    id:String
-    name:String
-    section:String
-    room:String
-    ownerId:String
-    roster:[User]
+  """
+  The Calendar ID for a calendar that all course members can see, to which Classroom adds events for course work and announcements in the course. Read-only.
+  """
+  calendarId:String
+  """
+  Optional description. For example, "We'll be learning about the structure of living creatures from a combination of textbooks, guest lectures, and lab work. Expect to be excited!" If set, this field must be a valid UTF-8 string and no longer than 30,000 characters.
+  """
+  description:String
+  """
+  Identifier for this course assigned by Classroom. When creating a course, you may optionally set this identifier to an alias string in the request to create a corresponding alias. The id is still assigned by Classroom and cannot be updated after the course is created. Specifying this field in a course update mask results in an error.
+  """
+  id:String
+  """
+  Name of the course. For example, "10th Grade Biology". The name is required. It must be between 1 and 750 characters and a valid UTF-8 string.
+  """
+  name:String
+  """
+  Section of the course. For example, "Period 2". If set, this field must be a valid UTF-8 string and no longer than 2800 characters.
+  """
+  section:String
+  """
+  Optional room location. For example, "301". If set, this field must be a valid UTF-8 string and no longer than 650 characters.
+  """
+  room:String
+  """
+  The identifier of the owner of a course. When specified as a parameter of a create course request, this field is required. The identifier can be one of the following: * the numeric identifier for the user * the email address of the user * the string literal "me", indicating the requesting user This must be set in a create request. Admins can also specify this field in a patch course request to transfer ownership. In other contexts, it is read-only.
+  """
+  ownerId:String
+  """
+  List of Users in the class
+  """
+  roster:[User]
 }
 
 # SCHEDULING INPUTS
@@ -167,8 +302,8 @@ type Time {
 }
 
 input ToolInput {
-    id:String
-    quantity:Int
+    id:String!
+    quantity:Int!
 }
 
 input Attendee {
@@ -280,7 +415,7 @@ type Tool {
     """
     List of Tool Keywords
     """
-    keywords:[String]
+    keywords:[ToolKeyword]
     """
     Location where the tool is stored
     """

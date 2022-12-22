@@ -36,14 +36,14 @@ export const Index = ({view, demo}) => {
     setTools();
     const keywords = [category, material, skillLevel].filter(k=>k).map(k=>k.toLowerCase())
     Query(`
-    query getTools($keywords: [String!], $locations: [EventLocation!], $timeMax:Date!, $timeMin:Date!) {
-      tools(keywords: $keywords, locations: $locations) {
+    query GetAllTools($timeMin: Date!, $timeMax: Date!) {
+      tools {
         _id
         name
         brand
         photo
         quantity
-        available(timeMin:$timeMin, timeMax:$timeMax)
+        available(timeMin: $timeMin, timeMax: $timeMax)
         training {
           id
           demo_completed

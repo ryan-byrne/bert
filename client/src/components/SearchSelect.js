@@ -14,7 +14,7 @@ const SearchSelect = ({name, query, queryName, columns, onSelect}) => {
       return
     }
     setOptions(true);
-    Query(query, {text:search})
+    Query(query, {search})
       .then( resp => resp.json() )
       .then( data => {
         if (data.errors) console.error(data.errors)

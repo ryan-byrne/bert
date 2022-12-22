@@ -57,8 +57,8 @@ const Reserve = ({ tool }) => {
     timeMin.setHours(8, 0, 0, 0);
     timeMax.setHours(18, 0, 0, 0);
     Query(`
-    query ToolEvents($timeMin: Date!, $timeMax: Date!, $tools: [String]) {
-      events(timeMin: $timeMin, timeMax: $timeMax, tools: $tools) {
+    query ToolEvents($times:[TimeInput!]!, $tools: [ToolInput!]) {
+      events(times:$times, tools: $tools) {
         summary
         description
         id
@@ -73,11 +73,10 @@ const Reserve = ({ tool }) => {
         }
       }
     }
-    `, { tools: [tool._id], timeMin, timeMax})
+    `, { tools: [{id:tool._id, quantity:1}], times:[{start:timeMin, end:timeMax}]})
       .then(resp => resp.json())
-      .then(data => {
-        console.log(data);
-        setSchedule(data.data.getCalendar)
+      .then(query => {
+        setSchedule(query.data.events)
       })
       .catch(err=>console.error(err))
   }, [date, tool]);
@@ -121,21 +120,19 @@ const Reserve = ({ tool }) => {
                         )
                       }
                       {
-                        schedule.map((day, idx) =>
-                          day.events.map((event, idx) => {
-                            const start = new Date(event.start.dateTime)
-                            const end = new Date(event.end.dateTime)
-                            const left = start.getHours() - 8 + start.getMinutes() / 60;
-                            const right = end.getHours() - 8 + end.getMinutes() / 60;
-                            return (
-                              <div
-                                className="schedule-event"
-                                style={{ left: `${10 * left}%`, width: `${10 * (right - left)}%` }}
-                                onMouseEnter={handleClear}
-                              ></div>
-                            )
-                          })
-                        )
+                        schedule.map((event, idx) => {
+                          const start = new Date(event.start.dateTime)
+                          const end = new Date(event.end.dateTime)
+                          const left = start.getHours() - 8 + start.getMinutes() / 60;
+                          const right = end.getHours() - 8 + end.getMinutes() / 60;
+                          return (
+                            <div
+                              className="schedule-event"
+                              style={{ left: `${10 * left}%`, width: `${10 * (right - left)}%` }}
+                              onMouseEnter={handleClear}
+                            ></div>
+                          )
+                        })
                       }
                     </div>
               }
@@ -178,7 +175,7 @@ const Viewer = ({ id, show }) => {
     if (!id) return
     else {
       Query(`
-      query GetToolStatus($id: String!, $sid:String!) {
+      query GetToolStatus($id: [String!], $sid:[String!]) {
         tools(id: $id) {
           _id
           quantity
@@ -203,7 +200,7 @@ const Viewer = ({ id, show }) => {
             id
           }
         }
-        supervisor : getTraining(id:$sid){
+        supervisor : trainings(id:$sid){
           completed
           completed_by {
             id
@@ -215,7 +212,7 @@ const Viewer = ({ id, show }) => {
         .then(resp => resp.json())
         .then(query => {
           setTool(query.data.tools[0]);
-          setSupervisor(query.data.supervisor)
+          setSupervisor(query.data.supervisor[0])
         })
       setTool();
     }

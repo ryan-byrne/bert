@@ -98,8 +98,8 @@ export default function Materials({payload, setPayload}){
   }
 
   const materialQuery = `
-  query Query($text: String!) {
-    materialSearch(text: $text) {
+  query MaterialSearch($search: String!) {
+    materials(search: $search) {
       available
       description
       dimensions {
@@ -241,7 +241,7 @@ export default function Materials({payload, setPayload}){
                 query={materialQuery}
                 onSelect={handleSelect}
                 name="Material"
-                queryName="materialSearch"
+                queryName="materials"
                 columns={['photo', 'description']}
               />
             </FormGroup>

@@ -11,29 +11,33 @@ const getWeek = (date) => {
 
 export default function SetBlocks({time, index, handleChange, handleToggle}){
 
-  const [msBlocks, setMSBlocks] = useState();
+  const [blocks, setBlocks] = useState();
 
   useEffect(()=>{
-      if ( time.division !== 'middle' ) setMSBlocks([])
+      if ( time.division !== 'middle' ) setBlocks([])
       else {
-        setMSBlocks();
+        setBlocks();
         const d = new Date(time.date);
         d.setHours(0,0,0,0);
         const days = ['Monday','Tuesday','Wednesday','Thursday','Friday'];
         Query(`
-        query GetBlocks($day: String, $division: String, $week:String) {
-            getBlocks(day: $day, division: $division, week:$week) {
-              name
-              start
-              end
-            }
-        }`,{day:days[d.getDay() - 1], division:time.division, week:time.division === "upper" ? getWeek(time.date) : null})
-            .then(resp => resp.json()
-                .then(data=>setMSBlocks(data.data.getBlocks))
-            )
-            .catch(err => console.error(err))
+        query GetBlocks($division: [Division!], $day: [String!], $week: [String!]) {
+          blocks(division: $division, day: $day, week: $week) {
+            name
+            start
+            end
+          }
+        }
+        `,{
+          day:days[d.getDay() - 1], 
+          division:time.division, 
+          week:time.division === "upper" ? getWeek(time.date) : null
+        })
+          .then(resp => resp.json())
+          .then(data=>setBlocks(data.data.blocks))
+          .catch(err => console.error(err))
       }
-  },[time.date, time.division, setMSBlocks]);
+  },[time.date, time.division]);
 
   return(
     <FormGroup>
@@ -51,13 +55,10 @@ export default function SetBlocks({time, index, handleChange, handleToggle}){
 
     <Collapse in={time.division === 'middle'}>
       <FormGroup className="mt-3">
-        {
-          !msBlocks
-        }
         <FormSelect onChange={handleChange} multiple defaultValue="default" id={`msblocks-blocks-${index}`}>
             {
-              !msBlocks ? <option disabled>Loading MS Blocks...</option> :
-              msBlocks.map( (option, idx) =>
+              !blocks ? <option disabled>Loading MS Blocks...</option> :
+              blocks.map( (option, idx) =>
                 <option key={idx} value={`${index}-${option.start}-${option.end}`}>
                     {option.name} ({option.start} - {option.end})
                 </option>

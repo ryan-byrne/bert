@@ -9,6 +9,7 @@ export const Storage = ({payload, setPayload}) => {
 
   const [show, setShow] = useState(false);
   const [inUse, setInUse] = useState();
+  const [isHover, setIsHover] = useState();
 
   const handleRemove = (id) => {
     let storage = [...payload.storage];
@@ -16,12 +17,13 @@ export const Storage = ({payload, setPayload}) => {
     setPayload({...payload, storage})
   }
 
-  const handleClick = (e) => 
-    payload.storage.includes(e.target.id) ? handleRemove(e.target.id) :
-    setPayload({...payload, storage:[...payload.storage, e.target.id]})
+  const handleClick = (id) =>
+    payload.storage.includes(id) ? handleRemove(id) :
+    setPayload({...payload, storage:[...payload.storage, id]})
 
   useEffect(() => {
     if (!payload.times[0]) return
+    setInUse();
     const timeMin = payload.times[0].start;
     let timeMax;
     const last = payload.times[payload.times.length-1];
@@ -34,16 +36,16 @@ export const Storage = ({payload, setPayload}) => {
       timeMax = last.end
     }
     Query(`
-    query Query($timeMin: Date!, $timeMax: Date!) {
-      getEvents(timeMin: $timeMin, timeMax: $timeMax) {
+    query StorageInUse($times: [TimeInput!]!) {
+      events(times: $times) {
         storage
       }
     }
-    `,{timeMin, timeMax})
+    `,{times:[{start:timeMin, end:timeMax}]})
       .then(resp=>resp.json())
-      .then(data=>{
-        if (data.errors) throw data.errors
-        else setInUse(data.data.getEvents.filter(e=>e.storage).map(e=>e.storage).flat())
+      .then(query=>{
+        if (query.errors) throw query.errors
+        else setInUse(query.data.events.filter(e=>e.storage).map(e=>e.storage).flat())
       })
       .catch(err=>console.error(err))
   }, [payload.times]);
@@ -57,7 +59,7 @@ export const Storage = ({payload, setPayload}) => {
       </Button>
       <Collapse in={show}>
         <div className="text-center mt-3">
-          <Row className="m-3">
+          <Row>
             <Button variant="outline-secondary" onClick={()=>setPayload({...payload, storage:[]})}>Clear</Button>
           </Row>
           
@@ -67,20 +69,35 @@ export const Storage = ({payload, setPayload}) => {
             [
               'purple','blue','green','yellow','orange','red','pink'
             ].map(color=>
-              <Row className={`storage-${color} justify-content-center`} xs={3}>
+              <Row className="mt-1" xs={2}>
                 {
                   new Array(12).fill(0).map((_,idx)=> {
-                    const id = `${color}-${idx+1}`
-                    return(
-                      <Col 
-                        className={`p-1 m-1 ${color} ${color}-${payload.storage.includes(id)?"selected":""} storage-button ${inUse.includes(`${color}-${idx}`)?'unavailable':""}`} 
+                    const id = `${color}-${idx+1}`;
+                    const included = payload.storage.includes(id);
+                    const unavailable = inUse.includes(id);
+                    return (
+                      <Col
                         id={id}
-                        onClick={handleClick}
+                        className={`storage-button ${unavailable?'storage-unavailable':""}`}
+                        onMouseEnter={(e)=>unavailable?null:setIsHover(e.target.id)} 
+                        onMouseLeave={()=>unavailable?null:setIsHover(null)}
+                        onClick={(e)=>unavailable?null:handleClick(id)}
+                        style={
+                          isHover === id || unavailable || included ? {
+                            backgroundColor:color,
+                            color:"white",
+                            borderColor:color
+                          } : {
+                            backgroundColor:"white",
+                            color:color,
+                            borderColor:color
+                          }
+                        }
                       >
                         {color.toUpperCase()} {idx+1}
-                    </Col>
-                    )
-                  })
+                      </Col>
+                    )}
+                  )
                 }
               </Row>
             )

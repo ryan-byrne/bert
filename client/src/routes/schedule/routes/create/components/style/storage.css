@@ -1,83 +1,11 @@
 .storage-button {
-  border: 2px solid;
-  border-radius: 10px;
   cursor: pointer;
+  border: 0.1em solid;
+  border-radius: 0.2em;
+  padding: 0.5em;
 }
 
-.purple {
-  color: purple;
-  border-color: purple;
-}
-
-.blue {
-  color: blue;
-  border-color: blue;
-}
-
-.green {
-  color: green;
-  border-color: green;
-}
-
-.yellow {
-  color: gold;
-  border-color: gold;
-}
-
-.orange {
-  color: orange;
-  border-color: orange;
-}
-
-.red {
-  color: red;
-  border-color: red;
-}
-
-.pink {
-  color: hotpink;
-  border-color: hotpink;
-}
-
-.purple:hover, .purple-selected {
-  background-color: purple;
-  color:white
-}
-
-.blue:hover, .blue-selected {
-  background-color: blue;
-  color:white
-}
-
-.green:hover, .green-selected {
-  background-color: green;
-  color:white
-}
-
-.yellow:hover, .yellow-selected {
-  background-color: gold;
-  color:white
-}
-
-.orange:hover, .orange-selected {
-  background-color: orange;
-  color:white
-}
-
-.red:hover, .red-selected {
-  background-color: red;
-  color:white
-}
-
-.pink:hover, .pink-selected{
-  background-color: hotpink;
-  color:white
-}
-
-.unavailable {
+.storage-unavailable {
   opacity: 10%;
-}
-
-.unavailable:hover {
   cursor: default;
 }

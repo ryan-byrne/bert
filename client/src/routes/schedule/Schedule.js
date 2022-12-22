@@ -54,8 +54,8 @@ export default function Schedule({ create, view }) {
 
     setEvents();
     Query(`
-    query GetCalendar($timeMin: Date!, $timeMax: Date!) {
-      events(timeMin: $timeMin, timeMax: $timeMax) {
+    query GetCalendar($times: [TimeInput!]!) {
+      events(times: $times) {
         start {
           dateTime
         }
@@ -67,7 +67,7 @@ export default function Schedule({ create, view }) {
         }
       }
     }
-    `,{timeMin, timeMax})
+    `,{times:[{start:timeMin,end:timeMax}]})
       .then(resp=>resp.json())
       .then(data=>{
         if (data.errors || !data.data) throw data

@@ -27,6 +27,7 @@ export const Tools = (props) => {
 
   const notAuthorized = (tool) =>  !tool.training.completed || (tool.training.demo && !tool.training.demo_completed)
 
+  // TODO: Fix
   useEffect(() => {
     if (!id) return
     Query(`
@@ -50,8 +51,8 @@ export const Tools = (props) => {
   }, [id]);
 
   const toolQuery = `
-    query ToolSearch($text: String!) {
-      toolSearch(text: $text) {
+    query ToolSearch($search: String!) {
+      tools(search: $search) {
         _id
         brand
         name
@@ -75,7 +76,7 @@ export const Tools = (props) => {
       </Button>
       <Collapse in={show}>
         <div>
-          <SearchSelect name="Tools" query={toolQuery} queryName="toolSearch" columns={['photo','brand','name']} onSelect={(tool)=>handleAdd(tool)}/>
+          <SearchSelect name="Tools" query={toolQuery} queryName="tools" columns={['photo','brand','name']} onSelect={(tool)=>handleAdd(tool)}/>
           <ListGroup>
             {
               tools.map( (tool, idx) =>
