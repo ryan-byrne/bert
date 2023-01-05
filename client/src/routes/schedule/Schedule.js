@@ -8,6 +8,7 @@ import Create from "./routes/create/Create";
 
 import './style.css';
 import Loading from "../../components/Loading";
+import View from "./routes/view/View";
 
 Date.prototype.toFormDateString = function () {
   return this.getFullYear() + "-" + (this.getMonth() + 1).toString().padStart(2, "0") + "-" + this.getDate().toString().padStart(2, "0")
@@ -60,6 +61,7 @@ export default function Schedule({ create, view }) {
           dateTime
         }
         id
+        recurringEventId
         locations
         summary
         end {
@@ -97,6 +99,7 @@ export default function Schedule({ create, view }) {
     <Container>
 
       <Create show={create} navigate={navigate}/>
+      <View show={view} onHide={()=>navigate("/schedule")} navigate={navigate}/>
 
       <Row className="mt-3">
         <ButtonGroup>

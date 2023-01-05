@@ -20,7 +20,7 @@ export default function EventBadge({ event }) {
       placement="left"
       overlay={<Tooltip>View Details</Tooltip>}>
         <Link
-          to={`/schedule/view/${event.id}`}
+          to={`/schedule/view/${event.recurringEventId ? event.recurringEventId : event.id}`}
           className={`event-badge bg-${areaColors[location]} event-badge-${location}`}
           style={{ top: `${startHour * 30}px`, height: `${30 * (endHour - startHour)}px`}}
         >

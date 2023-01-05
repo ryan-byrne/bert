@@ -65,6 +65,16 @@ type Query {
     """
     search:String
   ):[User]
+  
+  """
+  Query google events
+  """
+  event(
+    """
+    Google Event ID
+    """
+    eventId:ID!
+  ):Event
 
   """
   Query for all events between two dates
@@ -188,20 +198,29 @@ input MaterialInput {
   quantity:Int!
 }
 
+input EventInput {
+  summary:String!
+  description:String
+  times:[TimeInput!]!
+  locations:[EventLocation!]!
+  tools:[ToolInput!]
+  materials:[MaterialInput!]
+  attendees:[Attendee!]
+  storage:[String!]
+}
+
 type Mutation {
 
     createEvent(
-      summary:String!
-      description:String
-      times:[TimeInput!]!
-      locations:[EventLocation!]!
-      tools:[ToolInput]
-      materials:[MaterialInput]
-      attendees:[Attendee]
-      storage:[String]
+      event:EventInput!
     ): [Event]
 
-    submitGuess(text:String, questionId:String):Boolean
+    editEvent(
+      eventId:ID!,
+      update:EventInput!,
+    ):[Event]
+
+    submitGuess(text:String, questionId:String):Boolean!
 
     completeDemo(users:[String!]!, training:String!):[String]
 
@@ -216,33 +235,6 @@ type Mutation {
       dimensions:[MaterialDimension!]!
     ):Material
 
-}
-
-type Dimension {
-  dimension:String!
-  value:Float!
-  unit:String!
-}
-
-type MaterialReservation {
-  quantity:Int
-  material:Material
-}
-
-"""
-Materials
-"""
-type Material {
-  photo:String
-  available:Int
-  _id:String
-  id:String
-  vendor:String
-  material:String
-  link:String
-  unit_price:Float
-  description:String
-  dimensions:[Dimension!]!
 }
 
 """
@@ -281,42 +273,6 @@ type Course {
   List of Users in the class
   """
   roster:[User]
-}
-
-# SCHEDULING INPUTS
-
-type CalendarDay {
-    date:Date
-    events:[Event]
-}
-
-input TimeInput {
-  start:Date!
-  end:Date!
-  recurrence:[String!]
-}
-
-type Time {
-  start:Date!
-  end:Date!
-}
-
-input ToolInput {
-    id:String!
-    quantity:Int!
-}
-
-input Attendee {
-    email:String!
-    id:String
-    displayName:String
-    organizer:Boolean
-    self:Boolean
-    resource:Boolean
-    optional:Boolean
-    responseStatus:String
-    comment:String
-    additionalGuests:Int
 }
 
 type Block {
@@ -461,7 +417,8 @@ type User {
     student:Boolean
 }
 
-# EVENTS
+
+#  ********** EVENTS ***************
 
 """
 DateTime Object for Events
@@ -496,10 +453,84 @@ enum EventLocation {
     machineshop
 }
 
+type ToolReservation {
+  tool:Tool
+  reserved:Int
+}
+
+type MaterialReservation {
+  material:Material
+  reserved:Int
+}
+
+type CalendarDay {
+    date:Date
+    events:[Event]
+}
+
+input TimeInput {
+  start:Date!
+  end:Date!
+  recurrence:[String!]
+}
+
+type Time {
+  start:Date!
+  end:Date!
+}
+
+input ToolInput {
+    id:String!
+    quantity:Int!
+}
+
+input Attendee {
+    email:String!
+    id:String
+    displayName:String
+    organizer:Boolean
+    self:Boolean
+    resource:Boolean
+    optional:Boolean
+    responseStatus:String
+    comment:String
+    additionalGuests:Int
+}
+
+"""
+Materials
+"""
+type Material {
+  photo:String
+  available:Int!
+  _id:String!
+  id:String!
+  vendor:String
+  material:String!
+  link:String
+  unit_price:Float
+  description:String!
+  dimensions:[Dimension!]!
+}
+
+type Dimension {
+  dimension:String!
+  value:Float!
+  unit:String!
+}
+
 """
 Event Object in a specified location's Calendar
 """
 type Event {
+    """
+    Determine whether the current user is the owner of the event (and can therefore edit or delete)
+    """
+    owner:Boolean
+    """
+    Last modification time of the event (as a RFC3339 timestamp). Read-only.
+    """
+    updated:String
     """
     Calendar identifier. To retrieve calendar IDs call the calendarList.list method. If you want to access the primary calendar of the currently logged in user, use the "primary" keyword.
     """
@@ -562,7 +593,7 @@ type Event {
     """
     List of Tool Reservations
     """
-    tools:[Tool]
+    tools:[ToolReservation]
     """
     List of reserved storage
     """
@@ -570,7 +601,7 @@ type Event {
     """
     List of materials
     """
-    materials:[Material]
+    materials:[MaterialReservation]
 }
 
 

@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from 'react-router-dom';
 import { Alert, Button, FormGroup, ListGroup, OverlayTrigger, Popover, Row, Col, Form, Table, Collapse } from "react-bootstrap";
 
-import { Query } from "../../../../../components/GraphQL";
-import Loading from "../../../../../components/Loading";
+import { Query } from "../../../../components/GraphQL";
+import Loading from "../../../../components/Loading";
 
 export default function Submit({ payload }) {
 
@@ -56,16 +56,22 @@ export default function Submit({ payload }) {
         id
         summary
         tools {
-          brand
-          name
+          reserved
+          tool {
+            brand
+            name
+          }
         }
       }
       materials:events(times:$times, materials: $materials){
         id
         summary
         materials {
-          vendor
-          description
+          material {
+            vendor
+            description
+          }
+          reserved
         }
       }
       storage:events(times:$times, storage: $storage){
@@ -107,30 +113,12 @@ export default function Submit({ payload }) {
   const handleSubmit = () => {
     setStatus({ text: "Submitting..." })
     Query(`
-    mutation Mutation(
-      $summary: String!, 
-      $times: [TimeInput!]!, 
-      $locations: [EventLocation!]!,
-      $storage: [String],
-      $tools: [ToolInput]!, 
-      $description: String, 
-      $attendees: [Attendee]!,
-      $materials:[MaterialInput]
-      ){
-        createEvent(
-          description: $description,
-          summary: $summary, 
-          times: $times,
-          storage: $storage,
-          locations: $locations,
-          attendees: $attendees,
-          materials: $materials,
-          tools: $tools
-        ) {
-            id
-        }
+    mutation CreateEvent($event: EventInput!) {
+      createEvent(event: $event) {
+        id
       }
-        `, { ...payload })
+    }
+        `, { event:payload })
       .then(resp => resp.json()
         .then(data => {
           if (data.errors) {

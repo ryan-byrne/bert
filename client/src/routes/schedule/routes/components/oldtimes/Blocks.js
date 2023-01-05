@@ -1,5 +1,5 @@
 import {useState, useEffect} from 'react';
-import {Query} from "../../../../../../components/GraphQL"
+import {Query} from "../../../../../components/GraphQL"
 import { ToggleButton, FormSelect, FormGroup, Row, Col, Collapse, ToggleButtonGroup } from 'react-bootstrap';
 
 const getWeek = (date) => {

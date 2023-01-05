@@ -1,11 +1,11 @@
 import {Row, Badge, Col, Image, Button, FormGroup, FormControl, FloatingLabel, ListGroup, Collapse, CloseButton, ButtonGroup, Alert, OverlayTrigger, Tooltip, FormText, Form, ToggleButtonGroup, ToggleButton} from 'react-bootstrap'
 import {useState, useEffect} from 'react';
 import { Link } from 'react-router-dom';
-import Loading from '../../../../../components/Loading'
-import { Query } from '../../../../../components/GraphQL';
-import SearchSelect from '../../../../../components/SearchSelect';
+import Loading from '../../../../components/Loading'
+import { Query } from '../../../../components/GraphQL';
+import SearchSelect from '../../../../components/SearchSelect';
 
-export default function Materials({payload, setPayload}){
+export default function Materials({payload, setPayload, enabled}){
 
   const [show, setShow] = useState(false);
   const [mode, setMode] = useState();
@@ -130,7 +130,7 @@ export default function Materials({payload, setPayload}){
     }
   }, [submitting]);
 
-  useEffect(() => setPayload({...payload, materials:materials.map(m=>({id:m.id, quantity:m.quantity}))}), [materials]);
+  useEffect(() => setPayload((payload)=>({...payload, materials:materials.map(m=>({id:m.id, quantity:m.quantity}))})), [setPayload, materials]);
 
   return(
     <FormGroup>
@@ -144,7 +144,7 @@ export default function Materials({payload, setPayload}){
       <Collapse in={show}>
         <Row className="mt-3">
           <ToggleButtonGroup type="radio" name="mode" onChange={(m)=>setMode(m)}>
-            <ToggleButton id="search-existing" value="search" variant="outline-primary">
+            <ToggleButton id="search-existing" value="search" variant="outline-primary" disabled={!enabled}>
               <Row>
                 <Col xs={1} className="mt-auto mb-auto">
                   &#128270;
@@ -154,7 +154,7 @@ export default function Materials({payload, setPayload}){
                 </Col>
               </Row>
             </ToggleButton>
-            <ToggleButton id="add-new" value="add" variant="outline-success">
+            <ToggleButton id="add-new" value="add" variant="outline-success" disabled={!enabled}>
               <Row>
                 <Col xs={1} className="mt-auto mb-auto">
                   &#10133;
@@ -165,7 +165,7 @@ export default function Materials({payload, setPayload}){
               </Row>
             </ToggleButton>
           </ToggleButtonGroup>
-          <Collapse in={mode==='add'}>
+          <Collapse in={mode==='add' && enabled}>
             <FormGroup className="p-3 bg-success">
               <FormGroup className="text-center">
                 <Form.Text className="text-danger">* </Form.Text>
@@ -188,7 +188,7 @@ export default function Materials({payload, setPayload}){
                     <Form.Control type={['unit_price','available'].includes(key) ? 'number' : 'text'} value={materialPayload[key]} id={key} onChange={handleAddChange}/> :
                     <div>
                       { materialPayload.dimensions.map( (dimension, didx) =>
-                        <FormGroup className="mt-1">
+                        <FormGroup className="mt-1" disabled={!enabled}>
                           <Row>
                             <Col xs={1}>
                               {
@@ -235,7 +235,7 @@ export default function Materials({payload, setPayload}){
               </Row>
             </FormGroup>
           </Collapse>
-          <Collapse in={mode==='search'}>
+          <Collapse in={mode==='search' && enabled}>
             <FormGroup className="bg-primary p-3">
               <SearchSelect
                 query={materialQuery}
@@ -252,7 +252,7 @@ export default function Materials({payload, setPayload}){
                 <Alert variant={material.quantity > material.available ? "warning" : "primary"}>
                   <Row>
                     <Col xs={1} className="mt-auto mb-auto">
-                      <CloseButton id={`${idx}`} onClick={handleRemove}/>
+                      {enabled ? <CloseButton id={`${idx}`} onClick={handleRemove}/> : null}
                     </Col>
                     <Col xs={4}>
                       <Image style={{maxWidth:"100px"}} height="100" src={material.photo}/>
@@ -265,7 +265,7 @@ export default function Materials({payload, setPayload}){
                     <FormGroup as={Col} xs={3} className="mt-auto mb-auto">
                       
                       <Form.Text style={{fontSize:"10px"}}>Quantity:</Form.Text>
-                      <Form.Control type="number" id={`${idx}`} min="1" value={material.quantity} onChange={handleQuantity}/>
+                      <Form.Control type="number" id={`${idx}`} min="1" value={material.quantity} onChange={handleQuantity} disabled={!enabled}/>
                       <div style={{fontSize:"10px"}}>
                         <div>
                           <Form.Text >Available: {material.available}</Form.Text>

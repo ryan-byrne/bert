@@ -22,6 +22,34 @@ const calendars = isProduction ? {
   "powertool": "c_uclhkdm8namoq41rlij866jl2g@group.calendar.google.com"
 }
 
+const convertToExtendedProperties = (tools, materials, storage) => {
+
+  var sharedData = {}
+
+  if (tools) {
+    for (const tool of tools) {
+      sharedData[tool.id] = true
+      sharedData[`${tool.id}_qty`] = tool.quantity
+    }
+  }
+
+  if (materials) {
+    for (const material of materials) {
+      sharedData[material.id] = true
+      sharedData[`${material.id}_qty`] = material.quantity
+    }
+  }
+
+  if (storage) {
+    for (const store of storage) {
+      sharedData[store] = true
+    }
+  }
+
+  return sharedData
+
+}
+
 // TODO: Figure out Quantity Query
 const getExtendedProperties = (tools, materials, storage) => {
   if ( tools || materials || storage ){
@@ -39,7 +67,8 @@ const getGoogleEvent = async (timeMin, timeMax, location, attendees, sharedExten
     timeMax,
     timeMin,
     attendees,
-    sharedExtendedProperty
+    sharedExtendedProperty,
+    singleEvents:true
   });
 
   return resp.data.items.flat().filter(e=>e);
@@ -128,6 +157,20 @@ module.exports = {
       ({id:ctx.user.id})
     ),
 
+    event: async (_, {eventId}) => {
+
+      for (const calendarId of Object.values(calendars)){
+        const resp = await google.calendar('v3').events.get({
+          eventId,
+          calendarId
+        });
+        if (resp) return resp.data
+        else continue
+      }
+
+      
+    },
+
     events: async (_, {
       times,
       attendees,
@@ -136,7 +179,6 @@ module.exports = {
       materials,
       storage
     }) => {
-
       const eventLocations = locations || Object.keys(calendars);
       const sharedExtendedProperties = getExtendedProperties(tools, materials, storage);
       let events = [];
@@ -200,45 +242,26 @@ module.exports = {
 
   Mutation: {
 
-    createEvent: async (_, {
-      summary,
-      description,
-      locations,
-      times,
-      tools,
-      attendees,
-      materials,
-      storage
-    }, {user}) => {
+    createEvent: async (_, {event}) => {
 
-      const events = []
-      var sharedData = {};
+      const {
+        summary,
+        description,
+        locations,
+        times,
+        tools,
+        attendees,
+        materials,
+        storage } = event;
 
-      if (tools) {
-        for (const tool of tools) {
-          sharedData[tool.id] = true
-          sharedData[`${tool.id}_qty`] = tool.quantity
-        }
-      }
+      const events = [];
 
-      if (materials) {
-        for (const material of materials) {
-          sharedData[material.id] = true
-          sharedData[`${material.id}_qty`] = material.quantity
-        }
-      }
+      const shared = convertToExtendedProperties(tools, materials, storage);
+      const eventAttendees = attendees ? [...attendees, ...locations.map(l=>({resource:true, email:calendars[l]}))] : []
 
-      if (storage) {
-        for (const store of storage) {
-          sharedData[store] = true
-        }
-      }
-
-      const eventAttendees = attendees ? attendees : []
-
-      for (let time of times) {
+      for (const time of times) {
         const resp = await google.calendar({ version: "v3" }).events.insert({
-          calendarId: user.email,
+          calendarId: "primary",
           requestBody: {
             start: {
               dateTime: time.start,
@@ -249,20 +272,55 @@ module.exports = {
               timeZone: "America/New_York"
             },
             organizer: true,
-            extendedProperties: {
-              shared: sharedData
-            },
+            extendedProperties: { shared },
             status: "tentative",
             summary,
             description,
             recurrence: time.recurrence,
-            attendees: [...eventAttendees, ...locations.map(l => ({ resource: true, email: calendars[l] }))]
+            attendees: eventAttendees
           }
         });
+
+        events.push(resp.data)
+      }
+
+      return events.flat()
+
+    },
+
+    editEvent: async (_, {update, eventId}) => {
+
+      // TODO: Ability to change recurring events
+
+      const {
+        summary,
+        description,
+        locations,
+        times,
+        tools,
+        attendees,
+        materials,
+        storage
+      } = update;
+
+      let events = []
+
+      for (const time of times){
+        const resp = await google.calendar({ version: "v3" }).events.patch({
+          calendarId:'primary',
+          eventId,
+          requestBody:{
+            summary,
+            description,
+            attendees:[...attendees, ...locations.map(l=>({resource:true, email:calendars[l]}))],
+            extendedProperties:{
+              shared: convertToExtendedProperties(tools, materials, storage)
+            }
+          }
+        })
         events.push(resp.data)
       }
       return events.flat()
-
     },
 
     submitGuess: async (_, { questionId, text }, { user }) => {
@@ -679,6 +737,10 @@ module.exports = {
 
   Event: {
 
+    owner: (eventDoc, _, ctx) => eventDoc.creator.email === ctx.user.email, 
+
+    attendees: (eventDoc) => eventDoc.attendees.filter(a=>!Object.values(calendars).includes(a.email)),
+
     locations: (eventDoc) => !eventDoc.attendees ? [] :
       Object.keys(calendars).filter(
         location => eventDoc.attendees.map(a => a.email).includes(calendars[location])
@@ -691,7 +753,7 @@ module.exports = {
           new Array(12).fill(0).map((_, idx) => `${color}-${idx}`)
         ).flat();
         return Object.keys(props).filter(k => options.includes(k))
-      } else return null
+      } else return []
     },
 
     tools: async (eventDoc) => {
@@ -704,14 +766,13 @@ module.exports = {
         for (const prop of sortedProps) {
           try {
             let resp = await tool.findOne({ _id: prop.id });
-            resp.reserved = prop.quantity;
-            tools.push(resp)
+            tools.push({tool:resp, reserved:prop.quantity})
           } catch {
             continue
           }
         }
         return tools
-      } else return null
+      } else return []
 
     },
 
@@ -723,17 +784,15 @@ module.exports = {
           .map(([id, _]) => ({ id, quantity: props[`${id}_qty`] }));
         let materials = [];
         for (const prop of sortedProps) {
-          try {
-            let resp = await material.findOne({ id: prop.id });
-            resp.reserved = prop.quantity;
-            materials.push(resp)
-          } catch {
-            continue
-          }
+          let resp = await material.findOne({ id: prop.id });
+          if (!resp) continue
+          else materials.push({material:resp, quantity:prop.quantity})
         }
         return materials
-      } else return null
-    }
+      } else return []
+    },
+
+    creator: async(eventDoc) => await user.findOne({email:eventDoc.creator.email})
   },
 
   Course: {

@@ -2,7 +2,7 @@ import {useState, useEffect} from 'react';
 import { FloatingLabel, FormControl, FormGroup, ListGroup, Row, Col, Image, Button  } from 'react-bootstrap';
 import { Query } from './GraphQL';
 
-const SearchSelect = ({name, query, queryName, columns, onSelect}) => {
+const SearchSelect = ({name, query, queryName, columns, onSelect, disabled}) => {
 
   const [search, setSearch] = useState("");
   const [added, setAdded] = useState([]);
@@ -32,7 +32,7 @@ const SearchSelect = ({name, query, queryName, columns, onSelect}) => {
   return (
     <FormGroup className="m-3">
       <FloatingLabel label={`Search for ${name}`}>
-        <FormControl value={search} onChange={(e)=>setSearch(e.target.value)} placeholder={`Search for ${name}`}/>
+        <FormControl value={search} disabled={disabled} onChange={(e)=>setSearch(e.target.value)} placeholder={`Search for ${name}`}/>
       </FloatingLabel>
       <ListGroup style={{maxHeight:"200px", overflowY:"scroll", position:"relative", zIndex:"1"}}>
           {

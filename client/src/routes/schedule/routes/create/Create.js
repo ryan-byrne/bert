@@ -1,14 +1,15 @@
 import { useState, useEffect } from "react";
 import { Form, Offcanvas } from "react-bootstrap";
 
-import Describe from './components/Describe';
-import SetTimes from './components/SetTimes';
-import Attendees from './components/Attendees';
-import Tools from './components/Tools';
-import Submit from './components/Submit';
+import Describe from '../components/Describe';
+import Times from '../components/times/Times';
+//import SetTimes from '../components/SetTimes';
+import Attendees from '../components/Attendees';
+import Tools from '../components/Tools';
+import Submit from '../components/Submit';
 import { useLocation, useNavigate } from "react-router-dom";
-import Materials from './components/Materials';
-import Storage from "./components/Storage";
+import Materials from '../components/Materials';
+import Storage from "../components/Storage";
 
 export default function Create({ show, navigate }) {
 
@@ -33,17 +34,22 @@ export default function Create({ show, navigate }) {
         </Offcanvas.Title>
       </Offcanvas.Header>
       <Offcanvas.Body>
-        <Form>
-          <Describe payload={payload} setPayload={setPayload} search={search}/>
-          <SetTimes payload={payload} setPayload={setPayload} search={search} />
-          <Attendees payload={payload} setPayload={setPayload} />
-          <Tools payload={payload} setPayload={setPayload} />
-          <Materials payload={payload} setPayload={setPayload} />
-          <Storage payload={payload} setPayload={setPayload} />
-          <Submit payload={payload} setPayload={setPayload} />
-        </Form>
+
+        <Describe payload={payload} setPayload={setPayload} search={search} enabled/>
+        <Times payload={payload} setPayload={setPayload} search={search} enabled/>
+
       </Offcanvas.Body>
 
     </Offcanvas>
   )
 }
+
+/*
+  <Describe payload={payload} setPayload={setPayload} search={search} enabled/>
+  <SetTimes payload={payload} setPayload={setPayload} search={search} enabled/>
+  <Attendees payload={payload} setPayload={setPayload} enabled/>
+  <Tools payload={payload} setPayload={setPayload} />
+  <Materials payload={payload} setPayload={setPayload} />
+  <Storage payload={payload} setPayload={setPayload} />
+  <Submit payload={payload} setPayload={setPayload} />
+*/

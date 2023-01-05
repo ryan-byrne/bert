@@ -1,7 +1,7 @@
 import {Row, Col, Button, FormGroup, Alert, Collapse} from 'react-bootstrap'
 import {useState, useEffect} from 'react';
-import Loading from '../../../../../components/Loading'
-import { Query } from '../../../../../components/GraphQL';
+import Loading from '../../../../components/Loading'
+import { Query } from '../../../../components/GraphQL';
 
 import './style/storage.css'
 

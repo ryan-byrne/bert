@@ -1,10 +1,10 @@
 import {useState, useEffect} from 'react';
 import {Row, Button, FormGroup, Image, Collapse, Badge, CloseButton, FormText, FormControl, Col, FloatingLabel, ToggleButtonGroup, ToggleButton, ListGroup, FormSelect} from 'react-bootstrap';
-import { Query } from '../../../../../components/GraphQL';
+import { Query } from '../../../../components/GraphQL';
 import classroomIcon from './img/classroomIcon.png';
 import searchIcon from './img/searchIcon.png';
 
-const Attendees = ({payload, setPayload}) => {
+const Attendees = ({payload, setPayload, enabled}) => {
 
   const [attendees, setAttendees] = useState([]);
   const [show, setShow] = useState(false);
@@ -14,9 +14,8 @@ const Attendees = ({payload, setPayload}) => {
   const [classOptions, setClassOptions] = useState();
   const [importedClassIds, setImportedClassIds] = useState([]);
 
-  useEffect(() => {
-    setPayload((payload)=>({...payload, attendees:attendees.map(a=>({email:a.email}))}))
-  }, [attendees, setPayload]);
+  useEffect(() => setPayload((payload)=>({...payload, attendees:attendees.map(a=>({email:a.email}))}))
+  , [attendees, setPayload]);
 
   const handleUserSelect = (e, user) => {
     e.preventDefault();
@@ -103,11 +102,11 @@ const Attendees = ({payload, setPayload}) => {
           </FormGroup>
           <Row className="mt-3">
             <ToggleButtonGroup value={search} type="radio" onChange={(s)=>setSearch(s)} name="searchUser">
-              <ToggleButton size="sm" variant="outline-primary" value={true} id="attendees-search">
+              <ToggleButton size="sm" variant="outline-primary" value={true} id="attendees-search" disabled={!enabled}>
                 <Image src={searchIcon} height="20" className="m-1" />
                 Search for Users
               </ToggleButton>
-              <ToggleButton value={false} size="sm" variant="outline-primary" id="attendees-import">
+              <ToggleButton value={false} size="sm" variant="outline-primary" id="attendees-import" disabled={!enabled}>
                 <Image src={classroomIcon} height="20" className="m-1"/>
                   Import from Classroom
               </ToggleButton>
@@ -125,7 +124,7 @@ const Attendees = ({payload, setPayload}) => {
                     !userOptions ? <ListGroup.Item variant="info">Searching for Users...</ListGroup.Item> :
                     userOptions.length === 0 ? <ListGroup.Item variant="warning">No users found...</ListGroup.Item> :
                     userOptions.map( user =>
-                      <ListGroup.Item action disabled={payload.attendees.map(u=>u.email).includes(user.email)} onClick={handleUserSelect}>
+                      <ListGroup.Item action disabled={payload.attendees.map(u=>u.email).includes(user.email) || !enabled} onClick={handleUserSelect}>
                         <div><strong>{user.name}</strong></div>
                         <div><FormText muted>{user.email}</FormText></div>
                       </ListGroup.Item>

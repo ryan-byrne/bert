@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import {  Button, Collapse, FormGroup, FormText, Row } from 'react-bootstrap';
 import { useLocation } from 'react-router-dom';
-import { Query } from '../../../../../components/GraphQL';
+import { Query } from '../../../../components/GraphQL';
 
 import EventTime from './times/EventTime';
 
@@ -55,7 +55,7 @@ const SetTimes = ({ setPayload, payload, search }) => {
       ]
     }
 
-    setPayload({...payload, times:[]});
+    setPayload((payload)=>({...payload, times:[]}));
 
     for ( const time of times) {
 
@@ -70,7 +70,7 @@ const SetTimes = ({ setPayload, payload, search }) => {
           start.setHours(hr, min, 0, 0);
           var [hr, min] = time.end.split(":");
           end.setHours(hr, min, 0, 0);
-          setPayload(payload=>({...payload, times:[...payload.times, {
+          setPayload((payload)=>({...payload, times:[...payload.times, {
             start, end, recurrence:getRecurrence(time)
           }]}))
         }
@@ -144,7 +144,7 @@ const SetTimes = ({ setPayload, payload, search }) => {
 
                 start.setDate( start.getDate() + 1 )
               }
-              setPayload({...payload, times})
+              setPayload((payload)=>({...payload, times}))
             })
             .catch(err=>console.error(err))
         }
@@ -152,7 +152,7 @@ const SetTimes = ({ setPayload, payload, search }) => {
       }
     }
 
-  }, [times]);
+  }, [times, setPayload]);
 
   const handleAddTime = () => setTimes([...times, {
     date: new Date(), // 2022-08-01
