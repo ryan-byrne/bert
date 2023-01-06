@@ -220,6 +220,10 @@ type Mutation {
       update:EventInput!,
     ):[Event]
 
+    deleteEvent(
+      eventId:ID!
+    ):Boolean
+
     submitGuess(text:String, questionId:String):Boolean!
 
     completeDemo(users:[String!]!, training:String!):[String]

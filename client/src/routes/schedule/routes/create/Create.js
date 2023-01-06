@@ -7,7 +7,7 @@ import Times from '../components/times/Times';
 import Attendees from '../components/Attendees';
 import Tools from '../components/Tools';
 import Submit from '../components/Submit';
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import Materials from '../components/Materials';
 import Storage from "../components/Storage";
 
@@ -37,19 +37,14 @@ export default function Create({ show, navigate }) {
 
         <Describe payload={payload} setPayload={setPayload} search={search} enabled/>
         <Times payload={payload} setPayload={setPayload} search={search} enabled/>
+        <Attendees payload={payload} setPayload={setPayload} enabled/>
+        <Tools payload={payload} setPayload={setPayload} enabled/>
+        <Materials payload={payload} setPayload={setPayload} enabled/>
+        <Storage payload={payload} setPayload={setPayload} enabled />
+        <Submit payload={payload} setPayload={setPayload} enabled/>
 
       </Offcanvas.Body>
 
     </Offcanvas>
   )
 }
-
-/*
-  <Describe payload={payload} setPayload={setPayload} search={search} enabled/>
-  <SetTimes payload={payload} setPayload={setPayload} search={search} enabled/>
-  <Attendees payload={payload} setPayload={setPayload} enabled/>
-  <Tools payload={payload} setPayload={setPayload} />
-  <Materials payload={payload} setPayload={setPayload} />
-  <Storage payload={payload} setPayload={setPayload} />
-  <Submit payload={payload} setPayload={setPayload} />
-*/

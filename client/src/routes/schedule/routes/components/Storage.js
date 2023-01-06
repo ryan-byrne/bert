@@ -5,7 +5,7 @@ import { Query } from '../../../../components/GraphQL';
 
 import './style/storage.css'
 
-export const Storage = ({payload, setPayload}) => {
+export const Storage = ({payload, setPayload, enabled}) => {
 
   const [show, setShow] = useState(false);
   const [inUse, setInUse] = useState();
@@ -22,12 +22,12 @@ export const Storage = ({payload, setPayload}) => {
     setPayload({...payload, storage:[...payload.storage, id]})
 
   useEffect(() => {
-    if (!payload.times[0]) return
+    if (!payload.times || !payload.times[0]) return
     setInUse();
     const timeMin = payload.times[0].start;
     let timeMax;
     const last = payload.times[payload.times.length-1];
-    if (last.recurrence){
+    if (last.recurrence && last.recurrence[0]){
       const year = last.recurrence[0].substring(24,28);
       const month = last.recurrence[0].substring(28,30) - 1;
       const day = last.recurrence[0].substring(30,32);
@@ -50,7 +50,7 @@ export const Storage = ({payload, setPayload}) => {
       .catch(err=>console.error(err))
   }, [payload.times]);
 
-  return (
+  return ( !payload.times ? null :
     <FormGroup as={Row}>
       <Button
         onClick={()=>setShow(!show)} 
@@ -74,16 +74,16 @@ export const Storage = ({payload, setPayload}) => {
                   new Array(12).fill(0).map((_,idx)=> {
                     const id = `${color}-${idx+1}`;
                     const included = payload.storage.includes(id);
-                    const unavailable = inUse.includes(id);
+                    const disabled = !enabled || (inUse.includes(id) && !included);
                     return (
                       <Col
                         id={id}
-                        className={`storage-button ${unavailable?'storage-unavailable':""}`}
-                        onMouseEnter={(e)=>unavailable?null:setIsHover(e.target.id)} 
-                        onMouseLeave={()=>unavailable?null:setIsHover(null)}
-                        onClick={(e)=>unavailable?null:handleClick(id)}
+                        className={`storage-button ${disabled?'storage-disabled':""}`}
+                        onMouseEnter={(e)=>disabled?null:setIsHover(e.target.id)} 
+                        onMouseLeave={()=>disabled?null:setIsHover(null)}
+                        onClick={(e)=>disabled?null:handleClick(id)}
                         style={
-                          isHover === id || unavailable || included ? {
+                          isHover === id || included ? {
                             backgroundColor:color,
                             color:"white",
                             borderColor:color

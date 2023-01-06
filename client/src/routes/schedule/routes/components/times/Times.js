@@ -1,13 +1,21 @@
+import { isNullableType } from "graphql";
 import { useState, useEffect } from "react";
 import { Row, Button, Alert, Collapse, FormGroup, Col, ButtonGroup, ToggleButtonGroup, ToggleButton, Form, FloatingLabel } from "react-bootstrap"
 import { Query } from "../../../../../components/GraphQL";
 import Loading from "../../../../../components/Loading";
 
 const getRecurrenceString = (recurrence) => {
-  if (!recurrence) return []
+  if (!recurrence) return null
   else return [
     `RRULE:WEEKLY;UNTIL=${recurrence.until.toISOString().replace(/[-:.]/g, '').split("T")[0]};INTERVAL=${recurrence.interval === 'weekly' ? '1' : '2'}`
   ]
+}
+
+const getRecurrenceObject = (recurrence) => {
+  if (recurrence) {
+    var [_, until, interval] = recurrence.split(";");
+    console.log(until, interval);
+  } else return null
 }
 
 const getFormDateString = (date) => {
@@ -37,7 +45,7 @@ const handleDateSelect = (e) => {
   return date
 }
 
-const Recurrence = ({ idx, time, setTime }) => {
+const Recurrence = ({ idx, time, setTime, enabled }) => {
 
   const handleToggle = (e) => setTime({ 
     ...time,
@@ -58,7 +66,7 @@ const Recurrence = ({ idx, time, setTime }) => {
 
       <Form.Group className="m-3 justify-content-center" as={Row}>
         <Col xs={5}>
-          <Form.Check label="Recurring" type="switch" checked={time.recurrence ? true : false} onChange={handleToggle} />
+          <Form.Check disabled={!enabled} label="Recurring" type="switch" checked={time.recurrence ? true : false} onChange={handleToggle} />
         </Col>
       </Form.Group>
 
@@ -74,7 +82,7 @@ const Recurrence = ({ idx, time, setTime }) => {
                   onChange={(interval) => setTime({ ...time, recurrence: { ...time.recurrence, interval } })}>
                   {['Weekly', 'Bi-Weekly'].map((interval, widx) =>
                     <ToggleButton
-                      disabled={time.block && time.block.division === 'upper'}
+                      disabled={!enabled || (time.block && time.block.division === 'upper')}
                       id={`weekly-btn-${widx}-${idx}`}
                       variant="outline-primary"
                       value={interval.toLowerCase()}>
@@ -87,7 +95,7 @@ const Recurrence = ({ idx, time, setTime }) => {
               <Collapse in={time.recurrence && time.recurrence.interval !== ""}>
                 <Form.Group className="mt-3">
                   <FloatingLabel label="Repeat Until">
-                    <Form.Control value={getFormDateString(time.recurrence.until)} type="date" onChange={handleDateChange} />
+                    <Form.Control disabled={!enabled} value={getFormDateString(time.recurrence.until)} type="date" onChange={handleDateChange} />
                   </FloatingLabel>
                 </Form.Group>
               </Collapse>
@@ -100,7 +108,7 @@ const Recurrence = ({ idx, time, setTime }) => {
   )
 }
 
-const SetTime = ({ idx, time, setTime }) => {
+const SetTime = ({ idx, time, setTime, enabled }) => {
 
   const handleTimeChange = (e) => {
     const [_, type, __] = e.target.id.split("-");
@@ -127,18 +135,18 @@ const SetTime = ({ idx, time, setTime }) => {
     <Form.Group>
       <Form.Group className="mt-3">
         <FloatingLabel label="Select a Date">
-          <Form.Control type="date" id={`time-date-${idx}`} value={getFormDateString(time.start)} onChange={handleDateChange} />
+          <Form.Control disabled={!enabled} type="date" id={`time-date-${idx}`} value={getFormDateString(time.start)} onChange={handleDateChange} />
         </FloatingLabel>
       </Form.Group>
       <Form.Group as={Row} className="mt-3">
         <Form.Group as={Col}>
           <FloatingLabel label="Start Time">
-            <Form.Control type="time" id={`time-start-${idx}`} value={getFormTimeString(time.start)} onChange={handleTimeChange} />
+            <Form.Control disabled={!enabled} type="time" id={`time-start-${idx}`} value={getFormTimeString(time.start)} onChange={handleTimeChange} />
           </FloatingLabel>
         </Form.Group>
         <Form.Group as={Col}>
           <FloatingLabel label="End Time">
-            <Form.Control type="time" id={`time-end-${idx}`} value={getFormTimeString(time.end)} onChange={handleTimeChange} />
+            <Form.Control disabled={!enabled} type="time" id={`time-end-${idx}`} value={getFormTimeString(time.end)} onChange={handleTimeChange} />
           </FloatingLabel>
         </Form.Group>
       </Form.Group>
@@ -146,7 +154,7 @@ const SetTime = ({ idx, time, setTime }) => {
   )
 }
 
-const SetBlocks = ({ idx, time, setTime }) => {
+const SetBlocks = ({ idx, time, setTime, enabled }) => {
 
   const [options, setOptions] = useState();
 
@@ -216,10 +224,10 @@ const SetBlocks = ({ idx, time, setTime }) => {
             name={`${idx}-select-division`}
             onChange={(division) => setTime({ ...time, block: { ...time.block, selected: [], division } })}
           >
-            <ToggleButton value="middle" id={`${idx}-division-1`} variant="outline-primary">
+            <ToggleButton disabled={!enabled} value="middle" id={`${idx}-division-1`} variant="outline-primary">
               Middle School
             </ToggleButton>
-            <ToggleButton value="upper" id={`${idx}-division-2`} variant="outline-primary">
+            <ToggleButton disabled={!enabled} value="upper" id={`${idx}-division-2`} variant="outline-primary">
               Upper School
             </ToggleButton>
           </ToggleButtonGroup>
@@ -228,7 +236,7 @@ const SetBlocks = ({ idx, time, setTime }) => {
         <Collapse in={time.block.division !== ""}>
           <Form.Group className="mt-3">
             <FloatingLabel label={`Select a ${time.recurrence ? 'Start' : ""} Date`}>
-              <Form.Control type="date" value={getFormDateString(time.block.date)} onChange={(e) => setTime({ ...time, block: { ...time.block, selected: [], date: handleDateSelect(e) } })} />
+              <Form.Control disabled={!enabled} type="date" value={getFormDateString(time.block.date)} onChange={(e) => setTime({ ...time, block: { ...time.block, selected: [], date: handleDateSelect(e) } })} />
             </FloatingLabel>
           </Form.Group>
         </Collapse>
@@ -238,7 +246,7 @@ const SetBlocks = ({ idx, time, setTime }) => {
               time.block.division !== 'middle'? <div></div> :
               !options ? <Loading>Loading Middle School Blocks...</Loading> :
               options.length === 0 ? <Alert variant="warning" className="mt-1">There are no classes today.</Alert> :
-              <Form.Select className="mt-1" multiple onChange={handleMSBlockSelect} id={`ms-blocks-${idx}`}>
+              <Form.Select disabled={!enabled} className="mt-1" multiple onChange={handleMSBlockSelect} id={`ms-blocks-${idx}`}>
                 {
                   options.map((o, idx)=>
                     <option key={idx} value={JSON.stringify(o)}>
@@ -271,7 +279,7 @@ const SetBlocks = ({ idx, time, setTime }) => {
                 key={idx}
                 value={option}
                 variant="outline-primary" 
-                disabled={!time.recurrence && !options.map(o=>o.name).includes(option)}>
+                disabled={!time.recurrence && !options.map(o=>o.name).includes(option) && enabled}>
                 {option}
               </ToggleButton>
               )
@@ -284,7 +292,7 @@ const SetBlocks = ({ idx, time, setTime }) => {
   )
 }
 
-const Time = ({ time, setTime, handleRemoveTime, idx }) => {
+const Time = ({ time, setTime, handleRemoveTime, idx, enabled }) => {
 
   return (
     <div>
@@ -295,27 +303,27 @@ const Time = ({ time, setTime, handleRemoveTime, idx }) => {
           value={time.block ? true : false}
           name={`${idx}-radio-mode`}
           onChange={(b) => setTime({ ...time, block: b ? { division: "", date: new Date(), selected: [] } : null })}>
-          <ToggleButton value={false} id={`${idx}-btn-1`} variant="outline-primary">
+          <ToggleButton disabled={!enabled} value={false} id={`${idx}-btn-1`} variant="outline-primary">
             Time
           </ToggleButton>
-          <ToggleButton value={true} id={`${idx}-btn-2`} variant="outline-primary">
+          <ToggleButton disabled={!enabled} value={true} id={`${idx}-btn-2`} variant="outline-primary">
             Block
           </ToggleButton>
         </ToggleButtonGroup>
       </Row>
 
       <Collapse in={time.block}>
-        {!time.block ? <div></div> : <SetBlocks idx={idx} time={time} setTime={setTime} />}
+        {!time.block ? <div></div> : <SetBlocks enabled={enabled} idx={idx} time={time} setTime={setTime} />}
       </Collapse>
 
       <Collapse in={!time.block}>
-        {time.block ? <div></div> : <SetTime idx={idx} time={time} setTime={setTime} />}
+        {time.block ? <div></div> : <SetTime enabled={enabled} idx={idx} time={time} setTime={setTime} />}
       </Collapse>
 
-      <Recurrence idx={idx} time={time} setTime={setTime} />
+      <Recurrence enabled={enabled} idx={idx} time={time} setTime={setTime} />
 
       <Row className="mt-3">
-        <Button onClick={() => handleRemoveTime(idx)} variant="outline-danger" size="sm">Remove {time.block ? 'Block' : 'Time'}</Button>
+        <Button disabled={!enabled} onClick={() => handleRemoveTime(idx)} variant="outline-danger" size="sm">Remove {time.block ? 'Block' : 'Time'}</Button>
       </Row>
 
       <hr />
@@ -327,7 +335,13 @@ const Time = ({ time, setTime, handleRemoveTime, idx }) => {
 export default function Times({ payload, setPayload, search, enabled }) {
 
   const [show, setShow] = useState(false);
-  const [times, setTimes] = useState([]);
+  const [times, setTimes] = useState(
+    payload.start ? [{
+      start: new Date(payload.start.dateTime),
+      end: new Date(payload.end.dateTime),
+      recurrence:getRecurrenceObject(payload.recurrence)
+    }] : []
+  );
 
   const handleAddTime = () => setTimes([...times, {
     block: null,
@@ -406,20 +420,23 @@ export default function Times({ payload, setPayload, search, enabled }) {
                 startDate.setDate( startDate.getDate() + 1 )
               }
             })
-        } else {
-          for (const block of time.block.selected){
-            console.log(block);
+        } else time.block.selected.map( block => {
+          
+          const start = new Date(time.block.date);
+          var [hr, min] = block.start.split(":");
+          start.setHours(hr, min, 0, 0);
 
-          }
-        }
+          const end = new Date(time.block.date);
+          var [hr, min] = block.end.split(":");
+          end.setHours(hr, min, 0, 0);
+
+          setPayload((payload)=>({...payload, times:[...payload.times, {start, end, recurrence:getRecurrenceString(time.recurrence)}]}))
+
+        })
       } else setPayload((payload)=>({...payload, times:[...payload.times, { start: time.start, end: time.end, recurrence: getRecurrenceString(time.recurrence) }]}))
     }
 
   }, [times, setPayload]);
-
-  useEffect(() => {
-    console.log(payload);
-  }, [payload]);
 
   return (
     <div className="mt-3">

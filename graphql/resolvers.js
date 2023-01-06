@@ -323,6 +323,15 @@ module.exports = {
       return events.flat()
     },
 
+    deleteEvent: async (_,{eventId}) => {
+      const resp = await google.calendar("v3").events.delete({
+        calendarId:"primary",
+        eventId,
+        sendNotifications:true
+      });
+      return true
+    },
+
     submitGuess: async (_, { questionId, text }, { user }) => {
       const q = await question.findOne({ _id: questionId });
       const correct = text.toLowerCase() === q.answer.toLowerCase();

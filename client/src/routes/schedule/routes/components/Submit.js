@@ -5,7 +5,7 @@ import { Alert, Button, FormGroup, ListGroup, OverlayTrigger, Popover, Row, Col,
 import { Query } from "../../../../components/GraphQL";
 import Loading from "../../../../components/Loading";
 
-export default function Submit({ payload }) {
+export default function Submit({ payload, edit }) {
 
   const [status, setStatus] = useState({});
   const navigate = useNavigate();
@@ -22,6 +22,8 @@ export default function Submit({ payload }) {
 
   // Validate Payload
   useEffect(() => {
+    if (!payload.times || [payload.times.length, payload.locations.length].includes(0)) return
+    setConflicts();
     setWarnings();
     setErrors();
     let tempErrors = [];
@@ -38,13 +40,6 @@ export default function Submit({ payload }) {
     setWarnings(tempWarnings);
     setErrors(tempErrors)
 
-  }, [payload])
-
-
-  // Check for Conflicts
-  useEffect(() => {
-    if ([payload.times.length, payload.locations.length].includes(0)) return
-    setConflicts();
     Query(`
     query CheckForConflicts($times: [TimeInput!]!, $locations: [EventLocation!], $storage: [String!], $attendees: [Attendee], $tools: [ToolInput!], $materials: [MaterialInput!]) {
       locations:events(times: $times, locations: $locations) {
@@ -101,14 +96,7 @@ export default function Submit({ payload }) {
         else setConflicts(query.data)
       }))
       .catch(err => console.error(err))
-  }, [
-    payload.storage,
-    payload.materials,
-    payload.times,
-    payload.locations,
-    payload.tools,
-    payload.attendees
-  ]);
+  }, [payload]);
 
   const handleSubmit = () => {
     setStatus({ text: "Submitting..." })
