@@ -1,8 +1,0 @@
-baseURL : 'https://bert.thebetalab.org'
-languageCode : 'en-us'
-title : 'Bert Documentation'
-theme : 'hugo-book'
-disableKinds : ['taxonomy', 'taxonomyTerm']
-params:
-  BookTheme : 'dark'
-  bertLink: "https://bert.thebetalab.org"

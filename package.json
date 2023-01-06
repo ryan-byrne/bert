@@ -21,9 +21,11 @@
     "path": "^0.12.7"
   },
   "devDependencies": {
+    "autoprefixer": "^10.4.13",
     "eslint": "^8.23.0",
     "eslint-plugin-react": "^7.31.1",
     "http-proxy-middleware": "^2.0.6",
-    "nodemon": "^2.0.19"
+    "nodemon": "^2.0.19",
+    "postcss-cli": "^10.1.0"
   }
 }
