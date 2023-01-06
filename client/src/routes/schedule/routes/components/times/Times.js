@@ -3,6 +3,13 @@ import { Row, Button, Alert, Collapse, FormGroup, Col, ButtonGroup, ToggleButton
 import { Query } from "../../../../../components/GraphQL";
 import Loading from "../../../../../components/Loading";
 
+const getRecurrenceString = (recurrence) => {
+  if (!recurrence) return []
+  else return [
+    `RRULE:WEEKLY;UNTIL=${recurrence.until.toISOString().replace(/[-:.]/g, '').split("T")[0]};INTERVAL=${recurrence.interval === 'weekly' ? '1' : '2'}`
+  ]
+}
+
 const getFormDateString = (date) => {
   return date.getFullYear() + "-" + (date.getMonth() + 1).toString().padStart(2, "0") + "-" + date.getDate().toString().padStart(2, "0")
 }
@@ -182,6 +189,22 @@ const SetBlocks = ({ idx, time, setTime }) => {
 
   const handleUSBlockSelect = (selected) => setTime({ ...time, block: { ...time.block, selected } });
 
+
+  const usBlocks = ['A','B','C','D','E','F']
+    .map( l => ['1','2'].map(n=>`${l}${n}`))
+    .flat()
+    .concat( [
+      'Advising', 
+      'Office Hours', 
+      'Senior Speakers', 
+      'Peer', 
+      'Office Hours',
+      'Affinity',
+      'Morning Meeting',
+      'Grade Meeting',
+      'Co-Curricular'
+    ] )
+
   return (
     !time.block ? null :
       <div>
@@ -204,16 +227,15 @@ const SetBlocks = ({ idx, time, setTime }) => {
 
         <Collapse in={time.block.division !== ""}>
           <Form.Group className="mt-3">
-            <FloatingLabel label="Select a Date">
+            <FloatingLabel label={`Select a ${time.recurrence ? 'Start' : ""} Date`}>
               <Form.Control type="date" value={getFormDateString(time.block.date)} onChange={(e) => setTime({ ...time, block: { ...time.block, selected: [], date: handleDateSelect(e) } })} />
             </FloatingLabel>
           </Form.Group>
         </Collapse>
 
         <Collapse in={time.block.division === 'middle'}>
-          <div>
-            {
-              time.block.division !== 'middle' ? null :
+        {
+              time.block.division !== 'middle'? <div></div> :
               !options ? <Loading>Loading Middle School Blocks...</Loading> :
               options.length === 0 ? <Alert variant="warning" className="mt-1">There are no classes today.</Alert> :
               <Form.Select className="mt-1" multiple onChange={handleMSBlockSelect} id={`ms-blocks-${idx}`}>
@@ -226,30 +248,36 @@ const SetBlocks = ({ idx, time, setTime }) => {
                 }
               </Form.Select>
             }
-          </div>
         </Collapse>
 
         <Collapse in={time.block.division === 'upper'}>
-          <div>
+        {
+          time.block.division !== 'upper'? <div></div> :
+          !options ? <Loading>Loading Upper School Blocks...</Loading> :
+          options.length === 0 ? <Alert variant="warning" className="mt-1">There are no classes today.</Alert> :
+          <ToggleButtonGroup
+            as={Row}
+            xs={6}
+            type="checkbox" 
+            className="mt-1 text-center"
+            name={`us-block-select-${idx}`} 
+            onChange={handleUSBlockSelect}>
             {
-              time.block.division !== 'upper' ? null :
-              !options ? <Loading>Loading Upper School Blocks...</Loading> :
-              options.length === 0 ? <Alert variant="warning" className="mt-1">There are no classes today.</Alert> :
-              <ToggleButtonGroup vertical type="checkbox" className="mt-1" name={`us-block-select-${idx}`} onChange={handleUSBlockSelect}>
-                {
-                  options.map(b => 
-                    <ToggleButton
-                      id={`${idx}-${b}`}
-                      value={b}
-                      size="sm"
-                      variant="outline-primary">
-                      {b}
-                    </ToggleButton>
-                  )
-                }
-              </ToggleButtonGroup>
+              usBlocks.map((option, idx)=>
+              <ToggleButton
+                as={Col}
+                size="sm"
+                id={`${option}-${idx}`}
+                key={idx}
+                value={option}
+                variant="outline-primary" 
+                disabled={!time.recurrence && !options.map(o=>o.name).includes(option)}>
+                {option}
+              </ToggleButton>
+              )
             }
-          </div>
+          </ToggleButtonGroup>
+            }
         </Collapse>
 
       </div>
@@ -333,10 +361,12 @@ export default function Times({ payload, setPayload, search, enabled }) {
 
   useEffect(() => {
 
-    let payloadTimes = []
+    setPayload((payload)=>({...payload, times:[]}))
 
     for (const time of times){
+
       if (time.block){
+
         if (time.block.division === 'upper'){
           Query(`
             query Query($division: [Division!], $name: [String!]) {
@@ -353,33 +383,36 @@ export default function Times({ payload, setPayload, search, enabled }) {
           })
             .then(resp => resp.json())
             .then(results => {
-              // Given blocks, find times on a given day;
+              // Start Day
               const startDate = new Date(time.block.date);
               const endDate = new Date(time.block.date);
-              endDate.setDate(startDate.getDate() + time.recurrence ? 14 : 1);
-              while (startDate < endDate) {
-                const blocks = results.data.blocks
-                  .filter( b => (b.week === getWeek(startDate)) && (b.day === getDayName(startDate)))
-                  .map( block => {
+              endDate.setDate( endDate.getDate() + (time.recurring ? 14 : 1) );
+              // If until date,
+              while ( startDate < endDate ) {
+                const blocks = results.data.blocks.filter(
+                  block => getWeek(startDate) === block.week && getDayName(startDate) === block.day
+                ).map(
+                  block => {
                     const start = new Date(startDate);
-                    const end = new Date(startDate);
                     var [hr, min] = block.start.split(":");
                     start.setHours(hr, min, 0, 0);
+                    const end = new Date(startDate);
                     var [hr, min] = block.end.split(":");
-                    end.setHours(hr, min, 0, 0);
-                    return ({start, end, recurrence:time.recurrence})
-                  })
-                console.log(blocks);
-                setPayload((payload)=>({...payload, times:[payload.times, ...blocks]}))
+                    end.setHours(hr, min, 0, 0)
+                    return ({start, end, recurrence:getRecurrenceString(time.recurrence)})
+                  }
+                )
+                setPayload((payload)=>({...payload, times:[...payload.times, ...blocks.flat()]}))
                 startDate.setDate( startDate.getDate() + 1 )
               }
             })
         } else {
           for (const block of time.block.selected){
+            console.log(block);
 
           }
         }
-      } else payloadTimes.push({ start: time.start, end: time.end, recurrence: time.recurrence })
+      } else setPayload((payload)=>({...payload, times:[...payload.times, { start: time.start, end: time.end, recurrence: getRecurrenceString(time.recurrence) }]}))
     }
 
   }, [times, setPayload]);
@@ -410,29 +443,3 @@ export default function Times({ payload, setPayload, search, enabled }) {
     </div>
   )
 }
-
-/*
-
-        <Collapse in={time.block.division === 'upper'}>
-          <div className="text-center">
-            {
-              time.block.division !== 'upper' ? null :
-              !options ? <Loading>Loading Upper School Blocks...</Loading> :
-                options.length === 0 ? <Alert variant="warning" className="mt-1">There are no classes today.</Alert> :
-                  <ToggleButtonGroup vertical type="checkbox" className="mt-1" name={`us-block-select-${idx}`} onChange={handleUSBlockSelect}>
-                    {
-                      options.map(b => 
-                        <ToggleButton
-                          id={`${idx}-${b}`}
-                          value={b}
-                          size="sm"
-                          variant="outline-primary">
-                          {b}
-                        </ToggleButton>
-                      )
-                    }
-                  </ToggleButtonGroup>
-            }
-          </div>
-        </Collapse>
-*/
